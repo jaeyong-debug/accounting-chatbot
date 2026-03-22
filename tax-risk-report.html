@@ -1,0 +1,1062 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>레진엔터테인먼트 2026 세무리스크 분석 보고서</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/recharts/2.8.0/Recharts.js"></script>
+<style>
+  :root {
+    --navy: #0d1b2e;
+    --navy2: #132338;
+    --navy3: #1a2f4a;
+    --accent: #3b82f6;
+    --accent2: #60a5fa;
+    --gold: #f59e0b;
+    --red: #ef4444;
+    --orange: #f97316;
+    --green: #22c55e;
+    --text: #e2e8f0;
+    --text2: #94a3b8;
+    --border: #1e3a5f;
+    --sidebar-w: 260px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif; background: var(--navy); color: var(--text); min-height: 100vh; }
+
+  /* SIDEBAR */
+  #sidebar {
+    position: fixed; left: 0; top: 0; bottom: 0; width: var(--sidebar-w);
+    background: var(--navy2); border-right: 1px solid var(--border);
+    overflow-y: auto; z-index: 100; padding: 0 0 40px;
+    transition: transform 0.3s;
+  }
+  .sidebar-logo {
+    padding: 24px 20px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .sidebar-logo .co { font-size: 12px; color: var(--accent2); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 4px; }
+  .sidebar-logo h2 { font-size: 14px; font-weight: 700; line-height: 1.4; color: var(--text); }
+  .sidebar-logo .year { font-size: 12px; color: var(--text2); margin-top: 2px; }
+  .nav-section { padding: 16px 0 0; }
+  .nav-section-title { font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text2); padding: 0 20px 8px; }
+  .nav-item {
+    display: block; padding: 9px 20px; font-size: 13px; color: var(--text2);
+    cursor: pointer; border-left: 3px solid transparent; transition: all 0.15s;
+    text-decoration: none;
+  }
+  .nav-item:hover { color: var(--accent2); background: rgba(59,130,246,0.08); border-left-color: var(--accent); }
+  .nav-item.active { color: var(--accent2); background: rgba(59,130,246,0.12); border-left-color: var(--accent); font-weight: 600; }
+  .nav-item .risk-badge {
+    display: inline-block; font-size: 9px; padding: 1px 5px; border-radius: 3px;
+    margin-left: 6px; vertical-align: middle; font-weight: 700;
+  }
+  .badge-high { background: rgba(239,68,68,0.2); color: #fca5a5; }
+  .badge-urgent { background: rgba(239,68,68,0.3); color: #f87171; animation: pulse 1.5s infinite; }
+  .badge-mid { background: rgba(249,115,22,0.2); color: #fdba74; }
+  .badge-low { background: rgba(34,197,94,0.2); color: #86efac; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.6} }
+
+  /* MAIN */
+  #main {
+    margin-left: var(--sidebar-w);
+    min-height: 100vh;
+  }
+  .topbar {
+    background: var(--navy2); border-bottom: 1px solid var(--border);
+    padding: 16px 40px; position: sticky; top: 0; z-index: 50;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .topbar h1 { font-size: 17px; font-weight: 700; color: var(--text); }
+  .topbar .meta { font-size: 12px; color: var(--text2); }
+  .topbar .print-btn {
+    font-size: 12px; padding: 6px 14px; border: 1px solid var(--border);
+    background: transparent; color: var(--text2); border-radius: 6px; cursor: pointer;
+    transition: all 0.2s;
+  }
+  .topbar .print-btn:hover { border-color: var(--accent); color: var(--accent2); }
+
+  .content { padding: 40px; max-width: 1100px; }
+
+  /* SECTIONS */
+  .section { margin-bottom: 60px; scroll-margin-top: 80px; }
+  .section-header {
+    display: flex; align-items: center; gap: 12px; margin-bottom: 24px;
+    padding-bottom: 12px; border-bottom: 1px solid var(--border);
+  }
+  .section-icon { font-size: 22px; }
+  .section-title { font-size: 20px; font-weight: 700; color: var(--text); }
+  .section-sub { font-size: 13px; color: var(--text2); margin-top: 2px; }
+
+  /* SUMMARY CARDS */
+  .cards-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px; }
+  .card {
+    background: var(--navy3); border: 1px solid var(--border); border-radius: 12px;
+    padding: 20px; text-align: center;
+  }
+  .card .label { font-size: 11px; color: var(--text2); letter-spacing: 0.5px; margin-bottom: 8px; }
+  .card .value { font-size: 26px; font-weight: 800; }
+  .card .sub { font-size: 12px; color: var(--text2); margin-top: 4px; }
+  .card.red { border-color: rgba(239,68,68,0.4); }
+  .card.red .value { color: #f87171; }
+  .card.orange { border-color: rgba(249,115,22,0.4); }
+  .card.orange .value { color: #fb923c; }
+  .card.gold { border-color: rgba(245,158,11,0.4); }
+  .card.gold .value { color: #fbbf24; }
+  .card.blue { border-color: rgba(59,130,246,0.4); }
+  .card.blue .value { color: #60a5fa; }
+
+  /* CHART CONTAINERS */
+  .chart-box {
+    background: var(--navy3); border: 1px solid var(--border); border-radius: 12px;
+    padding: 24px; margin-bottom: 24px;
+  }
+  .chart-title { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+  .chart-desc { font-size: 12px; color: var(--text2); margin-bottom: 20px; }
+  .chart-wrap { width: 100%; }
+
+  /* RISK TABLE */
+  .risk-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .risk-table th {
+    background: rgba(59,130,246,0.15); color: var(--accent2); font-size: 11px;
+    letter-spacing: 0.5px; padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--border);
+  }
+  .risk-table td { padding: 12px 14px; border-bottom: 1px solid rgba(30,58,95,0.5); vertical-align: top; }
+  .risk-table tr:hover td { background: rgba(59,130,246,0.05); }
+  .risk-id { font-weight: 700; color: var(--accent2); white-space: nowrap; }
+  .level-pill {
+    display: inline-block; padding: 3px 8px; border-radius: 20px; font-size: 11px; font-weight: 700;
+  }
+  .level-high { background: rgba(239,68,68,0.2); color: #fca5a5; border: 1px solid rgba(239,68,68,0.3); }
+  .level-urgent { background: rgba(239,68,68,0.3); color: #f87171; border: 1px solid rgba(239,68,68,0.5); }
+  .level-mid { background: rgba(249,115,22,0.2); color: #fdba74; border: 1px solid rgba(249,115,22,0.3); }
+  .level-low { background: rgba(34,197,94,0.2); color: #86efac; border: 1px solid rgba(34,197,94,0.3); }
+  .amount { font-weight: 700; color: var(--gold); white-space: nowrap; }
+
+  /* DETAIL CARDS */
+  .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .detail-card {
+    background: var(--navy3); border: 1px solid var(--border); border-radius: 12px; padding: 20px;
+  }
+  .detail-card.urgent { border-color: rgba(239,68,68,0.5); }
+  .detail-card .dc-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .detail-card .dc-id { font-size: 12px; font-weight: 700; color: var(--accent2); }
+  .detail-card .dc-title { font-size: 14px; font-weight: 700; color: var(--text); }
+  .detail-card .dc-amount { font-size: 13px; color: var(--gold); font-weight: 700; }
+  .detail-card ul { list-style: none; padding: 0; }
+  .detail-card ul li {
+    font-size: 12px; color: var(--text2); padding: 5px 0 5px 14px;
+    position: relative; border-bottom: 1px solid rgba(30,58,95,0.3);
+  }
+  .detail-card ul li:last-child { border-bottom: none; }
+  .detail-card ul li::before { content: '›'; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
+  .detail-card .action-title { font-size: 11px; color: var(--accent2); letter-spacing: 0.5px; text-transform: uppercase; margin: 12px 0 6px; }
+
+  /* CHECKLIST */
+  .checklist { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .check-group { background: var(--navy3); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+  .check-group h4 { font-size: 13px; font-weight: 700; color: var(--accent2); margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
+  .check-item { display: flex; align-items: flex-start; gap: 10px; padding: 7px 0; border-bottom: 1px solid rgba(30,58,95,0.3); font-size: 12px; color: var(--text2); }
+  .check-item:last-child { border-bottom: none; }
+  .check-item .cb { width: 16px; height: 16px; border: 2px solid var(--border); border-radius: 3px; flex-shrink: 0; margin-top: 1px; cursor: pointer; transition: all 0.2s; }
+  .check-item .cb.done { background: var(--accent); border-color: var(--accent); }
+  .check-item .cb.done::after { content: '✓'; display: block; color: white; font-size: 10px; text-align: center; line-height: 12px; }
+
+  /* TIMELINE */
+  .timeline { position: relative; padding-left: 28px; }
+  .timeline::before { content: ''; position: absolute; left: 8px; top: 0; bottom: 0; width: 2px; background: var(--border); }
+  .tl-item { position: relative; margin-bottom: 24px; }
+  .tl-dot {
+    position: absolute; left: -24px; top: 4px; width: 14px; height: 14px;
+    border-radius: 50%; border: 2px solid var(--navy3); background: var(--accent);
+  }
+  .tl-dot.urgent { background: var(--red); }
+  .tl-dot.warning { background: var(--orange); }
+  .tl-month { font-size: 12px; font-weight: 700; color: var(--accent2); margin-bottom: 4px; }
+  .tl-tasks { background: var(--navy3); border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; }
+  .tl-task { font-size: 12px; color: var(--text2); padding: 4px 0; display: flex; align-items: center; gap: 8px; }
+  .tl-tag {
+    font-size: 10px; padding: 2px 6px; border-radius: 3px; white-space: nowrap; font-weight: 700;
+  }
+  .tl-tag.urgent { background: rgba(239,68,68,0.2); color: #fca5a5; }
+  .tl-tag.normal { background: rgba(59,130,246,0.2); color: #93c5fd; }
+  .tl-tag.deadline { background: rgba(245,158,11,0.2); color: #fcd34d; }
+
+  /* HEATMAP */
+  .heatmap-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+  .hm-cell {
+    background: var(--navy2); border: 1px solid var(--border); border-radius: 8px;
+    padding: 12px 10px; text-align: center; cursor: default; transition: transform 0.15s;
+  }
+  .hm-cell:hover { transform: translateY(-2px); }
+  .hm-cell .hm-id { font-size: 10px; font-weight: 700; color: var(--text2); margin-bottom: 4px; }
+  .hm-cell .hm-name { font-size: 11px; color: var(--text); margin-bottom: 6px; line-height: 1.3; }
+  .hm-cell .hm-amt { font-size: 12px; font-weight: 700; }
+  .hm-high { border-color: rgba(239,68,68,0.5); background: rgba(239,68,68,0.08); }
+  .hm-high .hm-amt { color: #f87171; }
+  .hm-urgent { border-color: rgba(239,68,68,0.7); background: rgba(239,68,68,0.15); }
+  .hm-urgent .hm-amt { color: #ef4444; }
+  .hm-mid { border-color: rgba(249,115,22,0.4); background: rgba(249,115,22,0.06); }
+  .hm-mid .hm-amt { color: #fb923c; }
+  .hm-low { border-color: rgba(34,197,94,0.3); background: rgba(34,197,94,0.04); }
+  .hm-low .hm-amt { color: #4ade80; }
+
+  /* PRINT */
+  @media print {
+    #sidebar { display: none !important; }
+    #main { margin-left: 0 !important; }
+    .topbar { position: static !important; }
+    .topbar .print-btn { display: none; }
+    body { background: white; color: black; }
+    .chart-box, .detail-card, .card, .check-group { break-inside: avoid; }
+    .content { padding: 20px; }
+  }
+
+  /* MOBILE */
+  @media (max-width: 768px) {
+    #sidebar { transform: translateX(-100%); }
+    #sidebar.open { transform: translateX(0); }
+    #main { margin-left: 0; }
+    .topbar { padding: 12px 16px; }
+    .topbar h1 { font-size: 13px; }
+    .content { padding: 16px; }
+    .cards-grid { grid-template-columns: 1fr 1fr; }
+    .detail-grid { grid-template-columns: 1fr; }
+    .checklist { grid-template-columns: 1fr; }
+    .heatmap-grid { grid-template-columns: repeat(2, 1fr); }
+    .hamburger { display: flex !important; }
+  }
+  .hamburger {
+    display: none; flex-direction: column; gap: 4px; cursor: pointer;
+    padding: 8px; border: 1px solid var(--border); border-radius: 6px; background: transparent;
+  }
+  .hamburger span { width: 18px; height: 2px; background: var(--text2); border-radius: 1px; }
+  .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 99; }
+  .overlay.open { display: block; }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--navy); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+</style>
+</head>
+<body>
+
+<div class="overlay" id="overlay" onclick="closeSidebar()"></div>
+
+<!-- SIDEBAR -->
+<nav id="sidebar">
+  <div class="sidebar-logo">
+    <div class="co">Lezhin Entertainment</div>
+    <h2>세무리스크 분석 보고서</h2>
+    <div class="year">2026년 / 기밀문서</div>
+  </div>
+  <div class="nav-section">
+    <div class="nav-section-title">개요</div>
+    <a class="nav-item active" onclick="scrollTo('s-summary')">📊 종합 요약 대시보드</a>
+    <a class="nav-item" onclick="scrollTo('s-heatmap')">🗺️ 리스크 히트맵</a>
+    <a class="nav-item" onclick="scrollTo('s-barchart')">💰 세액 영향 분석</a>
+  </div>
+  <div class="nav-section">
+    <div class="nav-section-title">리스크 상세</div>
+    <a class="nav-item" onclick="scrollTo('s-table')">📋 전체 리스크 목록</a>
+    <a class="nav-item" onclick="scrollTo('s-r01')">R-01 이전가격 <span class="risk-badge badge-high">높음</span></a>
+    <a class="nav-item" onclick="scrollTo('s-r02')">R-02 부가세 영세율 <span class="risk-badge badge-high">높음</span></a>
+    <a class="nav-item" onclick="scrollTo('s-r03')">R-03 외국납부세액 <span class="risk-badge badge-high">높음</span></a>
+    <a class="nav-item" onclick="scrollTo('s-r07')">R-07 일본법인 합병 <span class="risk-badge badge-urgent">긴급</span></a>
+    <a class="nav-item" onclick="scrollTo('s-r04')">R-04 공동경비 안분 <span class="risk-badge badge-mid">중간</span></a>
+    <a class="nav-item" onclick="scrollTo('s-r05')">R-05 웹툰 세액공제 <span class="risk-badge badge-mid">중간</span></a>
+    <a class="nav-item" onclick="scrollTo('s-r06')">R-06 법인세 세무조정 <span class="risk-badge badge-mid">중간</span></a>
+    <a class="nav-item" onclick="scrollTo('s-r08')">R-08 인건비 배분 <span class="risk-badge badge-mid">중간</span></a>
+    <a class="nav-item" onclick="scrollTo('s-r09')">R-09 원천세/VAT <span class="risk-badge badge-low">낮음</span></a>
+    <a class="nav-item" onclick="scrollTo('s-r10')">R-10 결손금 이월공제 <span class="risk-badge badge-low">낮음</span></a>
+  </div>
+  <div class="nav-section">
+    <div class="nav-section-title">실행계획</div>
+    <a class="nav-item" onclick="scrollTo('s-timeline')">📅 분기별 타임라인</a>
+    <a class="nav-item" onclick="scrollTo('s-checklist')">✅ 대응 체크리스트</a>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<div id="main">
+  <div class="topbar">
+    <button class="hamburger" id="hamburger" onclick="toggleSidebar()">
+      <span></span><span></span><span></span>
+    </button>
+    <h1>🏢 레진엔터테인먼트 2026 세무리스크 분석 보고서</h1>
+    <div style="display:flex;align-items:center;gap:12px">
+      <span class="meta">기준일: 2026.03.22 &nbsp;|&nbsp; CONFIDENTIAL</span>
+      <button class="print-btn" onclick="window.print()">🖨️ 인쇄</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- SUMMARY -->
+    <section class="section" id="s-summary">
+      <div class="section-header">
+        <span class="section-icon">📊</span>
+        <div>
+          <div class="section-title">종합 요약 대시보드</div>
+          <div class="section-sub">2026년 세무리스크 전체 현황 — 총 10개 항목, 추정 노출 152~318억원</div>
+        </div>
+      </div>
+      <div class="cards-grid">
+        <div class="card red">
+          <div class="label">총 추정 세액 노출</div>
+          <div class="value">152~318억</div>
+          <div class="sub">원화 기준</div>
+        </div>
+        <div class="card orange">
+          <div class="label">높음 / 긴급 리스크</div>
+          <div class="value">4건</div>
+          <div class="sub">즉시 대응 필요</div>
+        </div>
+        <div class="card gold">
+          <div class="label">중간 리스크</div>
+          <div class="value">4건</div>
+          <div class="sub">분기 내 대응</div>
+        </div>
+        <div class="card blue">
+          <div class="label">낮음 리스크</div>
+          <div class="value">2건</div>
+          <div class="sub">모니터링 유지</div>
+        </div>
+      </div>
+      <div id="react-summary"></div>
+    </section>
+
+    <!-- HEATMAP -->
+    <section class="section" id="s-heatmap">
+      <div class="section-header">
+        <span class="section-icon">🗺️</span>
+        <div>
+          <div class="section-title">리스크 히트맵</div>
+          <div class="section-sub">발생가능성 × 영향도 매트릭스 — 색상 강도가 높을수록 즉시 대응 필요</div>
+        </div>
+      </div>
+      <div class="chart-box">
+        <div class="chart-title">10대 세무리스크 히트맵</div>
+        <div class="chart-desc">위험도(색상)와 추정 노출 규모를 한눈에 확인</div>
+        <div class="heatmap-grid">
+          <div class="hm-cell hm-urgent">
+            <div class="hm-id">R-07</div>
+            <div class="hm-name">일본법인 합병</div>
+            <div class="hm-amt">30~80억 ⚠️</div>
+          </div>
+          <div class="hm-cell hm-high">
+            <div class="hm-id">R-01</div>
+            <div class="hm-name">이전가격 TP</div>
+            <div class="hm-amt">50~100억</div>
+          </div>
+          <div class="hm-cell hm-high">
+            <div class="hm-id">R-02</div>
+            <div class="hm-name">부가세 영세율</div>
+            <div class="hm-amt">30~50억</div>
+          </div>
+          <div class="hm-cell hm-high">
+            <div class="hm-id">R-03</div>
+            <div class="hm-name">외국납부세액</div>
+            <div class="hm-amt">20~40억</div>
+          </div>
+          <div class="hm-cell hm-mid">
+            <div class="hm-id">R-04</div>
+            <div class="hm-name">공동경비 안분</div>
+            <div class="hm-amt">7~15억</div>
+          </div>
+          <div class="hm-cell hm-mid">
+            <div class="hm-id">R-05</div>
+            <div class="hm-name">웹툰 세액공제</div>
+            <div class="hm-amt">5~10억</div>
+          </div>
+          <div class="hm-cell hm-mid">
+            <div class="hm-id">R-06</div>
+            <div class="hm-name">법인세 세무조정</div>
+            <div class="hm-amt">5~10억</div>
+          </div>
+          <div class="hm-cell hm-mid">
+            <div class="hm-id">R-08</div>
+            <div class="hm-name">인건비/간접비 배분</div>
+            <div class="hm-amt">3~7억</div>
+          </div>
+          <div class="hm-cell hm-low">
+            <div class="hm-id">R-09</div>
+            <div class="hm-name">원천세/VAT</div>
+            <div class="hm-amt">1~3억</div>
+          </div>
+          <div class="hm-cell hm-low">
+            <div class="hm-id">R-10</div>
+            <div class="hm-name">결손금 이월공제</div>
+            <div class="hm-amt">1~3억</div>
+          </div>
+        </div>
+      </div>
+      <div id="react-matrix"></div>
+    </section>
+
+    <!-- BAR CHART -->
+    <section class="section" id="s-barchart">
+      <div class="section-header">
+        <span class="section-icon">💰</span>
+        <div>
+          <div class="section-title">세액 영향 분석</div>
+          <div class="section-sub">리스크별 최소~최대 추정 노출 금액 (단위: 억원)</div>
+        </div>
+      </div>
+      <div class="chart-box">
+        <div class="chart-title">리스크별 세액 영향 바차트</div>
+        <div class="chart-desc">최솟값(파랑) + 추가범위(빨강) 스택 구조 — 상단 숫자는 최대 노출액</div>
+        <div id="react-barchart" style="width:100%;height:380px;"></div>
+      </div>
+    </section>
+
+    <!-- TABLE -->
+    <section class="section" id="s-table">
+      <div class="section-header">
+        <span class="section-icon">📋</span>
+        <div>
+          <div class="section-title">전체 리스크 목록</div>
+          <div class="section-sub">10대 세무리스크 통합 현황표</div>
+        </div>
+      </div>
+      <div class="chart-box" style="padding:0;overflow:hidden">
+        <table class="risk-table">
+          <thead>
+            <tr>
+              <th>코드</th>
+              <th>리스크 항목</th>
+              <th>위험도</th>
+              <th>추정 노출</th>
+              <th>주요 쟁점</th>
+              <th>담당 기한</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="risk-id">R-07</td>
+              <td>일본법인 합병</td>
+              <td><span class="level-pill level-urgent">긴급/높음</span></td>
+              <td class="amount">30~80억</td>
+              <td style="font-size:12px;color:var(--text2)">적격합병 요건, 과세이연</td>
+              <td style="font-size:12px;color:var(--text2)">2026.03 즉시</td>
+            </tr>
+            <tr>
+              <td class="risk-id">R-01</td>
+              <td>이전가격(TP) JP/US</td>
+              <td><span class="level-pill level-high">높음</span></td>
+              <td class="amount">50~100억</td>
+              <td style="font-size:12px;color:var(--text2)">독립기업 원칙, 정상가격</td>
+              <td style="font-size:12px;color:var(--text2)">2026 Q2</td>
+            </tr>
+            <tr>
+              <td class="risk-id">R-02</td>
+              <td>부가세 영세율 적격성</td>
+              <td><span class="level-pill level-high">높음</span></td>
+              <td class="amount">30~50억</td>
+              <td style="font-size:12px;color:var(--text2)">디지털콘텐츠 영세율 근거</td>
+              <td style="font-size:12px;color:var(--text2)">2026.04.25 예정신고</td>
+            </tr>
+            <tr>
+              <td class="risk-id">R-03</td>
+              <td>외국납부세액공제</td>
+              <td><span class="level-pill level-high">높음</span></td>
+              <td class="amount">20~40억</td>
+              <td style="font-size:12px;color:var(--text2)">공제한도, 안분방식</td>
+              <td style="font-size:12px;color:var(--text2)">2026 Q2</td>
+            </tr>
+            <tr>
+              <td class="risk-id">R-04</td>
+              <td>공동경비 안분</td>
+              <td><span class="level-pill level-mid">중간</span></td>
+              <td class="amount">7~15억</td>
+              <td style="font-size:12px;color:var(--text2)">합리적 배분 기준 설정</td>
+              <td style="font-size:12px;color:var(--text2)">2026 Q2</td>
+            </tr>
+            <tr>
+              <td class="risk-id">R-05</td>
+              <td>웹툰 세액공제</td>
+              <td><span class="level-pill level-mid">중간</span></td>
+              <td class="amount">5~10억</td>
+              <td style="font-size:12px;color:var(--text2)">콘텐츠 제작비 적격 여부</td>
+              <td style="font-size:12px;color:var(--text2)">2026 Q3</td>
+            </tr>
+            <tr>
+              <td class="risk-id">R-06</td>
+              <td>법인세 세무조정</td>
+              <td><span class="level-pill level-mid">중간</span></td>
+              <td class="amount">5~10억</td>
+              <td style="font-size:12px;color:var(--text2)">부인항목, 익금산입 누락</td>
+              <td style="font-size:12px;color:var(--text2)">2026 Q3</td>
+            </tr>
+            <tr>
+              <td class="risk-id">R-08</td>
+              <td>인건비/간접비 배분</td>
+              <td><span class="level-pill level-mid">중간</span></td>
+              <td class="amount">3~7억</td>
+              <td style="font-size:12px;color:var(--text2)">국내·해외 귀속 기준</td>
+              <td style="font-size:12px;color:var(--text2)">2026 Q2</td>
+            </tr>
+            <tr>
+              <td class="risk-id">R-09</td>
+              <td>원천세/VAT</td>
+              <td><span class="level-pill level-low">낮음</span></td>
+              <td class="amount">1~3억</td>
+              <td style="font-size:12px;color:var(--text2)">해외 결제 원천징수 누락</td>
+              <td style="font-size:12px;color:var(--text2)">상시 모니터링</td>
+            </tr>
+            <tr>
+              <td class="risk-id">R-10</td>
+              <td>결손금 이월공제</td>
+              <td><span class="level-pill level-low">낮음</span></td>
+              <td class="amount">1~3억</td>
+              <td style="font-size:12px;color:var(--text2)">공제한도(80%) 초과 관리</td>
+              <td style="font-size:12px;color:var(--text2)">상시 모니터링</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- DETAIL: HIGH/URGENT -->
+    <section class="section" id="s-r07">
+      <div class="section-header">
+        <span class="section-icon">🚨</span>
+        <div>
+          <div class="section-title">긴급 · 높음 리스크 상세</div>
+          <div class="section-sub">즉시 대응이 필요한 4개 항목 — R-07(긴급), R-01, R-02, R-03</div>
+        </div>
+      </div>
+      <div class="detail-grid">
+        <div class="detail-card urgent">
+          <div class="dc-header">
+            <span class="level-pill level-urgent">R-07 긴급</span>
+            <div>
+              <div class="dc-title">일본법인 합병</div>
+              <div class="dc-amount">추정 노출: 30~80억원</div>
+            </div>
+          </div>
+          <div class="action-title">주요 리스크</div>
+          <ul>
+            <li>일본 자회사 합병 시 적격합병 요건 미충족 → 과세이연 불가</li>
+            <li>합병법인 자산 시가평가 차익에 대한 법인세 즉시 과세</li>
+            <li>지분 이전에 따른 양도소득세·증권거래세 중복 과세</li>
+            <li>한일 조세조약 활용 여부 미검토 시 이중과세 위험</li>
+          </ul>
+          <div class="action-title">대응 방안</div>
+          <ul>
+            <li>국내외 세무 전문가 TF 즉시 구성 (3월 내)</li>
+            <li>적격합병 요건 충족 방안 법적 검토 착수</li>
+            <li>사전세무의견서(Ruling) 발급 검토</li>
+            <li>합병 일정별 세금 시뮬레이션 시나리오 분석</li>
+          </ul>
+        </div>
+        <div class="detail-card">
+          <div class="dc-header">
+            <span class="level-pill level-high">R-01 높음</span>
+            <div>
+              <div class="dc-title">이전가격(TP) JP/US</div>
+              <div class="dc-amount">추정 노출: 50~100억원</div>
+            </div>
+          </div>
+          <div class="action-title">주요 리스크</div>
+          <ul>
+            <li>일본·미국 현지법인과의 콘텐츠 라이선스 수수료 정상가격 이탈</li>
+            <li>이전가격 세무조사 시 소득 재계산 및 추징 위험</li>
+            <li>국가별 보고서(CbCR) 제출 의무 미이행 가산세</li>
+            <li>APA(사전가격합의) 미체결로 예측 불가능성 증가</li>
+          </ul>
+          <div class="action-title">대응 방안</div>
+          <ul>
+            <li>독립기업 원칙 기반 이전가격 정책 문서화 착수</li>
+            <li>비교가능 비통제 거래(CUT) 분석 및 TNMM 방법 적용</li>
+            <li>국세청 APA 신청 검토 (2026 Q2)</li>
+            <li>통합 마스터파일·로컬파일 작성</li>
+          </ul>
+        </div>
+        <div class="detail-card" id="s-r02">
+          <div class="dc-header">
+            <span class="level-pill level-high">R-02 높음</span>
+            <div>
+              <div class="dc-title">부가세 영세율 적격성</div>
+              <div class="dc-amount">추정 노출: 30~50억원 | 기한: 4/25</div>
+            </div>
+          </div>
+          <div class="action-title">주요 리스크</div>
+          <ul>
+            <li>해외 이용자 대상 디지털콘텐츠 매출의 영세율 적용 근거 미비</li>
+            <li>용역 공급 장소 판단 오류로 과세 전환 시 부가세 소급 추징</li>
+            <li>예정신고(4/25) 前 영세율 증빙 서류 준비 미흡</li>
+            <li>해외 플랫폼 수수료 역공급 매입세액 정산 누락</li>
+          </ul>
+          <div class="action-title">대응 방안</div>
+          <ul>
+            <li>수출실적명세서 및 외화입금증명서 완비 (4/15까지)</li>
+            <li>B2B·B2C 구분 기준 정립 및 증빙 체계 구축</li>
+            <li>역공급 매입세액 공제 검토 (플랫폼사 확인서 수취)</li>
+            <li>영세율 적용 범위 세무전문가 검토 의뢰</li>
+          </ul>
+        </div>
+        <div class="detail-card" id="s-r03">
+          <div class="dc-header">
+            <span class="level-pill level-high">R-03 높음</span>
+            <div>
+              <div class="dc-title">외국납부세액공제</div>
+              <div class="dc-amount">추정 노출: 20~40억원</div>
+            </div>
+          </div>
+          <div class="action-title">주요 리스크</div>
+          <ul>
+            <li>일본·미국 납부세액의 국내 공제한도 초과분 이월 관리 부재</li>
+            <li>간접외국납부세액 공제 계산 오류 (지분율 기준 미적용)</li>
+            <li>소득원천별 안분계산 미흡으로 공제 누락</li>
+            <li>이월 공제 5년 기산점 관리 누락</li>
+          </ul>
+          <div class="action-title">대응 방안</div>
+          <ul>
+            <li>국가별·소득유형별 외납세 공제 계산 시스템 구축</li>
+            <li>간접외납세 지분율 기준 재검토 및 재계산 (Q2)</li>
+            <li>이월 공제 이력 데이터베이스 정비</li>
+            <li>조세조약 면제·환급 청구 가능성 검토</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- DETAIL: MID -->
+    <section class="section" id="s-r04">
+      <div class="section-header">
+        <span class="section-icon">⚠️</span>
+        <div>
+          <div class="section-title">중간 리스크 상세</div>
+          <div class="section-sub">분기 내 대응이 필요한 4개 항목 — R-04, R-05, R-06, R-08</div>
+        </div>
+      </div>
+      <div class="detail-grid">
+        <div class="detail-card">
+          <div class="dc-header">
+            <span class="level-pill level-mid">R-04 중간</span>
+            <div>
+              <div class="dc-title">공동경비 안분</div>
+              <div class="dc-amount">추정 노출: 7~15억원</div>
+            </div>
+          </div>
+          <div class="action-title">주요 리스크</div>
+          <ul>
+            <li>국내·해외법인 간 공동경비 안분 기준 불명확</li>
+            <li>매출액 기준 안분 미적용으로 세무조정 위험</li>
+            <li>본사 관리비·IT비용의 해외 귀속 근거 서류 부재</li>
+          </ul>
+          <div class="action-title">대응 방안</div>
+          <ul>
+            <li>합리적 배분 기준(매출액·인원수·사용량) 설정 및 문서화</li>
+            <li>법인별 서비스 계약서(용역계약) 체결</li>
+            <li>연간 안분 계산서 작성 및 보관</li>
+          </ul>
+        </div>
+        <div class="detail-card" id="s-r05">
+          <div class="dc-header">
+            <span class="level-pill level-mid">R-05 중간</span>
+            <div>
+              <div class="dc-title">웹툰 세액공제</div>
+              <div class="dc-amount">추정 노출: 5~10억원</div>
+            </div>
+          </div>
+          <div class="action-title">주요 리스크</div>
+          <ul>
+            <li>콘텐츠 제작비 세액공제 적용 기준 요건 미충족 가능성</li>
+            <li>외주 제작비의 공제 대상 여부 해석 불명확</li>
+            <li>문화산업전문회사 지출 증빙 미비</li>
+          </ul>
+          <div class="action-title">대응 방안</div>
+          <ul>
+            <li>콘텐츠 제작비 항목별 공제 적격 여부 전수 검토</li>
+            <li>외주 계약서 및 결과물 납품 증빙 체계 정비</li>
+            <li>문화체육관광부 확인서 수취 절차 수립</li>
+          </ul>
+        </div>
+        <div class="detail-card" id="s-r06">
+          <div class="dc-header">
+            <span class="level-pill level-mid">R-06 중간</span>
+            <div>
+              <div class="dc-title">법인세 세무조정</div>
+              <div class="dc-amount">추정 노출: 5~10억원</div>
+            </div>
+          </div>
+          <div class="action-title">주요 리스크</div>
+          <ul>
+            <li>접대비·기부금 한도 초과 손금 부인 누락</li>
+            <li>감가상각 내용연수 오적용 및 즉시상각 자산 분류 오류</li>
+            <li>지급이자 손금불산입 계산 오류 (업무무관자산 포함)</li>
+          </ul>
+          <div class="action-title">대응 방안</div>
+          <ul>
+            <li>접대비·기부금 한도 계산 자동화 시스템 구축</li>
+            <li>자산별 감가상각 스케줄 전수 검토 (Q3)</li>
+            <li>지급이자 손금불산입 계산 로직 재검토</li>
+          </ul>
+        </div>
+        <div class="detail-card" id="s-r08">
+          <div class="dc-header">
+            <span class="level-pill level-mid">R-08 중간</span>
+            <div>
+              <div class="dc-title">인건비/간접비 배분</div>
+              <div class="dc-amount">추정 노출: 3~7억원</div>
+            </div>
+          </div>
+          <div class="action-title">주요 리스크</div>
+          <ul>
+            <li>해외 파견 인력 급여의 국내·해외 귀속 구분 미흡</li>
+            <li>스톡옵션 행사이익 과세 처리 오류</li>
+            <li>간접비 배분 근거 서류 불충분</li>
+          </ul>
+          <div class="action-title">대응 방안</div>
+          <ul>
+            <li>해외 파견 계약서 기반 급여 귀속 기준 명확화</li>
+            <li>스톡옵션 행사 시 원천징수 절차 매뉴얼 작성</li>
+            <li>간접비 배분 기준 설명서 작성 및 외부 검토</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- DETAIL: LOW -->
+    <section class="section" id="s-r09">
+      <div class="section-header">
+        <span class="section-icon">🔵</span>
+        <div>
+          <div class="section-title">낮음 리스크 상세</div>
+          <div class="section-sub">상시 모니터링 유지 — R-09, R-10</div>
+        </div>
+      </div>
+      <div class="detail-grid">
+        <div class="detail-card" style="grid-column:span 1">
+          <div class="dc-header">
+            <span class="level-pill level-low">R-09 낮음</span>
+            <div>
+              <div class="dc-title">원천세/VAT</div>
+              <div class="dc-amount">추정 노출: 1~3억원</div>
+            </div>
+          </div>
+          <div class="action-title">주요 리스크</div>
+          <ul>
+            <li>해외 콘텐츠 대금 지급 시 원천징수 누락</li>
+            <li>조세조약 적용 오류로 면제 요건 미충족</li>
+            <li>VAT 등록 의무 발생 국가 미신고</li>
+          </ul>
+          <div class="action-title">대응 방안</div>
+          <ul>
+            <li>해외 지급 거래 건별 원천징수 의무 체크리스트 적용</li>
+            <li>국가별 조세조약 적용 현황 매핑 테이블 작성</li>
+          </ul>
+        </div>
+        <div class="detail-card" id="s-r10">
+          <div class="dc-header">
+            <span class="level-pill level-low">R-10 낮음</span>
+            <div>
+              <div class="dc-title">결손금 이월공제</div>
+              <div class="dc-amount">추정 노출: 1~3억원</div>
+            </div>
+          </div>
+          <div class="action-title">주요 리스크</div>
+          <ul>
+            <li>결손금 이월공제 한도(과세표준의 80%) 초과 사용</li>
+            <li>이월결손금 발생 연도 및 소멸 시효 관리 미흡</li>
+            <li>합병 시 피합병법인 결손금 승계 제한 미고려</li>
+          </ul>
+          <div class="action-title">대응 방안</div>
+          <ul>
+            <li>연도별 이월결손금 잔액 현황표 작성·관리</li>
+            <li>10년 소멸 시효 도래 항목 우선 활용 계획 수립</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- TIMELINE -->
+    <section class="section" id="s-timeline">
+      <div class="section-header">
+        <span class="section-icon">📅</span>
+        <div>
+          <div class="section-title">2026년 분기별 타임라인</div>
+          <div class="section-sub">3월~9월 주요 일정 및 대응 과제</div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px">
+        <div>
+          <div class="timeline">
+            <div class="tl-item">
+              <div class="tl-dot urgent"></div>
+              <div class="tl-month">2026년 3월 (현재)</div>
+              <div class="tl-tasks">
+                <div class="tl-task"><span class="tl-tag urgent">긴급</span> R-07 일본법인 합병 TF 구성 착수</div>
+                <div class="tl-task"><span class="tl-tag normal">착수</span> R-01 이전가격 문서화 착수</div>
+                <div class="tl-task"><span class="tl-tag normal">착수</span> R-02 영세율 증빙 서류 준비 시작</div>
+              </div>
+            </div>
+            <div class="tl-item">
+              <div class="tl-dot warning"></div>
+              <div class="tl-month">2026년 4월</div>
+              <div class="tl-tasks">
+                <div class="tl-task"><span class="tl-tag deadline">마감 4/25</span> 부가세 예정신고 (R-02)</div>
+                <div class="tl-task"><span class="tl-tag normal">진행</span> 영세율 적격성 전문가 검토 완료</div>
+                <div class="tl-task"><span class="tl-tag normal">진행</span> R-04 공동경비 안분 기준 확정</div>
+              </div>
+            </div>
+            <div class="tl-item">
+              <div class="tl-dot"></div>
+              <div class="tl-month">2026년 5월</div>
+              <div class="tl-tasks">
+                <div class="tl-task"><span class="tl-tag normal">완료</span> R-03 외납세 재계산 및 이월 정비</div>
+                <div class="tl-task"><span class="tl-tag normal">완료</span> R-04 공동경비 안분 계산서 작성</div>
+                <div class="tl-task"><span class="tl-tag normal">진행</span> R-01 TP 정책 초안 완성</div>
+              </div>
+            </div>
+            <div class="tl-item">
+              <div class="tl-dot"></div>
+              <div class="tl-month">2026년 6월</div>
+              <div class="tl-tasks">
+                <div class="tl-task"><span class="tl-tag normal">준비</span> 세무조사 모의대응 시뮬레이션</div>
+                <div class="tl-task"><span class="tl-tag normal">준비</span> 전 항목 서류 완비 및 내부 검토</div>
+                <div class="tl-task"><span class="tl-tag normal">진행</span> R-07 합병 법적 검토 보고서 완성</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="timeline">
+            <div class="tl-item">
+              <div class="tl-dot warning"></div>
+              <div class="tl-month">2026년 7월</div>
+              <div class="tl-tasks">
+                <div class="tl-task"><span class="tl-tag deadline">마감 7/25</span> 부가세 확정신고 (R-02)</div>
+                <div class="tl-task"><span class="tl-tag normal">완료</span> R-05 웹툰 세액공제 적격 검토</div>
+                <div class="tl-task"><span class="tl-tag normal">완료</span> R-06 법인세 세무조정 항목 정비</div>
+              </div>
+            </div>
+            <div class="tl-item">
+              <div class="tl-dot urgent"></div>
+              <div class="tl-month">2026년 8~9월</div>
+              <div class="tl-tasks">
+                <div class="tl-task"><span class="tl-tag urgent">대응</span> 세무조사 예정 기간 (전 항목)</div>
+                <div class="tl-task"><span class="tl-tag urgent">대응</span> R-01 이전가격 조사 집중 대응</div>
+                <div class="tl-task"><span class="tl-tag normal">유지</span> R-09·R-10 모니터링 지속</div>
+              </div>
+            </div>
+            <div class="tl-item">
+              <div class="tl-dot"></div>
+              <div class="tl-month">2026년 10~12월</div>
+              <div class="tl-tasks">
+                <div class="tl-task"><span class="tl-tag normal">결산</span> 세무조사 결과 대응 및 이의신청</div>
+                <div class="tl-task"><span class="tl-tag normal">준비</span> 2027년 세무리스크 재평가</div>
+                <div class="tl-task"><span class="tl-tag normal">준비</span> APA 신청 서류 최종 완성</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CHECKLIST -->
+    <section class="section" id="s-checklist">
+      <div class="section-header">
+        <span class="section-icon">✅</span>
+        <div>
+          <div class="section-title">대응 체크리스트</div>
+          <div class="section-sub">항목 클릭 시 완료 표시 — 상태는 브라우저 내 임시 저장</div>
+        </div>
+      </div>
+      <div class="checklist">
+        <div class="check-group">
+          <h4>🚨 즉시 (3월 내)</h4>
+          <div class="check-item"><div class="cb" onclick="toggleCheck(this)"></div>R-07 일본법인 합병 TF 구성 및 외부 세무전문가 선임</div>
+          <div class="check-item"><div class="cb" onclick="toggleCheck(this)"></div>R-01 이전가격 문서화 작업 착수 (마스터파일·로컬파일)</div>
+          <div class="check-item"><div class="cb" onclick="toggleCheck(this)"></div>R-02 영세율 적용 거래 현황 전수 조사</div>
+          <div class="check-item"><div class="cb" onclick="toggleCheck(this)"></div>R-07 적격합병 요건 충족 가능성 법적 검토 의뢰</div>
+        </div>
+        <div class="check-group">
+          <h4>📅 4월 25일 前</h4>
+          <div class="check-item"><div class="cb" onclick="toggleCheck(this)"></div>R-02 수출실적명세서 및 외화입금증명서 완비</div>
+          <div class="check-item"><div class="cb" onclick="toggleCheck(this)"></div>R-02 역공급 매입세액 공제 확인서 수취</div>
+          <div class="check-item"><div class="cb" onclick="toggleCheck(this)"></div>부가세 예정신고서 작성 완료 및 내부 검토</div>
+          <div class="check-item"><div class="cb" onclick="toggleCheck(this)"></div>R-04 공동경비 안분 기준 확정</div>
+        </div>
+        <div class="check-group">
+          <h4>📋 2분기 (5~6월)</h4>
+          <div class="check-item"><div class="cb" onclick="toggleCheck(this)"></div>R-03 국가별 외납세 공제 계산 시스템 구축</div>
+          <div class="check-item"><div class="cb" onclick="toggleCheck(this)"></div>R-01 APA 신청 검토 및 준비 서류 확인</div>
+          <div class="check-item"><div class="cb" onclick="toggleCheck(this)"></div>R-08 해외 파견 인력 급여 귀속 기준 정립</div>
+          <div class="check-item"><div class="cb" onclick="toggleCheck(this)"></div>세무조사 모의대응 시뮬레이션 실시</div>
+        </div>
+        <div class="check-group">
+          <h4>🔵 상시 모니터링</h4>
+          <div class="check-item"><div class="cb" onclick="toggleCheck(this)"></div>R-09 해외 지급 거래 원천징수 월별 점검</div>
+          <div class="check-item"><div class="cb" onclick="toggleCheck(this)"></div>R-10 연도별 이월결손금 잔액 현황표 관리</div>
+          <div class="check-item"><div class="cb" onclick="toggleCheck(this)"></div>국가별 VAT 등록 의무 발생 모니터링</div>
+          <div class="check-item"><div class="cb" onclick="toggleCheck(this)"></div>조세조약 개정사항 분기별 업데이트</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <div style="text-align:center;padding:40px 0 20px;border-top:1px solid var(--border);margin-top:40px">
+      <div style="font-size:12px;color:var(--text2)">레진엔터테인먼트 세무팀 내부 검토용 — 외부 유출 금지</div>
+      <div style="font-size:11px;color:var(--border);margin-top:6px">기준일: 2026.03.22 | 총 추정 노출: 152~318억원 | 리스크 항목: 10건</div>
+    </div>
+
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+<script type="text/babel">
+
+const { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer,
+        Cell, ScatterChart, Scatter, ZAxis, RadarChart, PolarGrid,
+        PolarAngleAxis, Radar } = Recharts;
+
+const COLORS = {
+  urgent: '#ef4444', high: '#f97316', mid: '#f59e0b', low: '#22c55e',
+  blue: '#3b82f6', blue2: '#60a5fa', navy: '#0d1b2e', text: '#e2e8f0'
+};
+
+const risks = [
+  { id:'R-07', name:'일본법인 합병',    level:'긴급', min:30, max:80,  extra:50 },
+  { id:'R-01', name:'이전가격 TP',      level:'높음', min:50, max:100, extra:50 },
+  { id:'R-02', name:'부가세 영세율',    level:'높음', min:30, max:50,  extra:20 },
+  { id:'R-03', name:'외국납부세액',     level:'높음', min:20, max:40,  extra:20 },
+  { id:'R-04', name:'공동경비 안분',    level:'중간', min:7,  max:15,  extra:8  },
+  { id:'R-05', name:'웹툰 세액공제',    level:'중간', min:5,  max:10,  extra:5  },
+  { id:'R-06', name:'법인세 세무조정',  level:'중간', min:5,  max:10,  extra:5  },
+  { id:'R-08', name:'인건비 배분',      level:'중간', min:3,  max:7,   extra:4  },
+  { id:'R-09', name:'원천세/VAT',       level:'낮음', min:1,  max:3,   extra:2  },
+  { id:'R-10', name:'결손금 이월',      level:'낮음', min:1,  max:3,   extra:2  },
+];
+
+const levelColor = (l) => ({
+  '긴급':'#ef4444','높음':'#f97316','중간':'#f59e0b','낮음':'#22c55e'
+}[l] || '#60a5fa');
+
+// BAR CHART
+function BarChartComp() {
+  const CustomTooltip = ({ active, payload, label }) => {
+    if (!active || !payload) return null;
+    const d = risks.find(r => r.id === label);
+    return (
+      <div style={{background:'#132338',border:'1px solid #1e3a5f',borderRadius:8,padding:'12px 16px',fontSize:12}}>
+        <div style={{color:'#60a5fa',fontWeight:700,marginBottom:4}}>{label} {d?.name}</div>
+        <div style={{color:'#fbbf24'}}>최소: {d?.min}억원</div>
+        <div style={{color:'#f87171'}}>최대: {d?.max}억원</div>
+        <div style={{color:'#94a3b8',marginTop:4}}>위험도: {d?.level}</div>
+      </div>
+    );
+  };
+  return (
+    <ResponsiveContainer width="100%" height={360}>
+      <BarChart data={risks} margin={{top:20,right:20,left:0,bottom:5}}>
+        <XAxis dataKey="id" tick={{fill:'#94a3b8',fontSize:12}} axisLine={{stroke:'#1e3a5f'}} tickLine={false}/>
+        <YAxis tick={{fill:'#94a3b8',fontSize:11}} axisLine={{stroke:'#1e3a5f'}} tickLine={false} unit="억"/>
+        <Tooltip content={<CustomTooltip/>}/>
+        <Legend wrapperStyle={{fontSize:12,color:'#94a3b8'}}/>
+        <Bar dataKey="min" name="최소 노출" stackId="a" radius={[0,0,4,4]}>
+          {risks.map((r,i) => <Cell key={i} fill={levelColor(r.level)} opacity={0.7}/>)}
+        </Bar>
+        <Bar dataKey="extra" name="추가 범위" stackId="a" radius={[4,4,0,0]}>
+          {risks.map((r,i) => <Cell key={i} fill={levelColor(r.level)} opacity={0.35}/>)}
+        </Bar>
+      </BarChart>
+    </ResponsiveContainer>
+  );
+}
+
+// RISK MATRIX (Scatter)
+function MatrixChart() {
+  const matrixData = [
+    { x:4.5, y:4.5, z:100, id:'R-01', label:'이전가격', level:'높음' },
+    { x:4,   y:4.8, z:50,  id:'R-02', label:'부가세',   level:'높음' },
+    { x:4.2, y:4.2, z:40,  id:'R-03', label:'외납세',   level:'높음' },
+    { x:5,   y:5,   z:80,  id:'R-07', label:'합병',     level:'긴급' },
+    { x:3,   y:3.5, z:15,  id:'R-04', label:'공동경비', level:'중간' },
+    { x:3.2, y:2.8, z:10,  id:'R-05', label:'세액공제', level:'중간' },
+    { x:2.8, y:3.2, z:10,  id:'R-06', label:'세무조정', level:'중간' },
+    { x:2.5, y:2.5, z:7,   id:'R-08', label:'인건비',   level:'중간' },
+    { x:1.5, y:2,   z:3,   id:'R-09', label:'원천세',   level:'낮음' },
+    { x:1.8, y:1.5, z:3,   id:'R-10', label:'결손금',   level:'낮음' },
+  ];
+  const CustomDot = (props) => {
+    const { cx, cy, payload } = props;
+    const color = levelColor(payload.level);
+    return (
+      <g>
+        <circle cx={cx} cy={cy} r={Math.sqrt(payload.z)*1.2} fill={color} opacity={0.25}/>
+        <circle cx={cx} cy={cy} r={6} fill={color}/>
+        <text x={cx} y={cy-14} textAnchor="middle" fill="#e2e8f0" fontSize={11} fontWeight={700}>{payload.id}</text>
+        <text x={cx} y={cy+20} textAnchor="middle" fill="#94a3b8" fontSize={10}>{payload.label}</text>
+      </g>
+    );
+  };
+  return (
+    <div style={{background:'#132338',border:'1px solid #1e3a5f',borderRadius:12,padding:24,marginBottom:24}}>
+      <div style={{fontSize:14,fontWeight:700,color:'#e2e8f0',marginBottom:4}}>리스크 매트릭스 (발생가능성 × 영향도)</div>
+      <div style={{fontSize:12,color:'#94a3b8',marginBottom:16}}>버블 크기 = 추정 노출 규모 | X축: 발생가능성, Y축: 영향도 (1~5)</div>
+      <ResponsiveContainer width="100%" height={320}>
+        <ScatterChart margin={{top:10,right:20,bottom:20,left:10}}>
+          <XAxis type="number" dataKey="x" domain={[0.5,5.5]} name="발생가능성" tick={{fill:'#94a3b8',fontSize:11}}
+            label={{value:'발생가능성 →',position:'insideBottom',offset:-5,fill:'#64748b',fontSize:11}}
+            axisLine={{stroke:'#1e3a5f'}} tickLine={false}/>
+          <YAxis type="number" dataKey="y" domain={[0.5,5.5]} name="영향도" tick={{fill:'#94a3b8',fontSize:11}}
+            label={{value:'영향도 ↑',angle:-90,position:'insideLeft',fill:'#64748b',fontSize:11}}
+            axisLine={{stroke:'#1e3a5f'}} tickLine={false}/>
+          <ZAxis dataKey="z" range={[200,2000]}/>
+          <Tooltip content={({active,payload})=> active && payload?.[0] ? (
+            <div style={{background:'#132338',border:'1px solid #1e3a5f',borderRadius:8,padding:'10px 14px',fontSize:12}}>
+              <div style={{color:'#60a5fa',fontWeight:700}}>{payload[0].payload.id} {payload[0].payload.label}</div>
+              <div style={{color:'#fbbf24'}}>영향도: {payload[0].payload.y} / 발생가능성: {payload[0].payload.x}</div>
+              <div style={{color:'#f87171'}}>위험도: {payload[0].payload.level}</div>
+            </div>
+          ) : null}/>
+          <Scatter data={matrixData} shape={<CustomDot/>}/>
+        </ScatterChart>
+      </ResponsiveContainer>
+    </div>
+  );
+}
+
+ReactDOM.render(<BarChartComp/>, document.getElementById('react-barchart'));
+ReactDOM.render(<MatrixChart/>, document.getElementById('react-matrix'));
+</script>
+
+<script>
+function scrollTo(id) {
+  document.getElementById(id)?.scrollIntoView({behavior:'smooth',block:'start'});
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  event.target.classList.add('active');
+  if(window.innerWidth <= 768) closeSidebar();
+}
+function toggleCheck(el) {
+  el.classList.toggle('done');
+}
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('overlay').classList.toggle('open');
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('overlay').classList.remove('open');
+}
+
+// Active nav on scroll
+const sections = ['s-summary','s-heatmap','s-barchart','s-table','s-r07','s-r04','s-timeline','s-checklist'];
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if(e.isIntersecting) {
+      document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+    }
+  });
+}, {threshold:0.3, rootMargin:'-80px 0px 0px 0px'});
+sections.forEach(id => { const el = document.getElementById(id); if(el) observer.observe(el); });
+</script>
+</body>
+</html>
