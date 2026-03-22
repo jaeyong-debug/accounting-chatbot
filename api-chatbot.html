@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>회계팀 AI 챗봇 (Claude API)</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif; background: #f0f2f5; display: flex; height: 100vh; overflow: hidden; }
+
+    /* ── 사이드바 ── */
+    #sidebar { width: 220px; min-width: 220px; background: #1a2236; display: flex; flex-direction: column; transition: transform 0.3s; z-index: 100; }
+    #sidebar-header { padding: 18px 16px 14px; background: #111827; border-bottom: 1px solid #2d3a50; }
+    #sidebar-header .logo { color: #fff; font-size: 15px; font-weight: 700; }
+    #sidebar-header .sub  { color: #8b9ab5; font-size: 11px; margin-top: 3px; }
+    #sidebar-menu { flex: 1; overflow-y: auto; padding: 10px 0; }
+    .menu-item { display: flex; align-items: center; gap: 10px; padding: 11px 18px; color: #b0bdd0; font-size: 13.5px; cursor: pointer; border-left: 3px solid transparent; transition: all 0.18s; }
+    .menu-item:hover { background: #222e45; color: #fff; }
+    .menu-item.active { background: #1e3a5f; color: #5ba8ff; border-left-color: #5ba8ff; font-weight: 600; }
+    .menu-icon { font-size: 17px; width: 22px; text-align: center; }
+    #sidebar-footer { padding: 14px 16px; border-top: 1px solid #2d3a50; }
+    #sidebar-footer a { display: block; color: #8b9ab5; font-size: 11.5px; text-decoration: none; word-break: break-all; }
+    #sidebar-footer a:hover { color: #5ba8ff; }
+
+    /* ── 메인 ── */
+    #main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+    /* ── API 키 배너 ── */
+    #api-banner { background: #1e3a5f; padding: 10px 20px; display: flex; align-items: center; gap: 10px; flex-shrink: 0; border-bottom: 1px solid #2d4a7a; }
+    #api-banner label { color: #93c5fd; font-size: 12.5px; white-space: nowrap; font-weight: 600; }
+    #apiKeyInput { flex: 1; padding: 7px 12px; border: 1px solid #3b5998; border-radius: 8px; background: #0f1f3d; color: #e2e8f0; font-size: 12.5px; font-family: monospace; outline: none; }
+    #apiKeyInput:focus { border-color: #5ba8ff; }
+    #apiKeyInput::placeholder { color: #4a6080; }
+    #saveKeyBtn { background: #2563eb; color: #fff; border: none; padding: 7px 14px; border-radius: 8px; font-size: 12.5px; cursor: pointer; white-space: nowrap; font-family: inherit; }
+    #saveKeyBtn:hover { background: #1d4ed8; }
+    #keyStatus { font-size: 11.5px; white-space: nowrap; }
+    .status-ok  { color: #34d399; }
+    .status-err { color: #f87171; }
+    .status-none { color: #6b7280; }
+
+    /* ── 헤더 ── */
+    #topbar { background: #fff; padding: 0 20px; height: 52px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #e5e8ed; flex-shrink: 0; }
+    #hamburger { display: none; cursor: pointer; font-size: 22px; color: #374151; background: none; border: none; }
+    #topbar-title { font-size: 15px; font-weight: 700; color: #111827; }
+    #topbar-sub { font-size: 12px; color: #9ca3af; margin-left: 8px; }
+    #model-badge { background: #f0fdf4; color: #166534; font-size: 11.5px; font-weight: 600; padding: 3px 10px; border-radius: 20px; border: 1px solid #bbf7d0; }
+
+    /* ── 채팅 ── */
+    #chatArea { flex: 1; overflow-y: auto; padding: 18px 20px; display: flex; flex-direction: column; gap: 12px; }
+    .msg { display: flex; gap: 10px; max-width: 84%; }
+    .msg.bot  { align-self: flex-start; }
+    .msg.user { align-self: flex-end; flex-direction: row-reverse; }
+    .avatar { width: 34px; height: 34px; border-radius: 50%; background: #2563eb; color: #fff; font-size: 16px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+    .bubble { padding: 11px 15px; border-radius: 16px; font-size: 13.5px; line-height: 1.7; max-width: 100%; }
+    .msg.bot  .bubble { background: #fff; color: #1f2937; border-radius: 4px 16px 16px 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+    .msg.user .bubble { background: #2563eb; color: #fff; border-radius: 16px 4px 16px 16px; }
+    .tag { display: inline-block; background: #eff6ff; color: #1d4ed8; font-size: 11px; padding: 2px 7px; border-radius: 10px; margin: 2px 2px 0 0; }
+    table { border-collapse: collapse; width: 100%; margin: 6px 0; }
+    td { padding: 5px 8px; border: 1px solid #e5e7eb; font-size: 12.5px; }
+    th { padding: 6px 8px; border: 1px solid #dbeafe; background: #eff6ff; font-weight: 600; font-size: 12.5px; }
+    .info-box { background: #fffbeb; border-left: 3px solid #f59e0b; padding: 8px 12px; margin-top: 8px; border-radius: 0 8px 8px 0; font-size: 12.5px; color: #78350f; }
+
+    /* 타이핑 인디케이터 */
+    .typing-dots { display: flex; gap: 4px; align-items: center; padding: 8px 4px; }
+    .typing-dots span { width: 8px; height: 8px; background: #9ca3af; border-radius: 50%; animation: bounce 1.2s infinite; }
+    .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes bounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-6px)} }
+
+    /* ── 퀵버튼 ── */
+    #quickArea { padding: 10px 20px 0; flex-shrink: 0; }
+    #quickLabel { font-size: 11.5px; color: #9ca3af; margin-bottom: 6px; }
+    #quickBtns { display: flex; flex-wrap: wrap; gap: 7px; }
+    .qbtn { background: #fff; border: 1px solid #d1d5db; color: #374151; font-size: 12.5px; padding: 6px 13px; border-radius: 20px; cursor: pointer; transition: all 0.15s; white-space: nowrap; }
+    .qbtn:hover { background: #eff6ff; border-color: #93c5fd; color: #1d4ed8; }
+
+    /* ── 입력 ── */
+    #inputArea { padding: 12px 20px 16px; background: #fff; border-top: 1px solid #e5e8ed; flex-shrink: 0; }
+    #inputRow { display: flex; gap: 8px; }
+    #userInput { flex: 1; padding: 10px 14px; border: 1.5px solid #d1d5db; border-radius: 24px; font-size: 13.5px; outline: none; font-family: inherit; }
+    #userInput:focus { border-color: #2563eb; }
+    #userInput:disabled { background: #f9fafb; color: #9ca3af; }
+    #sendBtn { background: #2563eb; color: #fff; border: none; border-radius: 50%; width: 40px; height: 40px; cursor: pointer; font-size: 18px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: background 0.15s; }
+    #sendBtn:hover:not(:disabled) { background: #1d4ed8; }
+    #sendBtn:disabled { background: #9ca3af; cursor: not-allowed; }
+
+    /* ── 오버레이 ── */
+    #overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 90; }
+    @media (max-width: 700px) {
+      #sidebar { position: fixed; left: 0; top: 0; bottom: 0; transform: translateX(-100%); }
+      #sidebar.open { transform: translateX(0); }
+      #hamburger { display: flex; }
+      #overlay.show { display: block; }
+      .msg { max-width: 92%; }
+      #api-banner { flex-wrap: wrap; }
+    }
+  </style>
+</head>
+<body>
+
+<nav id="sidebar">
+  <div id="sidebar-header">
+    <div class="logo">🤖 회계팀 AI 챗봇</div>
+    <div class="sub">Powered by Claude API</div>
+  </div>
+  <div id="sidebar-menu">
+    <div class="menu-item active" onclick="setContext(this,'home')"><span class="menu-icon">🏠</span> 처음으로</div>
+    <div class="menu-item" onclick="setContext(this,'card')"><span class="menu-icon">💳</span> 법인카드</div>
+    <div class="menu-item" onclick="setContext(this,'voucher')"><span class="menu-icon">📄</span> 전표 / 결산</div>
+    <div class="menu-item" onclick="setContext(this,'vendor')"><span class="menu-icon">🏢</span> 거래처 / 계좌</div>
+    <div class="menu-item" onclick="setContext(this,'tax')"><span class="menu-icon">🧾</span> 세금 / 세무</div>
+    <div class="menu-item" onclick="setContext(this,'expense')"><span class="menu-icon">✈️</span> 경비 / 정산</div>
+    <div class="menu-item" onclick="setContext(this,'manager')"><span class="menu-icon">👤</span> 담당자 찾기</div>
+    <div class="menu-item" onclick="setContext(this,'etc')"><span class="menu-icon">❓</span> 기타</div>
+  </div>
+  <div id="sidebar-footer">
+    <div style="color:#6b7a94;font-size:11px;margin-bottom:6px;">📧 이외 문의사항</div>
+    <a href="mailto:accounting_fi@kidaristudio.com">accounting_fi@kidaristudio.com</a>
+  </div>
+</nav>
+
+<div id="overlay" onclick="closeSidebar()"></div>
+
+<div id="main">
+  <!-- API 키 입력 배너 -->
+  <div id="api-banner">
+    <label>🔑 Anthropic API Key</label>
+    <input id="apiKeyInput" type="password" placeholder="sk-ant-api03-...">
+    <button id="saveKeyBtn" onclick="saveKey()">저장</button>
+    <span id="keyStatus" class="status-none">미입력</span>
+  </div>
+
+  <div id="topbar">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <button id="hamburger" onclick="toggleSidebar()">☰</button>
+      <span id="topbar-title">회계팀 AI 챗봇</span>
+      <span id="topbar-sub">자연어로 질문해보세요</span>
+    </div>
+    <span id="model-badge">claude-sonnet-4-5</span>
+  </div>
+
+  <div id="chatArea"></div>
+
+  <div id="quickArea">
+    <div id="quickLabel">자주 묻는 질문</div>
+    <div id="quickBtns"></div>
+  </div>
+
+  <div id="inputArea">
+    <div id="inputRow">
+      <input id="userInput" type="text" placeholder="궁금한 내용을 자유롭게 입력하세요..." autocomplete="off">
+      <button id="sendBtn" onclick="handleSend()" disabled>&#10148;</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════
+   지식 베이스 (시스템 프롬프트 원본)
+═══════════════════════════════════════ */
+const KNOWLEDGE_BASE = `
+# 키다리스튜디오 회계팀 지식 베이스 (2026.03 기준)
+
+## 사업부별 담당자
+- 봄툰사업본부: 고수희 매니저
+- 레진사업본부(플랫폼사업부문): 민지영 매니저
+- 일본사업본부: 고수희 매니저
+- Shinano KR: 민지영 매니저
+- 브랜드콘텐츠부: 오민지 매니저
+- 글로벌콘텐츠부: 최은아 매니저
+- 유럽/태국사업본부: 김민정(B) 매니저
+- DELITOON SAS: 김민정(B) 매니저
+- 기술부문: 유지수 매니저
+- 커머스사업본부(MD사업부): 남우영 매니저
+- 소설사업부: 최은아 매니저
+- 웹툰사업부: 고수희 매니저
+- 영상콘텐츠사업본부: 유지수 매니저
+- 스튜디오M/AM센터: 박찬민 매니저
+- 콘텐츠소싱본부: 박찬민/송선아 매니저
+- 편집부: 송선아 매니저
+- 경영지원본부: 유지수 매니저
+- 법인카드(키다리법인): 유지수 매니저
+- 법인카드(레진법인): 김민정(B) 매니저
+- Lezhin JP: 최은아 매니저
+- Lezhin US: 오민지 매니저
+- Kidari TH: 김재용 팀장
+- 급여/원천세: 최은아 매니저
+- 세무조정/부가세: 김재용 팀장
+- 정산(레진): 김민정(B) 매니저
+- 정산(키다리/DELITOON): 남우영 매니저
+
+## 법인카드
+
+### ERP10 법인카드 전표 입력 방법
+1. ERP10 접속 → '법인카드거래내역' 검색 후 화면 접속
+2. 사용자 검색: 돋보기 → 사용자이관여부 체크 ✓ 필수(카카오T 내역 반영) → 사원명 입력 → 선택 → 적용
+3. 카드번호 검색: 돋보기 → 카드번호 선택 → 적용
+4. 조회 조건 입력 → 조회
+5. 전표 입력(건별): 상대계정처리유형 선택 → 적요/회계일자(카드사용월 말일)/비용센터 입력
+6. 전표 입력(일괄): 여러 건 선택 → 회계일자·상대계정·부가세구분(부가세미처리/봉사료미처리)·비용센터·적요 입력
+7. 부가세 처리: 불공제여부 선택 ✓, 공통매입여부 선택 ✗
+8. 전표 처리: 내역 선택 → 저장 → 전표 버튼 → 전표처리 → 일괄 전표처리 권장
+9. 분할 처리: 건 선택 → 추가기능 → 분할처리 → 추가 → 금액 분할 → 차이 '0원' 확인
+10. 전자결재 상신: 전표조회승인 메뉴 → 전표 선택 → 결재 버튼
+11. 전표 취소: 전표처리 YES 조회 → 전표버튼 → 전표취소
+- 결재라인: 기안자 → 팀장 → 수신: 회계팀 담당자 → 회계팀장
+
+### 카카오T 택시 처리
+- 사용자이관여부 체크 ✓ 필수 (미체크 시 카카오T 내역 조회 불가)
+
+### 법인카드 재발급/분실
+- 신한카드: 재무기획팀 접수 후 약 7영업일 소요
+- 삼성카드: 삼성카드 홈페이지에서 직접 신청(개인 기명식)
+- 키다리법인: 유지수 매니저 / 레진법인: 김민정(B) 매니저
+- 레진 재발급 시 반드시 김성준 매니저에게 알릴 것(수기 ERP 등록 필요)
+
+### 법인카드 한도
+- 신한카드 한도 조회: 재무기획팀 문의
+- 삼성카드: 앱에서 직접 확인
+- 한도 상향: 그룹웨어 기안 '법인카드 한도 상향 신청' 작성
+- 담당: 키다리 - 김나영M / 레진 - 김성준M
+
+### 미수금 처리
+- 미수금 발생 시 전표의 거래처명을 본인 성명으로 입력
+- 예산 배정·잔액 문의는 경영기획팀
+
+### 회계일자
+- 법인카드 전표: 카드 사용 월의 말일자로 입력
+
+## 전표/결산
+
+### 결산 마감 일정 (전사 공통)
+- 법인카드 전표: 영업일 기준 3일차
+- 매출·매입 전표: 영업일 기준 4일차
+- 마감 지연 시: 해당 사업부장 책임으로 경영진 보고
+- 상신 후 반려·재상신은 지연으로 미집계
+- 해외 법인(레진US, 레진JP, 델리툰): 업무기안 후 회계팀 담당자 별도 처리
+
+### 위임전결규정 (2026년 기준)
+#### 플랫폼 총괄 각자대표 산하 (플랫폼사업부문, 유럽/태국사업본부, 글로벌콘텐츠본부, 기술부문)
+- 100만원 이상: 대표이사 결재 필수
+- MG/RS 지급: 기존 업무기안 완료 시 전표는 본부장까지
+- 작가 선지급: 업무기안 대표이사 결재 후 전표도 대표이사 결재 필
+
+#### 커머스/사업지원 총괄 산하 (커머스사업본부, 스토리웨어사업본부, 영상콘텐츠사업본부, 콘텐츠본부, 경영지원본부)
+- 기존 결재라인 유지
+
+#### 전표 결재라인
+- 100만원 이상: 현업→팀장→본부장→부문장→대표이사 / 수신: 회계팀담당자→회계팀장
+- 100만원 미만: 현업→팀장 / 수신: 회계팀담당자→회계팀장
+- 수신자 누락 시 전표 확인 및 지급처리 불가
+
+### 결재선 설정 (그룹웨어)
+- 경로: 전자결재 → 결재정보 → 결재선 설정 팝업에서 즐겨찾기 등록
+- 합의: 적정성·리스크 검토 (의사결정 권한 보유)
+- 수신: 실제 처리·집행
+- 참조: 사후 인지
+- 합의는 최종 전결권자 이전 단계에 배치
+
+### 전표 반려 주요 사유
+- 작성일자 오류, 관리항목 누락, 부가세 미처리, 위임전결규정 미준수
+- 업무기안 없이 전표만 단독 작성, 수신자에 회계팀 담당자 누락
+
+### 계정과목 가이드
+- 복리후생비: 임직원 식대, 경조사비
+- 접대비: 거래처 식사·선물
+- 여비교통비: 출장비, 택시비
+- 소모품비: 사무용품
+- 교육훈련비: 세미나, 교육
+- 지급수수료: 외주 용역비
+- 광고선전비: 광고·홍보물
+
+## 거래처/계좌 등록
+
+### 신규 거래처 등록
+1. 중복 확인: ERP '거래처정보조회' → 거래처구분 '전체'로 변경 후 검색
+2. 거래처 구분: 주요(사업자번호O), 개인(내/외국인), 외국법인, 기타
+3. 주요 등록: 통합거래처등록요청 → 사업자정보 입력 → 거래조건 '통합' → 계좌정보(주요사용:YES) → 저장 → 전자결재
+4. 첨부: 사업자등록증 + 계좌사본 필수 / 최초 등록 시 계약기안 링크 필수
+5. 결재라인: 본인→팀장→재무기획팀(키다리:김나영M/레진:김성준M)→심우성 팀장
+- 거래처구분 잘못 설정 시 전자결재 완료 후에도 미등록됨 주의
+
+### 개인 거래처 (작가 등)
+- 거래처명 = 신분증 상 성명
+- 원천세정보 업종구분 필수: 작가=화가관련(940200), 번역 등=기타자영업(940909)
+- 작가 필명은 비고란에 입력
+
+### 계좌 등록
+- ERP '거래처계좌정보신청' 메뉴
+- 국내: 계좌 입력(주요사용:YES) → 통장사본 첨부
+- 해외: SWIFT CODE 11자리 필수(8자리면 뒤에 'XXX' 추가), 수취인명/수취은행명/계좌/주소 영문 입력
+- 결재라인 동일
+
+### 중복 사업자번호 오류
+- 키레델ERP 키다리·레진 통합거래처 사용으로 발생
+- 재무기획팀에 이메일 요청: 키다리-이홍주M / 레진-서보미M
+
+### 기등록 거래처 수정
+- 그룹웨어 '거래처 및 계좌 정보 등록(변경)' 기안 작성
+- 비고란에 거래처코드 기입, 변경 증빙 첨부
+
+## 세금/세무
+
+### 부가세 신고 일정
+- 1기 예정: 4/25, 1기 확정: 7/25
+- 2기 예정: 10/25, 2기 확정: 다음해 1/25
+- 담당: 김재용 팀장
+
+### 세금계산서
+- 매출 전표 시 매출정산시스템 사용 필수
+- 거래처와 수수 사전 조율 필수
+- 마감: 영업일 4일차
+
+### 원천징수/지급명세서
+- 원천징수영수증: 매년 2월 발급
+- 근로소득 지급명세서: 3/10
+- 사업소득: 2월 말일
+- 담당: 최은아 매니저
+
+## 경비/정산
+- 경조사비: 복리후생비, 영수증/청첩장 첨부
+- 해외출장비: 출장기안 완료 후 여비교통비로 처리
+- 급여: 매월 25일
+- 정산 지급: 매월 마감 공지에 따라 안내
+- 예산 배정·잔액: 경영기획팀 문의
+
+## 이외 문의
+- 인재문화팀: 인사, 휴가, 채용
+- 법무팀: 계약, 법률, NDA
+- IT개발팀: 시스템, VPN, 계정
+- 회계팀 이메일: accounting_fi@kidaristudio.com
+`;
+
+const SYSTEM_PROMPT = `당신은 키다리스튜디오 회계팀 챗봇입니다. 임직원들의 회계, 전표, 법인카드, 거래처 등록, 세무 관련 질문에 답변합니다.
+
+아래 지식 베이스를 참고하여 정확하고 친절하게 답변하세요. 답변은 한국어로, 마크다운 없이 간결하게 작성하세요.
+담당자 문의나 프로세스 안내 시 구체적인 이름과 단계를 명시하세요.
+지식 베이스에 없는 내용은 "accounting_fi@kidaristudio.com으로 문의해 주세요"라고 안내하세요.
+
+---
+${KNOWLEDGE_BASE}`;
+
+const catContexts = {
+  home: '전체 회계팀 업무',
+  card: '법인카드 관련 업무',
+  voucher: '전표 처리 및 결산',
+  vendor: '거래처 및 계좌 등록',
+  tax: '세금 및 세무',
+  expense: '경비 및 정산',
+  manager: '담당자 찾기',
+  etc: '기타 문의'
+};
+
+const catQuicks = {
+  home:    ['법인카드 전표 입력 방법','결산 마감 일정','거래처 등록 방법','위임전결규정','담당자 찾기','세금계산서 발행'],
+  card:    ['ERP10 전표 입력 방법','재발급/분실신고','한도 문의','카카오T 택시 처리','미수금 처리','결제취소','식대 처리'],
+  voucher: ['전표 처리 방법','결산 마감 일정','위임전결규정','결재라인 설정','회계일자 기준','전표 반려 처리'],
+  vendor:  ['거래처 등록 방법','개인 거래처 등록','계좌 등록','중복 사업자번호 오류','기등록 거래처 수정'],
+  tax:     ['세금계산서 발행','부가세 신고 일정','원천징수/지급명세서'],
+  expense: ['경비정산 방법','해외출장비 처리','정기 지급 일정','경조사비 처리'],
+  manager: ['담당자 전체 목록 알려줘','봄툰사업부 담당자','기술부문 담당자','경영지원본부 담당자'],
+  etc:     ['급여명세서 문의','해촉 증명서 발급','IPS 시스템 문의','예산단위 오류'],
+};
+
+/* ─────────────────────────────────────
+   상태
+───────────────────────────────────── */
+let apiKey = '';
+let isLoading = false;
+let chatHistory = [];
+let currentCat = 'home';
+
+/* ─────────────────────────────────────
+   API 키 관리
+───────────────────────────────────── */
+function saveKey() {
+  const val = document.getElementById('apiKeyInput').value.trim();
+  if (!val.startsWith('sk-ant')) {
+    showKeyStatus('형식이 맞지 않습니다 (sk-ant-...)', 'err'); return;
+  }
+  apiKey = val;
+  document.getElementById('sendBtn').disabled = false;
+  document.getElementById('userInput').disabled = false;
+  document.getElementById('userInput').placeholder = '궁금한 내용을 자유롭게 입력하세요...';
+  showKeyStatus('✓ 연결됨', 'ok');
+  document.getElementById('apiKeyInput').value = '••••••••••••••••';
+}
+function showKeyStatus(msg, type) {
+  const el = document.getElementById('keyStatus');
+  el.textContent = msg;
+  el.className = 'status-' + type;
+}
+
+/* ─────────────────────────────────────
+   사이드바
+───────────────────────────────────── */
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('overlay').classList.toggle('show');
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('overlay').classList.remove('show');
+}
+function setContext(el, cat) {
+  document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
+  el.classList.add('active');
+  currentCat = cat;
+  renderQuicks(cat);
+  closeSidebar();
+}
+
+/* ─────────────────────────────────────
+   퀵버튼
+───────────────────────────────────── */
+function renderQuicks(cat) {
+  const btns = catQuicks[cat] || catQuicks.home;
+  document.getElementById('quickBtns').innerHTML = btns.map(t =>
+    '<button class="qbtn" onclick="handleQ(\'' + t.replace(/'/g,"\\'") + '\')">✦ ' + t + '</button>'
+  ).join('');
+}
+
+/* ─────────────────────────────────────
+   채팅 UI
+───────────────────────────────────── */
+const chatArea = document.getElementById('chatArea');
+
+function addMsg(html, type) {
+  const div = document.createElement('div');
+  div.className = 'msg ' + type;
+  if (type === 'bot') {
+    div.innerHTML = '<div class="avatar">🤖</div><div class="bubble">' + html + '</div>';
+  } else {
+    div.innerHTML = '<div class="bubble">' + html + '</div><div class="avatar" style="background:#6b7280">👤</div>';
+  }
+  chatArea.appendChild(div);
+  chatArea.scrollTop = chatArea.scrollHeight;
+  return div;
+}
+
+function addTyping() {
+  const div = document.createElement('div');
+  div.className = 'msg bot';
+  div.id = 'typing-indicator';
+  div.innerHTML = '<div class="avatar">🤖</div><div class="bubble"><div class="typing-dots"><span></span><span></span><span></span></div></div>';
+  chatArea.appendChild(div);
+  chatArea.scrollTop = chatArea.scrollHeight;
+}
+
+function removeTyping() {
+  const el = document.getElementById('typing-indicator');
+  if (el) el.remove();
+}
+
+/* ─────────────────────────────────────
+   메시지 전송
+───────────────────────────────────── */
+function handleSend() {
+  const q = document.getElementById('userInput').value.trim();
+  if (!q || isLoading) return;
+  document.getElementById('userInput').value = '';
+  sendMessage(q);
+}
+
+function handleQ(q) {
+  if (isLoading) return;
+  sendMessage(q);
+}
+
+document.getElementById('userInput').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') handleSend();
+});
+
+async function sendMessage(text) {
+  if (!apiKey) {
+    addMsg('API 키를 먼저 입력해주세요. 상단의 키 입력란에 Anthropic API 키를 입력하고 저장 버튼을 눌러주세요.', 'bot');
+    return;
+  }
+
+  addMsg(text, 'user');
+  chatHistory.push({ role: 'user', content: text });
+
+  isLoading = true;
+  document.getElementById('sendBtn').disabled = true;
+  addTyping();
+
+  // 카테고리 컨텍스트를 마지막 메시지에 주입
+  const messages = chatHistory.map((m, i) => {
+    if (i === chatHistory.length - 1 && currentCat !== 'home') {
+      return { role: m.role, content: '[현재 메뉴: ' + catContexts[currentCat] + '] ' + m.content };
+    }
+    return m;
+  });
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-5',
+        max_tokens: 1024,
+        system: SYSTEM_PROMPT,
+        messages: messages
+      })
+    });
+
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error?.message || 'API 오류 (' + res.status + ')');
+    }
+
+    const data = await res.json();
+    const reply = data.content[0].text;
+
+    removeTyping();
+    chatHistory.push({ role: 'assistant', content: reply });
+
+    // 줄바꿈을 <br>로 변환
+    const formatted = reply.replace(/\n\n/g, '<br><br>').replace(/\n/g, '<br>');
+    addMsg(formatted, 'bot');
+
+  } catch (err) {
+    removeTyping();
+    chatHistory.pop();
+
+    let errMsg = '오류가 발생했습니다: ' + err.message;
+    if (err.message.includes('401') || err.message.includes('auth')) {
+      errMsg = 'API 키가 유효하지 않습니다. 키를 다시 확인해주세요.';
+      showKeyStatus('✗ 인증 오류', 'err');
+    } else if (err.message.includes('CORS') || err.message.includes('fetch')) {
+      errMsg = 'CORS 오류: 브라우저에서 직접 API 호출이 차단되었습니다.<br>Chrome 확장 프로그램 CORS Unblock을 설치하거나, 로컬 프록시를 사용해주세요.';
+    }
+    addMsg(errMsg, 'bot');
+  } finally {
+    isLoading = false;
+    document.getElementById('sendBtn').disabled = false;
+  }
+}
+
+/* ─────────────────────────────────────
+   초기화
+───────────────────────────────────── */
+function init() {
+  addMsg('안녕하세요! 🤖 <strong>키다리스튜디오 회계팀 AI 챗봇</strong>입니다.<br><br>' +
+    '자연어로 자유롭게 질문하면 Claude AI가 답변합니다.<br><br>' +
+    '⚡ 시작하려면 상단에 <strong>Anthropic API 키</strong>를 입력해주세요.<br>' +
+    '<span style="font-size:12px;color:#9ca3af;">API 키는 브라우저 메모리에만 저장되며 외부로 전송되지 않습니다.</span>', 'bot');
+  document.getElementById('userInput').disabled = true;
+  renderQuicks('home');
+}
+
+init();
+</script>
+</body>
+</html>
