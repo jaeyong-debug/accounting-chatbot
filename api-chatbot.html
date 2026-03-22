@@ -286,6 +286,8 @@ let apiKey = localStorage.getItem('gemini_api_key') || '';
 let isLoading = false;
 let chatHistory = [];
 let currentCat = 'home';
+let lastRequestTime = 0;       // 클라이언트 사이드 rate limiter
+const MIN_REQUEST_GAP = 4100;  // 분당 최대 14건 (4.1초 간격)
 
 /* ─────────────────────────────────────
    API 키 관리 (localStorage 저장)
@@ -404,6 +406,27 @@ async function sendMessage(text) {
 
   isLoading = true;
   document.getElementById('sendBtn').disabled = true;
+
+  // ── 클라이언트 사이드 rate limiter: 4.1초 쿨다운으로 분당 14건 이하 유지 ──
+  const now = Date.now();
+  const elapsed = now - lastRequestTime;
+  if (elapsed < MIN_REQUEST_GAP && lastRequestTime > 0) {
+    const waitMs = MIN_REQUEST_GAP - elapsed;
+    const waitSec = Math.ceil(waitMs / 1000);
+    // 쿨다운 중 임시 메시지 표시
+    const cdDiv = document.createElement('div');
+    cdDiv.className = 'msg bot'; cdDiv.id = 'cooldown-msg';
+    cdDiv.innerHTML = `<div class="avatar" style="background:#2563eb">✨</div><div class="bubble" style="font-size:12px;color:#9ca3af;">⏳ 잠시 후 전송됩니다... (<span id="cd-count">${waitSec}</span>초)</div>`;
+    chatArea.appendChild(cdDiv);
+    chatArea.scrollTop = chatArea.scrollHeight;
+    let rem = waitSec;
+    const cdTick = setInterval(() => { rem--; const el = document.getElementById('cd-count'); if(el) el.textContent = rem; }, 1000);
+    await new Promise(r => setTimeout(r, waitMs));
+    clearInterval(cdTick);
+    const cdEl = document.getElementById('cooldown-msg'); if(cdEl) cdEl.remove();
+  }
+  lastRequestTime = Date.now();
+
   addTyping();
 
   const callGemini = async (retryCount = 0) => {
@@ -427,22 +450,23 @@ async function sendMessage(text) {
       if (code === 400) throw new Error('API 키가 올바르지 않습니다. 키를 다시 확인해주세요.');
       if (code === 429) {
         if (retryCount < 1) {
-          const waitSec = 62; // 1분 초과 대기로 RPM 윈도우 완전 리셋
-          const typingEl = document.getElementById('typing-indicator');
+          const waitSec = 62;
+          // 올바른 ID(typing-ind)의 bubble 영역에 카운트다운 표시
+          const bubble = document.querySelector('#typing-ind .bubble');
           let remaining = waitSec;
-          const sp = typingEl?.querySelector('span');
-          if (sp) sp.textContent = `⏳ 요청 한도 초과 — ${remaining}초 후 자동 재시도`;
+          if (bubble) bubble.innerHTML = `<span style="font-size:12px;color:#f59e0b;">⏳ 요청 한도 초과 — ${remaining}초 후 자동 재시도</span>`;
           const tick = setInterval(() => {
             remaining--;
-            if (sp) sp.textContent = remaining > 0
-              ? `⏳ 요청 한도 초과 — ${remaining}초 후 자동 재시도`
-              : '⏳ 재시도 중...';
+            if (bubble) bubble.innerHTML = remaining > 0
+              ? `<span style="font-size:12px;color:#f59e0b;">⏳ 요청 한도 초과 — ${remaining}초 후 자동 재시도</span>`
+              : `<span style="font-size:12px;color:#60a5fa;">⏳ 재시도 중...</span>`;
           }, 1000);
           await new Promise(r => setTimeout(r, waitSec * 1000));
           clearInterval(tick);
+          lastRequestTime = Date.now();
           return callGemini(retryCount + 1);
         }
-        throw new Error('요청 한도 초과 (분당 15건). 잠시 후 직접 다시 시도해주세요.');
+        throw new Error('요청 한도 초과. 잠시 후 다시 시도해주세요. (Gemini 무료: 분당 15건)');
       }
       throw new Error('API 오류 ' + code + ': ' + msg);
     }
@@ -450,14 +474,6 @@ async function sendMessage(text) {
   };
 
   try {
-    // typing indicator에 텍스트 노드 추가 (재시도 카운트다운 표시용)
-    const typingEl = document.getElementById('typing-indicator');
-    if (typingEl && !typingEl.querySelector('span')) {
-      const sp = document.createElement('span');
-      sp.style.cssText = 'font-size:11px;color:#9ca3af;margin-left:8px;';
-      typingEl.appendChild(sp);
-    }
-
     const data  = await callGemini();
     const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || '응답을 받지 못했습니다.';
 
