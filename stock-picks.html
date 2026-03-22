@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ì¥ëª¨ëì ìí ì£¼ìí¬ì ì ë³´ - 2026ë 3ì 22ì¼</title>
+    <style>
+        :root {
+            --red: #d32f2f;
+            --blue: #1565c0;
+            --light-red: #ffebee;
+            --light-blue: #e3f2fd;
+            --green: #2e7d32;
+            --light-green: #e8f5e9;
+            --orange: #ef6c00;
+            --light-orange: #fff3e0;
+            --bg: #fafafa;
+            --card-bg: #ffffff;
+            --text: #212121;
+            --text-light: #616161;
+            --border: #e0e0e0;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', 'ë§ì ê³ ë', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.7;
+            font-size: 17px;
+        }
+        .container { max-width: 900px; margin: 0 auto; padding: 16px; }
+
+        /* í¤ë */
+        header {
+            background: linear-gradient(135deg, var(--blue), #0d47a1);
+            color: white;
+            padding: 32px 20px;
+            text-align: center;
+            border-radius: 16px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 20px rgba(21,101,192,0.3);
+        }
+        header h1 { font-size: 28px; margin-bottom: 8px; }
+        header .subtitle { font-size: 16px; opacity: 0.9; }
+        header .date { font-size: 14px; opacity: 0.7; margin-top: 8px; }
+
+        /* ë¤ë¹ê²ì´ì */
+        .nav-pills {
+            display: flex; flex-wrap: wrap; gap: 8px;
+            margin-bottom: 24px; justify-content: center;
+        }
+        .nav-pills a {
+            background: white; color: var(--blue); border: 2px solid var(--blue);
+            padding: 8px 16px; border-radius: 24px; text-decoration: none;
+            font-size: 15px; font-weight: 600; transition: all 0.2s;
+        }
+        .nav-pills a:hover, .nav-pills a:active {
+            background: var(--blue); color: white;
+        }
+
+        /* ì¹´ë */
+        .card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            border: 1px solid var(--border);
+        }
+        .card h2 {
+            font-size: 22px; margin-bottom: 16px;
+            padding-bottom: 12px; border-bottom: 3px solid var(--blue);
+            display: flex; align-items: center; gap: 10px;
+        }
+        .card h2 .emoji { font-size: 28px; }
+        .card h3 { font-size: 19px; margin: 16px 0 10px; color: var(--blue); }
+
+        /* ì½ì¤í¼ ì§ì ë°°ë */
+        .index-banner {
+            background: linear-gradient(135deg, #1a237e, #283593);
+            color: white; border-radius: 16px; padding: 24px;
+            margin-bottom: 20px; text-align: center;
+        }
+        .index-value { font-size: 48px; font-weight: 800; margin: 8px 0; }
+        .index-change { font-size: 20px; }
+        .index-change.down { color: #ef5350; }
+        .index-change.up { color: #66bb6a; }
+        .index-label { font-size: 14px; opacity: 0.8; }
+
+        /* ì¢ëª© ì¹´ë */
+        .stock-card {
+            background: white; border-radius: 14px; padding: 20px;
+            margin-bottom: 16px; border: 2px solid var(--border);
+            transition: border-color 0.2s;
+        }
+        .stock-card:hover { border-color: var(--blue); }
+        .stock-header {
+            display: flex; justify-content: space-between;
+            align-items: center; flex-wrap: wrap; gap: 10px;
+            margin-bottom: 16px;
+        }
+        .stock-name { font-size: 22px; font-weight: 700; }
+        .stock-code { font-size: 14px; color: var(--text-light); }
+        .stock-price { font-size: 28px; font-weight: 800; color: var(--blue); }
+        .stock-change { font-size: 16px; font-weight: 600; }
+        .stock-change.down { color: var(--blue); }
+        .stock-change.up { color: var(--red); }
+
+        /* í¬ììê²¬ ë°°ì§ */
+        .badge {
+            display: inline-block; padding: 6px 16px; border-radius: 20px;
+            font-size: 15px; font-weight: 700; margin: 4px;
+        }
+        .badge-buy { background: var(--light-red); color: var(--red); border: 2px solid var(--red); }
+        .badge-hold { background: var(--light-orange); color: var(--orange); border: 2px solid var(--orange); }
+        .badge-target { background: var(--light-blue); color: var(--blue); border: 2px solid var(--blue); }
+
+        /* ì¦ê¶ì¬ íì´ë¸ */
+        .broker-table {
+            width: 100%; border-collapse: collapse; margin: 12px 0;
+            font-size: 15px;
+        }
+        .broker-table th {
+            background: var(--light-blue); color: var(--blue);
+            padding: 10px 12px; text-align: left; font-size: 14px;
+        }
+        .broker-table td {
+            padding: 10px 12px; border-bottom: 1px solid var(--border);
+        }
+        .broker-table tr:last-child td { border-bottom: none; }
+
+        /* ê°ë¨ ì¤ëª ë°ì¤ */
+        .explain-box {
+            background: #fffde7; border-left: 4px solid #fbc02d;
+            padding: 16px; border-radius: 0 12px 12px 0;
+            margin: 12px 0; font-size: 16px; line-height: 1.8;
+        }
+        .explain-box strong { color: #f57f17; }
+
+        /* ì°¨í¸ ìì­ */
+        .chart-container {
+            background: #f8f9fa; border-radius: 12px;
+            padding: 20px; margin: 16px 0; overflow-x: auto;
+        }
+        .bar-chart { display: flex; align-items: flex-end; gap: 8px; height: 200px; padding-top: 20px; }
+        .bar-item { flex: 1; min-width: 60px; text-align: center; }
+        .bar {
+            margin: 0 auto; width: 40px; border-radius: 6px 6px 0 0;
+            transition: height 0.5s; position: relative;
+        }
+        .bar-label { font-size: 12px; color: var(--text-light); margin-top: 6px; }
+        .bar-value {
+            font-size: 11px; font-weight: 600; position: absolute;
+            top: -20px; left: 50%; transform: translateX(-50%); white-space: nowrap;
+        }
+
+        /* ë´ì¤ ë¦¬ì¤í¸ */
+        .news-item {
+            padding: 16px; border-bottom: 1px solid var(--border);
+            display: flex; gap: 12px; align-items: flex-start;
+        }
+        .news-item:last-child { border-bottom: none; }
+        .news-dot {
+            width: 10px; height: 10px; border-radius: 50%;
+            background: var(--red); margin-top: 8px; flex-shrink: 0;
+        }
+        .news-title { font-size: 17px; font-weight: 600; margin-bottom: 4px; }
+        .news-desc { font-size: 15px; color: var(--text-light); }
+        .news-date { font-size: 13px; color: #9e9e9e; margin-top: 4px; }
+
+        /* ìºë¦°ë */
+        .calendar-item {
+            display: flex; gap: 16px; padding: 14px 0;
+            border-bottom: 1px solid var(--border); align-items: center;
+        }
+        .calendar-item:last-child { border-bottom: none; }
+        .cal-date {
+            background: var(--red); color: white; border-radius: 12px;
+            padding: 8px 14px; text-align: center; min-width: 70px; flex-shrink: 0;
+        }
+        .cal-month { font-size: 12px; }
+        .cal-day { font-size: 22px; font-weight: 800; }
+        .cal-info { flex: 1; }
+        .cal-title { font-size: 17px; font-weight: 600; }
+        .cal-desc { font-size: 14px; color: var(--text-light); }
+
+        /* ë©´ì±ì¡°í­ */
+        .disclaimer {
+            background: #fce4ec; border: 2px solid var(--red);
+            border-radius: 12px; padding: 20px; margin: 24px 0;
+            text-align: center; font-size: 15px; color: #b71c1c;
+        }
+        .disclaimer strong { font-size: 18px; display: block; margin-bottom: 8px; }
+
+        /* í¸í° */
+        footer {
+            text-align: center; padding: 24px;
+            color: var(--text-light); font-size: 13px;
+        }
+
+        /* SVG ì°¨í¸ */
+        .svg-chart { width: 100%; max-width: 800px; margin: 0 auto; display: block; }
+
+        /* ê¸ë¡ë² ëí¥ ê·¸ë¦¬ë */
+        .global-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px; margin: 16px 0;
+        }
+        .global-item {
+            background: #f5f5f5; border-radius: 12px; padding: 16px; text-align: center;
+        }
+        .global-item .flag { font-size: 28px; }
+        .global-item .name { font-size: 14px; color: var(--text-light); margin: 4px 0; }
+        .global-item .value { font-size: 20px; font-weight: 700; }
+        .global-item .change { font-size: 14px; font-weight: 600; }
+        .global-item .change.up { color: var(--red); }
+        .global-item .change.down { color: var(--blue); }
+
+        /* ì°ì í¤ìë */
+        .keyword-cloud {
+            display: flex; flex-wrap: wrap; gap: 10px; margin: 16px 0;
+            justify-content: center;
+        }
+        .keyword {
+            padding: 8px 18px; border-radius: 20px; font-weight: 600;
+            font-size: 15px;
+        }
+        .keyword.hot { background: #ffcdd2; color: #c62828; }
+        .keyword.warm { background: #fff9c4; color: #f57f17; }
+        .keyword.cool { background: #bbdefb; color: #1565c0; }
+
+        /* ë°ìí */
+        @media (max-width: 600px) {
+            body { font-size: 16px; }
+            header h1 { font-size: 22px; }
+            .index-value { font-size: 36px; }
+            .stock-price { font-size: 24px; }
+            .stock-header { flex-direction: column; align-items: flex-start; }
+            .bar-chart { height: 150px; }
+            .nav-pills a { font-size: 13px; padding: 6px 12px; }
+            .global-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        /* ì¤í¬ë¡¤ ëì */
+        html { scroll-behavior: smooth; }
+        section { scroll-margin-top: 16px; }
+
+        /* íì¤í¸ ê°ì¡° */
+        .highlight-red { color: var(--red); font-weight: 700; }
+        .highlight-blue { color: var(--blue); font-weight: 700; }
+
+        /* ìì½ ë°ì¤ */
+        .summary-box {
+            background: linear-gradient(135deg, #e8eaf6, #c5cae9);
+            border-radius: 14px; padding: 20px; margin: 16px 0;
+        }
+        .summary-box p { margin: 8px 0; font-size: 16px; }
+
+        /* ìì¹ì¬ë ¥ ë° */
+        .upside-bar {
+            background: #e0e0e0; border-radius: 10px; height: 24px;
+            margin: 10px 0; overflow: hidden; position: relative;
+        }
+        .upside-fill {
+            height: 100%; border-radius: 10px;
+            background: linear-gradient(90deg, var(--blue), var(--red));
+            display: flex; align-items: center; justify-content: flex-end;
+            padding-right: 10px; color: white; font-size: 13px; font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <!-- í¤ë -->
+    <header>
+        <h1>ìí ì¥ëª¨ëì ìí<br>ì£¼ìí¬ì ìì§ ì ë³´</h1>
+        <div class="subtitle">ë°ëì²´ì£¼ ì¤ì¬ Â· ì½ê³  ì¹ì íê² ìë ¤ëë ¤ì</div>
+        <div class="date">2026ë 3ì 22ì¼ (ì¼ìì¼) ê¸°ì¤</div>
+    </header>
+
+    <!-- ë¤ë¹ê²ì´ì -->
+    <nav class="nav-pills">
+        <a href="#market">ìì¥ ê°ì</a>
+        <a href="#picks">ì¶ì² ì¢ëª©</a>
+        <a href="#industry">ë°ëì²´ ëí¥</a>
+        <a href="#news">ì£¼ì ë´ì¤</a>
+        <a href="#calendar">í¬ì ìºë¦°ë</a>
+    </nav>
+
+    <!-- 1. ìì¥ ê°ì -->
+    <section id="market">
+        <div class="index-banner">
+            <div class="index-label">ì½ì¤í¼ ì¢í©ì§ì (3ì 20ì¼ ì¢ê°)</div>
+            <div class="index-value">5,781</div>
+            <div class="index-change up">â² 18.00 (+0.31%)</div>
+            <div class="index-label" style="margin-top:8px">ìê°ì´ì¡ ì½ 4,893ì¡°ì Â· ë°ëì²´ ë¹ì¤ 43%</div>
+        </div>
+
+        <div class="card">
+            <h2><span class="emoji">ð</span> ê¸ë¡ë² ìì¥ ëí¥</h2>
+
+            <div class="global-grid">
+                <div class="global-item">
+                    <div class="flag">ðºð¸</div>
+                    <div class="name">S&P 500</div>
+                    <div class="value">5,640</div>
+                    <div class="change down">â¼ -0.52%</div>
+                </div>
+                <div class="global-item">
+                    <div class="flag">ðºð¸</div>
+                    <div class="name">ëì¤ë¥</div>
+                    <div class="value">17,850</div>
+                    <div class="change down">â¼ -0.33%</div>
+                </div>
+                <div class="global-item">
+                    <div class="flag">ð¯ðµ</div>
+                    <div class="name">ëì¼ì´225</div>
+                    <div class="value">37,677</div>
+                    <div class="change down">â¼ -0.20%</div>
+                </div>
+                <div class="global-item">
+                    <div class="flag">ð¢ï¸</div>
+                    <div class="name">ë¸ë í¸ì </div>
+                    <div class="value">$107</div>
+                    <div class="change up">â² ê¸ë±</div>
+                </div>
+            </div>
+
+            <div class="explain-box">
+                <strong>ì¥ëª¨ë, ì§ê¸ ìì¥ì ì´ëì ð</strong><br>
+                ì½ì¤í¼ê° <strong>5,781</strong>ê¹ì§ ì¬ë¼ìì´ì. ì¬í´ ì´ ì¬ì ìµê³ ì¹ë¥¼ ê²½ì í ì´í, ìµê·¼ ì¤ë ë¶ìì¼ë¡ ì ê°ê° ë§ì´ ì¤ë¥´ë©´ì ì£¼ê°ê° ì¢ ì¶ë ì´ê³  ìì´ì. íì§ë§ ë°ëì²´ ììê° ìë ì¢ìì <strong>ì¼ì±ì ì</strong>ì <strong>SKíì´ëì¤</strong>ê° ì½ì¤í¼ì 43%ë¥¼ ì°¨ì§íë©° ìì¥ì ë ë íê² ë°ì¹ê³  ìëµëë¤.
+            </div>
+        </div>
+    </section>
+
+    <!-- 2. ì¶ì² ì¢ëª© -->
+    <section id="picks">
+        <div class="card">
+            <h2><span class="emoji">â­</span> ì¶ì² ì¢ëª© ë¶ì</h2>
+
+            <!-- ì¼ì±ì ì -->
+            <div class="stock-card">
+                <div class="stock-header">
+                    <div>
+                        <div class="stock-name">ì¼ì±ì ì</div>
+                        <div class="stock-code">005930 Â· ì½ì¤í¼</div>
+                    </div>
+                    <div style="text-align:right">
+                        <div class="stock-price">188,200ì</div>
+                        <div class="stock-change down">â¼ -3.84% (3/20 ê¸°ì¤)</div>
+                    </div>
+                </div>
+
+                <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+                    <span class="badge badge-buy">ë§¤ì ì¶ì²</span>
+                    <span class="badge badge-target">ëª©íê° 260,000~270,000ì</span>
+                </div>
+
+                <div class="explain-box">
+                    <strong>ì ì¼ì±ì ìë¥¼ ì¬ì¼ í ê¹ì?</strong><br>
+                    ì¼ì±ì ìë ì°ë¦¬ëë¼ìì <strong>ê°ì¥ í° íì¬</strong>ìì (ìê°ì´ì¡ 1,234ì¡°ì). AI ì¸ê³µì§ë¥ì ì°ì´ë <strong>í¹ë³í ë°ëì²´(HBM)</strong>ë¥¼ ë§ë¤ì´ì ì¸ê³ì ì¼ë¡ ììê° í­ë°íê³  ìì´ì. ì¦ê¶ì¬ë¤ì ì£¼ê°ê° ì§ê¸ë³´ë¤ <strong>40~50% ë ì¬ë¥¼ ì ìë¤</strong>ê³  ë³´ê³  ìëµëë¤.
+                </div>
+
+                <h3>ì¦ê¶ì¬ ëª©íì£¼ê°</h3>
+                <table class="broker-table">
+                    <tr><th>ì¦ê¶ì¬</th><th>ëª©íì£¼ê°</th><th>í¬ììê²¬</th></tr>
+                    <tr><td>íêµ­í¬ìì¦ê¶</td><td class="highlight-red">270,000ì</td><td>ë§¤ì</td></tr>
+                    <tr><td>ëì ì¦ê¶</td><td class="highlight-red">270,000ì</td><td>ë§¤ì</td></tr>
+                    <tr><td>í¤ìì¦ê¶</td><td class="highlight-red">260,000ì</td><td>ë§¤ì (ìµì í¸ì£¼)</td></tr>
+                    <tr><td>SKì¦ê¶</td><td class="highlight-red">260,000ì</td><td>ë§¤ì</td></tr>
+                    <tr><td>KBì¦ê¶</td><td class="highlight-red">240,000ì</td><td>ë§¤ì (ìµì í¸ì£¼)</td></tr>
+                </table>
+
+                <p style="margin-top:12px;font-size:15px;color:var(--text-light)">ð íê·° ëª©íì£¼ê°: <strong class="highlight-red">260,000ì</strong> (íì¬ê° ëë¹ ì½ <strong>+38%</strong> ìì¹ ì¬ë ¥)</p>
+
+                <div class="upside-bar">
+                    <div class="upside-fill" style="width:72%">íì¬ â ëª©í +38%</div>
+                </div>
+
+                <!-- ì¼ì±ì ì ì£¼ê° íë¦ SVG ì°¨í¸ -->
+                <h3>ìµê·¼ ì£¼ê° íë¦ (52ì£¼)</h3>
+                <div class="chart-container">
+                    <svg class="svg-chart" viewBox="0 0 700 220" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <linearGradient id="grad1" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" style="stop-color:#1565c0;stop-opacity:0.3"/>
+                                <stop offset="100%" style="stop-color:#1565c0;stop-opacity:0.02"/>
+                            </linearGradient>
+                        </defs>
+                        <!-- ê·¸ë¦¬ë -->
+                        <line x1="50" y1="20" x2="50" y2="180" stroke="#e0e0e0" stroke-width="1"/>
+                        <line x1="50" y1="180" x2="680" y2="180" stroke="#e0e0e0" stroke-width="1"/>
+                        <line x1="50" y1="100" x2="680" y2="100" stroke="#e0e0e0" stroke-width="0.5" stroke-dasharray="4"/>
+                        <line x1="50" y1="60" x2="680" y2="60" stroke="#e0e0e0" stroke-width="0.5" stroke-dasharray="4"/>
+                        <line x1="50" y1="140" x2="680" y2="140" stroke="#e0e0e0" stroke-width="0.5" stroke-dasharray="4"/>
+                        <!-- Yì¶ ë ì´ë¸ -->
+                        <text x="45" y="25" text-anchor="end" font-size="11" fill="#999">22ë§</text>
+                        <text x="45" y="65" text-anchor="end" font-size="11" fill="#999">19ë§</text>
+                        <text x="45" y="105" text-anchor="end" font-size="11" fill="#999">16ë§</text>
+                        <text x="45" y="145" text-anchor="end" font-size="11" fill="#999">13ë§</text>
+                        <text x="45" y="183" text-anchor="end" font-size="11" fill="#999">9.1ë§</text>
+                        <!-- ì£¼ê° ë¼ì¸ (52ì£¼ ìµì  94,500 â ìµê³  223,000, íì¬ 188,200) -->
+                        <path d="M60,170 L110,165 L160,140 L210,120 L260,80 L310,40 L360,25 L410,55 L460,70 L510,65 L560,50 L610,60 L660,55" fill="none" stroke="#1565c0" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M60,170 L110,165 L160,140 L210,120 L260,80 L310,40 L360,25 L410,55 L460,70 L510,65 L560,50 L610,60 L660,55 L660,180 L60,180 Z" fill="url(#grad1)"/>
+                        <!-- íì¬ê° ì  -->
+                        <circle cx="660" cy="55" r="5" fill="#d32f2f"/>
+                        <text x="660" y="48" text-anchor="middle" font-size="12" font-weight="700" fill="#d32f2f">188,200</text>
+                        <!-- Xì¶ ë ì´ë¸ -->
+                        <text x="60" y="198" text-anchor="middle" font-size="10" fill="#999">'25.4</text>
+                        <text x="210" y="198" text-anchor="middle" font-size="10" fill="#999">'25.7</text>
+                        <text x="360" y="198" text-anchor="middle" font-size="10" fill="#999">'25.10</text>
+                        <text x="510" y="198" text-anchor="middle" font-size="10" fill="#999">'26.1</text>
+                        <text x="660" y="198" text-anchor="middle" font-size="10" fill="#999">'26.3</text>
+                        <!-- 52ì£¼ ìµê³ /ìµì  íì -->
+                        <text x="370" y="18" text-anchor="middle" font-size="10" fill="#2e7d32">â 52ì£¼ ìµê³  223,000ì</text>
+                    </svg>
+                </div>
+
+                <div class="summary-box">
+                    <p><strong>íµì¬ ìì½:</strong></p>
+                    <p>â HBM(ê³ ëì­í­ë©ëª¨ë¦¬) ìì° ë³¸ê²©íë¡ ì¤ì  ê°ì  ê¸°ë</p>
+                    <p>â 2026ë ììì´ìµ 148~200ì¡°ì ì ë§½</p>
+                    <p>â 52ì£¼ ìµì (94,500ì) ëë¹ í¬ê² íë³µ</p>
+                    <p>â ï¸ ì¤ë ë¦¬ì¤í¬ë¡ ë¨ê¸° ë³ëì± ì£¼ì</p>
+                </div>
+            </div>
+
+            <!-- SKíì´ëì¤ -->
+            <div class="stock-card">
+                <div class="stock-header">
+                    <div>
+                        <div class="stock-name">SKíì´ëì¤</div>
+                        <div class="stock-code">000660 Â· ì½ì¤í¼</div>
+                    </div>
+                    <div style="text-align:right">
+                        <div class="stock-price">924,000ì</div>
+                        <div class="stock-change down">â¼ -4.26% (3/20 ê¸°ì¤)</div>
+                    </div>
+                </div>
+
+                <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+                    <span class="badge badge-buy">ë§¤ì ì¶ì²</span>
+                    <span class="badge badge-target">ëª©íê° 80ë§~130ë§ì</span>
+                </div>
+
+                <div class="explain-box">
+                    <strong>SKíì´ëì¤ë ì´ë¤ íì¬ìì?</strong><br>
+                    SKíì´ëì¤ë <strong>HBM(ê³ ëì­í­ ë©ëª¨ë¦¬)</strong>ì´ë¼ë AIì ê¼­ íìí ë°ëì²´ë¥¼ ì¸ê³ìì ê°ì¥ ì ë§ëë íì¬ìì. ìë¹ëì ê°ì ê¸ë¡ë² ê¸°ìì´ SKíì´ëì¤ ë°ëì²´ë¥¼ ì¬ë ¤ê³  ì¤ì¼ ìê³  ìì´ì. <strong>2026ë ìì°ëì´ ì´ë¯¸ ë¤ íë¦° ìí</strong>ëëë¤!
+                </div>
+
+                <h3>ì¦ê¶ì¬ ëª©íì£¼ê°</h3>
+                <table class="broker-table">
+                    <tr><th>ì¦ê¶ì¬</th><th>ëª©íì£¼ê°</th><th>í¬ììê²¬</th></tr>
+                    <tr><td>KBì¦ê¶</td><td class="highlight-red">1,200,000ì</td><td>ë§¤ì</td></tr>
+                    <tr><td>íëì¦ê¶</td><td class="highlight-red">1,120,000ì</td><td>ë§¤ì (ìí¥)</td></tr>
+                    <tr><td>ëª©íê° ìí¥ ì¦ê¶ì¬</td><td class="highlight-red">1,300,000ì</td><td>ë§¤ì (ìí¥)</td></tr>
+                    <tr><td>ëì ì¦ê¶</td><td class="highlight-red">840,000ì</td><td>ë§¤ì (ìí¥)</td></tr>
+                    <tr><td>DSí¬ìì¦ê¶</td><td class="highlight-red">800,000ì</td><td>ë§¤ì</td></tr>
+                </table>
+
+                <p style="margin-top:12px;font-size:15px;color:var(--text-light)">ð íê·  ëª©íì£¼ê°: <strong class="highlight-red">ì½ 1,050,000ì</strong> (íì¬ê° ëë¹ ì½ <strong>+14%</strong> ìì¹ ì¬ë ¥)</p>
+
+                <div class="upside-bar">
+                    <div class="upside-fill" style="width:57%">íì¬ â ëª©í +14%</div>
+                </div>
+
+                <!-- SKíì´ëì¤ ì£¼ê° íë¦ SVG ì°¨í¸ -->
+                <h3>ìµê·¼ ì£¼ê° íë¦ (52ì£¼)</h3>
+                <div class="chart-container">
+                    <svg class="svg-chart" viewBox="0 0 700 220" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <linearGradient id="grad2" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" style="stop-color:#d32f2f;stop-opacity:0.3"/>
+                                <stop offset="100%" style="stop-color:#d32f2f;stop-opacity:0.02"/>
+                            </linearGradient>
+                        </defs>
+                        <line x1="50" y1="20" x2="50" y2="180" stroke="#e0e0e0" stroke-width="1"/>
+                        <line x1="50" y1="180" x2="680" y2="180" stroke="#e0e0e0" stroke-width="1"/>
+                        <line x1="50" y1="100" x2="680" y2="100" stroke="#e0e0e0" stroke-width="0.5" stroke-dasharray="4"/>
+                        <line x1="50" y1="60" x2="680" y2="60" stroke="#e0e0e0" stroke-width="0.5" stroke-dasharray="4"/>
+                        <line x1="50" y1="140" x2="680" y2="140" stroke="#e0e0e0" stroke-width="0.5" stroke-dasharray="4"/>
+                        <text x="45" y="25" text-anchor="end" font-size="11" fill="#999">110ë§</text>
+                        <text x="45" y="65" text-anchor="end" font-size="11" fill="#999">95ë§</text>
+                        <text x="45" y="105" text-anchor="end" font-size="11" fill="#999">80ë§</text>
+                        <text x="45" y="145" text-anchor="end" font-size="11" fill="#999">65ë§</text>
+                        <text x="45" y="183" text-anchor="end" font-size="11" fill="#999">50ë§</text>
+                        <!-- ì£¼ê° ë¼ì¸ (52ì£¼: ê³ ì  1,099,000 â íì¬ 924,000) -->
+                        <path d="M60,100 L110,80 L160,60 L210,45 L260,30 L310,20 L360,35 L410,45 L460,55 L510,50 L560,60 L610,55 L660,52" fill="none" stroke="#d32f2f" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M60,100 L110,80 L160,60 L210,45 L260,30 L310,20 L360,35 L410,45 L460,55 L510,50 L560,60 L610,55 L660,52 L660,180 L60,180 Z" fill="url(#grad2)"/>
+                        <circle cx="660" cy="52" r="5" fill="#d32f2f"/>
+                        <text x="660" y="45" text-anchor="middle" font-size="12" font-weight="700" fill="#d32f2f">924,000</text>
+                        <text x="60" y="198" text-anchor="middle" font-size="10" fill="#999">'25.4</text>
+                        <text x="210" y="198" text-anchor="middle" font-size="10" fill="#999">'25.7</text>
+                        <text x="360" y="198" text-anchor="middle" font-size="10" fill="#999">'25.10</text>
+                        <text x="510" y="198" text-anchor="middle" font-size="10" fill="#999">'26.1</text>
+                        <text x="660" y="198" text-anchor="middle" font-size="10" fill="#999">'26.3</text>
+                        <text x="320" y="15" text-anchor="middle" font-size="10" fill="#2e7d32">â 52ì£¼ ìµê³  1,099,000ì</text>
+                    </svg>
+                </div>
+
+                <div class="summary-box">
+                    <p><strong>íµì¬ ìì½:</strong></p>
+                    <p>â HBM ìì¥ ì¸ê³ 1ì, 2026ë ìì°ë¶ ì´ë¯¸ ìí</p>
+                    <p>â 2026ë ë§¤ì¶ 166ì¡°, ììì´ìµ 101ì¡° ì ë§ (ì­ë ìµë)</p>
+                    <p>â HBM3E ê°ê²© 20% ì¸ì â ììµì± ê°ì </p>
+                    <p>â ï¸ 52ì£¼ ê³ ì (109.9ë§ì) ëë¹ 15.9% ì¡°ì  ìí</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 3. ë°ëì²´ ì°ì ëí¥ -->
+    <section id="industry">
+        <div class="card">
+            <h2><span class="emoji">ð¬</span> ë°ëì²´ ì°ì ëí¥</h2>
+
+            <div class="explain-box">
+                <strong>ë°ëì²´ê° ë­ê¸¸ë ì´ë ê² ì¤ìí ê¹ì?</strong><br>
+                ìì¦ ChatGPT ê°ì <strong>AI(ì¸ê³µì§ë¥)</strong>ê° ìì²­ëê² ë°ì íê³  ìì£ ? ì´ AIë¥¼ ëë¦¬ë ¤ë©´ ìì£¼ ë¹ ë¥´ê³  í¹ë³í ë°ëì²´ê° íìí´ì. ê·¸ê² ë°ë¡ <strong>HBM(ê³ ëì­í½ ë©ëª¨ë¦¬)</strong>ì´ìì. ì¼ì±ì ìì SKíì´ëì¤ê° ì´ê±¸ ì¸ê³ìì ê°ì¥ ì ë§ë ëë¤!
+            </div>
+
+            <h3>HBM ìì¥ ê·ëª¨ ì ë§½</h3>
+            <div class="chart-container">
+                <div class="bar-chart">
+                    <div class="bar-item">
+                        <div class="bar" style="height:40%;background:var(--blue);position:relative">
+                            <span class="bar-value" style="color:var(--blue)">100ìµ$</span>
+                        </div>
+                        <div class="bar-label">2023</div>
+                    </div>
+                    <div class="bar-item">
+                        <div class="bar" style="height:55%;background:var(--blue);position:relative">
+                            <span class="bar-value" style="color:var(--blue)">196ìµ$</span>
+                        </div>
+                        <div class="bar-label">2024</div>
+                    </div>
+                    <div class="bar-item">
+                        <div class="bar" style="height:72%;background:#1976d2;position:relative">
+                            <span class="bar-value" style="color:#1976d2">345ìµ$</span>
+                        </div>
+                        <div class="bar-label">2025</div>
+                    </div>
+                    <div class="bar-item">
+                        <div class="bar" style="height:95%;background:var(--red);position:relative">
+                            <span class="bar-value" style="color:var(--red)">546ìµ$</span>
+                        </div>
+                        <div class="bar-label">2026(E)</div>
+                    </div>
+                </div>
+                <p style="text-align:center;font-size:13px;color:#999;margin-top:12px">ì¶ì²: BofA ì¶ì ì¹ Â· (E)ë ì ë§ì¹</p>
+            </div>
+
+            <h3>íµì¬ í¤ìëë¡ ë³´ë ë°ëì²´ í¸ë ë</h3>
+            <div class="keyword-cloud">
+                <span class="keyword hot">ð¥ HBM3E ì£¼ë ¥ ë¶ì±</span>
+                <span class="keyword hot">ð¥ AI ì¶ë¡  ìë ê°ë§</span>
+                <span class="keyword hot">ð¥ ë©ëª¨ë¦¬ ìí¸ì¬ì´í´</span>
+                <span class="keyword warm">â¡ ê³µê¸ ë¶ì¡±(ì¼í¨ì§)</span>
+                <span class="keyword warm">â¡ HBM ê°ê²© 20% ì¸ì</span>
+                <span class="keyword cool">ð¡ HBM4 ì°¨ì¸ë ì¤ë¹</span>
+                <span class="keyword cool">ð¡ ë°ëì²´ ìì¥ 1ì¡°$ ëí</span>
+            </div>
+
+            <h3>ì£¼ì ì°ì í¬ì¸í¸</h3>
+
+            <div style="margin:16px 0">
+                <p style="margin:12px 0;padding:12px;background:#f5f5f5;border-radius:10px">
+                    <strong style="color:var(--red)">1. ë©ëª¨ë¦¬ ìí¼ì¬ì´í´ ì§í ì¤</strong><br>
+                    AI ëë¶ì ë°ëì²´ ììê° í­ë°ì ì¼ë¡ ëê³  ìì´ì. 2026ë ê¸ë¡ë² ë°ëì²´ ìì¥ì´ ì¬ì ì²ì <strong>1ì¡° ë¬ë¬(ì½ 1,400ì¡°ì)</strong>ì ê°ê¹ìì§ ì ë§ì´ìì.
+                </p>
+                <p style="margin:12px 0;padding:12px;background:#f5f5f5;border-radius:10px">
+                    <strong style="color:var(--red)">2. HBM3Eê° ëì ë²ì´ë¤ ì¤ì</strong><br>
+                    2026ë HBM ì¤ìì <strong>HBM3E</strong>ë¼ë ìµì íì´ ì ì²´ì 2/3ë¥¼ ì°¨ì§í  ê±°ìì. ê°ê²©ë ìëë³´ë¤ <strong>20% ì¬ë ´ëë°</strong>ë ì£¼ë¬¸ì´ ë°ë ¤ë¤ê³  ìì´ì.
+                </p>
+                <p style="margin:12px 0;padding:12px;background:#f5f5f5;border-radius:10px">
+                    <strong style="color:var(--red)">3. ë§ë¤ì´ë ë§ë¤ì´ë ëª¨ìë¼ì</strong><br>
+                    SKíì´ëì¤ì ë§ì´í¬ë¡ ì <strong>2026ë HBM ìì°ë¿ì´ ì´ë¯¸ ì ë ë§¤ì§</strong>ëë¤ê³  ë°ííì´ì. ììê° ê³µê¸ë³´ë¤ í¨ì¬ ë§ì 'ì¼í¨ì§(ê³µê¸ë¶ì¡±)' ìíìì.
+                </p>
+                <p style="margin:12px 0;padding:12px;background:#f5f5f5;border-radius:10px">
+                    <strong style="color:var(--blue)">4. ì¼ì±+íì´ëì¤ í©ì° ììì´ìµ 178ì¡°ì!</strong><br>
+                    KBì¦ê¶ì ë°ë¥´ë©´ ë íì¬ì 2026ë ììì´ìµì´ í©ì³ì <strong>178ì¡°ì</strong>ì ë¬í  ì ë§ì´ìì. ì ë§ ìì²­ë ì«ìì£¨!
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 4. ì£¼ì ë´ì¤ -->
+    <section id="news">
+        <div class="card">
+            <h2><span class="emoji">ð°</span> ì£¼ì ë´ì¤</h2>
+
+            <div class="news-item">
+                <div class="news-dot"></div>
+                <div>
+                    <div class="news-title">ì½ì¤í¼, ì¤ë ë¶ìì ê¸ë½ í ë°ë±</div>
+                    <div class="news-desc">ì¤ë ì§ì íì  ë¦¬ì¤í¬ë¡ ì ê°ê° ê¸ë±(ë¸ë í¸ì  $107~$114)íë©°ì ì½ì¤í¼ê° 2.73% ê¸ë½íì¼ë, ì´í ì°ë ¤ ìíë¡ ìí­ ë°ë±íë©° 5,781ë¡ ë§ê°íì´ì.</div>
+                    <div class="news-date">2026.03.20</div>
+                </div>
+            </div>
+
+            <div class="news-item">
+                <div class="news-dot" style="background:var(--blue)"></div>
+                <div>
+                    <div class="news-title">ì¼ì±ì ìÂ·SKíì´ëì¤, ëí ê¸°ì ì£¼ ëë° íë½</div>
+                    <div class="news-desc">ì¼ì±ì ì(-3.84%)ì SKíì´ëì¤(-4.26%)ê° ìì¥ íë½ì ì£¼ëíì´ì. íì§ë§ ì¦ê¶ì¬ë¤ì ë¨ê¸° ì¡°ì ì¼ ë¿ì´ë©° ë°ëì²´ ìí©ì ì¬ì í ì¢ë¤ë ìê²¬ì´ìì.</div>
+                    <div class="news-date">2026.03.20</div>
+                </div>
+            </div>
+
+            <div class="news-item">
+                <div class="news-dot" style="background:var(--green)"></div>
+                <div>
+                    <div class="news-title">í¤ìì¦ê¶(ì¼ì±ì ì ëª©íê° 26ë§ì ìí¥</div>
+                    <div class="news-desc">í«ì¸ì¦ê¶ì´ ì¼ì±ì ìë¥¼ ìì¢ ìµì í¸ì£¼ë¡ ì ì§íë©´ì ëª©íì£¼ê°ë¥¼ 26ë®ìì¼ë¡ ì¬ë ì´ì. HBM ìì°¢ ë³¸ê²½íê° í´ë¹ ê·¼ê±°ìì.</div>
+                    <div class="news-date">2026.03.03</div>
+                </div>
+            </div>
+
+            <div class="news-item">
+                <div class="news-dot" style="background:var(--green)"></div>
+                <div>
+                    <div class="news-title">SKíì´ëì¤, 2026ë ììì´ìµ 100ì¡°ì ìë ì ë§</div>
+                    <div class="news-desc">ëì ì¦ê¶è¤ SKíì´ëì¤ì 2026ë ììì´ìµì ì½ 101ì¡°ìì¼ë¡ ì ë§íì´ì. ë§¤ì¶ì 166ì¡°ìì¼ë¡ ì ë ëë¹ 73.6% ì¦ê° ììì´ìì.</div>
+                    <div class="news-date">2026.03.08</div>
+                </div>
+            </div>
+
+            <div class="news-item">
+                <div class="news-dot" style="background:var(--orange)"></div>
+                <div>
+                    <div class="news-title">ì¼ì±ì ì, ë©ëª¨ë¦¬ ê³µê¸ ë¶ì¡± ê²½ê³ </div>
+                    <div class="news-desc">ì¼ì±ì ìê° 2026ë ë©ëª¨ë¦¬ ë°ëì²´ ê³µê¸ ë¶ì¡°ì ê²½ê³ íë©°, ì  ì©ì ê°ê²© ê¸ë±í ë¶ê°í´íë¤ë ì ë§ì ë´ëì´ì.</div>
+                    <div class="news-date">2026.03</div>
+                </div>
+            </div>
+
+            <div class="news-item">
+                <div class="news-dot" style="background:var(--blue)"></div>
+                <div>
+                    <div class="news-title">2026ºë ì²« ê±°ëì¼ ì½ì¤í¼ ì¬ì ìµê³ ì¹ ê²½ì </div>
+                    <div class="news-desc">ìí´ ì²« ê±°ëì¼ì ì½ì¤í¼ê° ì¥ì¤ ì¬ì ìµê³ ì¹ë¥¼ ê¸°ë¡íì´ì. ì¼ì±ì ìì SKíì´ëì¤ê° ëë° ìì¹íë©° ìì¥ì ì´ëìì´ì.</div>
+                    <div class="news-date">2026.01.02</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 5. í¬ì ìºë¦°ë -->
+    <section id="calendar">
+        <div class="card">
+            <h2><span class="emoji">ð</span> í¬ì ìºë¦°ë</h2>
+
+            <div class="explain-box">
+                <strong>ìºë¦°ëê° ì ì¤ìí´ì?</strong><br>
+                ì¥ì  ë°íì¼ìë ì£¼ê°ê° í¬ê² ìì§ì¬ì. ë°°ë¹ì ë¶ì¼ë ¤ë© ë°°ë¹ ê¸°ì¤ì¸ ì ì ì£¼ìì ê°ê³  ìì´ì¼ í´ì. ì¤ìí ë ì§ë¥¼ ë¯¼ë¦¬ ììëë©´ í¬ìì ëìì´ ëëµëë¤!
+            </div>
+
+            <h3>ì¼ì±ì ì ì£¼ì ì¼ì </h3>
+
+            <div class="calendar-item">
+                <div class="cal-date">
+                    <div class="cal-month">3ì</div>
+                    <div class="cal-day">18</div>
+                </div>
+                <div class="cal-info">
+                    <div class="cal-title">ì¼ì±ì ì ì ê¸° ì£¼ì£¼ì´í</div>
+                    <div class="cal-desc">2025ë ê²°ì° ë°°ë¹ ì¹ì¸ (ë³´íµì£¼ 1,668ì)</div>
+                </div>
+            </div>
+
+            <div class="calendar-item">
+                <div class="cal-date">
+                    <div class="cal-month">3ì</div>
+                    <div class="cal-day">31</div>
+                </div>
+                <div class="cal-info">
+                    <div class="cal-title">ì¼ì±ì ì 1ë¶ê¸° ë°°ë¹ ê¸°ì¤ì¼</div>
+                    <div class="cal-desc">ì´ë ê¹ì§ ì£¼ì ë³´ì  ì 1ë¶ê¸° ë°°ë¹ ìë ¹ ê°ë¥</div>
+                </div>
+            </div>
+
+            <div class="calendar-item">
+                <div class="cal-date" style="background:var(--blue)">
+                    <div class="cal-month">4ì</div>
+                    <div class="cal-day">ì¤</div>
+                </div>
+                <div class="cal-info">
+                    <div class="cal-title">ì¼ì±ì ì 1ë¶ê¸° ì¤ì  ë°í (ì ì )</div>
+                    <div class="cal-desc">2026ë 1ë¶ê¸° ë§¤ì¶Â·ììì´ìµ ì ì  ì¤ì </div>
+                </div>
+            </div>
+
+            <div class="calendar-item">
+                <div class="cal-date" style="background:var(--green)">
+                    <div class="cal-month">4ì</div>
+                    <div class="cal-day">17</div>
+                </div>
+                <div class="cal-info">
+                    <div class="cal-title">ì¼ì±ì ì ê²°ì° ë°°ë¹ê¸ ì§ê¸ ìì </div>
+                    <div class="cal-desc">2025ë ê²°ì° ë°°ë¹ê¸ ì§ê¸ (ë³´íµì£¼ 1,668ì)</div>
+                </div>
+            </div>
+
+            <h3 style="margin-top:20px">SKíì´ëì¤ ì£¼ì ì¼ì </h3>
+
+            <div class="calendar-item">
+                <div class="cal-date" style="background:var(--blue)">
+                    <div class="cal-month">4ì</div>
+                    <div class="cal-day">ì¤</div>
+                </div>
+                <div class="cal-info">
+                    <div class="cal-title">SKíì´ëì¤ 1ë¶ê¸° ì¤ì  ë°í (ì ì )</div>
+                    <div class="cal-desc">2026ë 1ë¶ê¸° ë§¤ì¶Â·ìììµìµ ì ì  ì¤ì </div>
+                </div>
+            </div>
+
+            <div class="calendar-item">
+                <div class="cal-date" style="background:var(--green)">
+                    <div class="cal-month">5ì</div>
+                    <div class="cal-day">ì¤</div>
+                </div>
+                <div class="cal-info">
+                    <div class="cal-title">SKíì´ëì¤ ë¶ê¸° ë°°ë¹ê¸ ì§ê¸</div>
+                    <div class="cal-desc">í´ë¹ ë¶ê¸° ë°°ë¹ ìí (2022ëë¶í° ë¶ê¸°ë°°ë¹ ì í)</div>
+                </div>
+            </div>
+
+            <h3 style="margin-top:20px">ê¸°í ì¤ì ì¼ì </h3>
+
+            <div class="calendar-item">
+                <div class="cal-date" style="background:var(--orange)">
+                    <div class="cal-month">6ì</div>
+                    <div class="cal-day">ì¤</div>
+                </div>
+                <div class="cal-info">
+                    <div class="cal-title">MSCI ë°ê¸° ë¦¬ë°¸ë°ì±</div>
+                    <div class="cal-desc">ê¸ë¡ë² à»ì í ì/í¼ì¶ì ë°ë¼ ì¸êµ­ì¸ ë§¤ë§´ ìí¥</div>
+                </div>
+            </div>
+
+            <div class="calendar-item">
+                <div class="cal-date" style="background:#7b1fa2">
+                    <div class="cal-month">ì°ì¤</div>
+                    <div class="cal-day">ð</div>
+                </div>
+                <div class="cal-info">
+                    <div class="cal-title">ì¼ì±ì ì ë¶ê¸° ë°°ë¹ (ì° 4í)</div>
+                    <div class="cal-desc">4ì, 5ì, 8ì, 11ìì ë¶ê¸° ë°°ë¹ìë ¹ ì§ê¸</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ë©´ì±ì¡í­ -->
+    <div class="disclaimer">
+        <strong>â ï¸ í¬ì ì ìì¬í¹</strong>
+        ì´ íì´ì§ì ì ë³´ë ì°¸ê³ ì©ì´ë©°, í¬ì ê¶íê° ìëëë¤.<br>
+        <strong>ì£¼ì í¬ìì ëª¨ë  ì±ìì ë³¸ì¸ìê² ììµëë¤.</strong><br>
+        í¬ì ì  ë°ëì ì¶©ë¶í ê³µë¶ì ìí´ì íìê³ ,<br>
+        <strong>ì¬ì  ìê¸ì¼ë¡ë§ í¬ìíì¸ì.</strong><br>
+        <span style="font-size:13px;color:#e57373;margin-top:8px;display:block">
+            ì¶ì²: íêµ­ê²½ì , ë§¤ì¼ê²½ì , ë¶ì°ì¼ë³´, Investing.com, ZDNet Korea, SKíì´ëì¤ ë´ì¤ë£¸, ê° ì¦ê¶ ë¦¬í¬í¸<br>
+            ìì±ì¼: 2026ë 3ì 22ì¼ | ë°ì´í° ê¸°ì¤: 2026ë 3ì 20ì¼ ì¢^« ¢Â÷7ãà¢ÂöFcà ¢Æfö÷FW#à¢ÇîÉê^ºª¸¹Â«h«ÙYÂ«ÉèÉËÎÈ¹ÎºBÉkÊ	Î¹:ÊNÙBÊ;ÎÈKÉ©B	ù9ãÂ÷à¢Ç7GÆSÒ&Ö&vâ×F÷£#îÉêÎÉª¹9ÎºkÃÂ÷à¢Âöfö÷FW#à £ÂöFcà £Âö&öGà£ÂöFÖÃ
