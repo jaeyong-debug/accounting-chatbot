@@ -1,777 +1,181 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>장모님을 위한 주식투자 정보 - 2026년 3월 22일</title>
-    <style>
-        :root {
-            --red: #d32f2f;
-            --blue: #1565c0;
-            --light-red: #ffebee;
-            --light-blue: #e3f2fd;
-            --green: #2e7d32;
-            --light-green: #e8f5e9;
-            --orange: #ef6c00;
-            --light-orange: #fff3e0;
-            --bg: #fafafa;
-            --card-bg: #ffffff;
-            --text: #212121;
-            --text-light: #616161;
-            --border: #e0e0e0;
-        }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', '맑은 고딕', sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            line-height: 1.7;
-            font-size: 17px;
-        }
-        .container { max-width: 900px; margin: 0 auto; padding: 16px; }
-
-        /* 헤더 */
-        header {
-            background: linear-gradient(135deg, var(--blue), #0d47a1);
-            color: white;
-            padding: 32px 20px;
-            text-align: center;
-            border-radius: 16px;
-            margin-bottom: 24px;
-            box-shadow: 0 4px 20px rgba(21,101,192,0.3);
-        }
-        header h1 { font-size: 28px; margin-bottom: 8px; }
-        header .subtitle { font-size: 16px; opacity: 0.9; }
-        header .date { font-size: 14px; opacity: 0.7; margin-top: 8px; }
-
-        /* 네비게이션 */
-        .nav-pills {
-            display: flex; flex-wrap: wrap; gap: 8px;
-            margin-bottom: 24px; justify-content: center;
-        }
-        .nav-pills a {
-            background: white; color: var(--blue); border: 2px solid var(--blue);
-            padding: 8px 16px; border-radius: 24px; text-decoration: none;
-            font-size: 15px; font-weight: 600; transition: all 0.2s;
-        }
-        .nav-pills a:hover, .nav-pills a:active {
-            background: var(--blue); color: white;
-        }
-
-        /* 카드 */
-        .card {
-            background: var(--card-bg);
-            border-radius: 16px;
-            padding: 24px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-            border: 1px solid var(--border);
-        }
-        .card h2 {
-            font-size: 22px; margin-bottom: 16px;
-            padding-bottom: 12px; border-bottom: 3px solid var(--blue);
-            display: flex; align-items: center; gap: 10px;
-        }
-        .card h2 .emoji { font-size: 28px; }
-        .card h3 { font-size: 19px; margin: 16px 0 10px; color: var(--blue); }
-
-        /* 코스피 지수 배너 */
-        .index-banner {
-            background: linear-gradient(135deg, #1a237e, #283593);
-            color: white; border-radius: 16px; padding: 24px;
-            margin-bottom: 20px; text-align: center;
-        }
-        .index-value { font-size: 48px; font-weight: 800; margin: 8px 0; }
-        .index-change { font-size: 20px; }
-        .index-change.down { color: #ef5350; }
-        .index-change.up { color: #66bb6a; }
-        .index-label { font-size: 14px; opacity: 0.8; }
-
-        /* 종목 카드 */
-        .stock-card {
-            background: white; border-radius: 14px; padding: 20px;
-            margin-bottom: 16px; border: 2px solid var(--border);
-            transition: border-color 0.2s;
-        }
-        .stock-card:hover { border-color: var(--blue); }
-        .stock-header {
-            display: flex; justify-content: space-between;
-            align-items: center; flex-wrap: wrap; gap: 10px;
-            margin-bottom: 16px;
-        }
-        .stock-name { font-size: 22px; font-weight: 700; }
-        .stock-code { font-size: 14px; color: var(--text-light); }
-        .stock-price { font-size: 28px; font-weight: 800; color: var(--blue); }
-        .stock-change { font-size: 16px; font-weight: 600; }
-        .stock-change.down { color: var(--blue); }
-        .stock-change.up { color: var(--red); }
-
-        /* 투자의견 배지 */
-        .badge {
-            display: inline-block; padding: 6px 16px; border-radius: 20px;
-            font-size: 15px; font-weight: 700; margin: 4px;
-        }
-        .badge-buy { background: var(--light-red); color: var(--red); border: 2px solid var(--red); }
-        .badge-hold { background: var(--light-orange); color: var(--orange); border: 2px solid var(--orange); }
-        .badge-target { background: var(--light-blue); color: var(--blue); border: 2px solid var(--blue); }
-
-        /* 증권사 테이블 */
-        .broker-table {
-            width: 100%; border-collapse: collapse; margin: 12px 0;
-            font-size: 15px;
-        }
-        .broker-table th {
-            background: var(--light-blue); color: var(--blue);
-            padding: 10px 12px; text-align: left; font-size: 14px;
-        }
-        .broker-table td {
-            padding: 10px 12px; border-bottom: 1px solid var(--border);
-        }
-        .broker-table tr:last-child td { border-bottom: none; }
-
-        /* 간단 설명 박스 */
-        .explain-box {
-            background: #fffde7; border-left: 4px solid #fbc02d;
-            padding: 16px; border-radius: 0 12px 12px 0;
-            margin: 12px 0; font-size: 16px; line-height: 1.8;
-        }
-        .explain-box strong { color: #f57f17; }
-
-        /* 차트 영역 */
-        .chart-container {
-            background: #f8f9fa; border-radius: 12px;
-            padding: 20px; margin: 16px 0; overflow-x: auto;
-        }
-        .bar-chart { display: flex; align-items: flex-end; gap: 8px; height: 200px; padding-top: 20px; }
-        .bar-item { flex: 1; min-width: 60px; text-align: center; }
-        .bar {
-            margin: 0 auto; width: 40px; border-radius: 6px 6px 0 0;
-            transition: height 0.5s; position: relative;
-        }
-        .bar-label { font-size: 12px; color: var(--text-light); margin-top: 6px; }
-        .bar-value {
-            font-size: 11px; font-weight: 600; position: absolute;
-            top: -20px; left: 50%; transform: translateX(-50%); white-space: nowrap;
-        }
-
-        /* 뉴스 리스트 */
-        .news-item {
-            padding: 16px; border-bottom: 1px solid var(--border);
-            display: flex; gap: 12px; align-items: flex-start;
-        }
-        .news-item:last-child { border-bottom: none; }
-        .news-dot {
-            width: 10px; height: 10px; border-radius: 50%;
-            background: var(--red); margin-top: 8px; flex-shrink: 0;
-        }
-        .news-title { font-size: 17px; font-weight: 600; margin-bottom: 4px; }
-        .news-desc { font-size: 15px; color: var(--text-light); }
-        .news-date { font-size: 13px; color: #9e9e9e; margin-top: 4px; }
-
-        /* 캘린더 */
-        .calendar-item {
-            display: flex; gap: 16px; padding: 14px 0;
-            border-bottom: 1px solid var(--border); align-items: center;
-        }
-        .calendar-item:last-child { border-bottom: none; }
-        .cal-date {
-            background: var(--red); color: white; border-radius: 12px;
-            padding: 8px 14px; text-align: center; min-width: 70px; flex-shrink: 0;
-        }
-        .cal-month { font-size: 12px; }
-        .cal-day { font-size: 22px; font-weight: 800; }
-        .cal-info { flex: 1; }
-        .cal-title { font-size: 17px; font-weight: 600; }
-        .cal-desc { font-size: 14px; color: var(--text-light); }
-
-        /* 면책조항 */
-        .disclaimer {
-            background: #fce4ec; border: 2px solid var(--red);
-            border-radius: 12px; padding: 20px; margin: 24px 0;
-            text-align: center; font-size: 15px; color: #b71c1c;
-        }
-        .disclaimer strong { font-size: 18px; display: block; margin-bottom: 8px; }
-
-        /* 푸터 */
-        footer {
-            text-align: center; padding: 24px;
-            color: var(--text-light); font-size: 13px;
-        }
-
-        /* SVG 차트 */
-        .svg-chart { width: 100%; max-width: 800px; margin: 0 auto; display: block; }
-
-        /* 글로벌 동향 그리드 */
-        .global-grid {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 12px; margin: 16px 0;
-        }
-        .global-item {
-            background: #f5f5f5; border-radius: 12px; padding: 16px; text-align: center;
-        }
-        .global-item .flag { font-size: 28px; }
-        .global-item .name { font-size: 14px; color: var(--text-light); margin: 4px 0; }
-        .global-item .value { font-size: 20px; font-weight: 700; }
-        .global-item .change { font-size: 14px; font-weight: 600; }
-        .global-item .change.up { color: var(--red); }
-        .global-item .change.down { color: var(--blue); }
-
-        /* 산업 키워드 */
-        .keyword-cloud {
-            display: flex; flex-wrap: wrap; gap: 10px; margin: 16px 0;
-            justify-content: center;
-        }
-        .keyword {
-            padding: 8px 18px; border-radius: 20px; font-weight: 600;
-            font-size: 15px;
-        }
-        .keyword.hot { background: #ffcdd2; color: #c62828; }
-        .keyword.warm { background: #fff9c4; color: #f57f17; }
-        .keyword.cool { background: #bbdefb; color: #1565c0; }
-
-        /* 반응형 */
-        @media (max-width: 600px) {
-            body { font-size: 16px; }
-            header h1 { font-size: 22px; }
-            .index-value { font-size: 36px; }
-            .stock-price { font-size: 24px; }
-            .stock-header { flex-direction: column; align-items: flex-start; }
-            .bar-chart { height: 150px; }
-            .nav-pills a { font-size: 13px; padding: 6px 12px; }
-            .global-grid { grid-template-columns: repeat(2, 1fr); }
-        }
-
-        /* 스크롤 동작 */
-        html { scroll-behavior: smooth; }
-        section { scroll-margin-top: 16px; }
-
-        /* 텍스트 강조 */
-        .highlight-red { color: var(--red); font-weight: 700; }
-        .highlight-blue { color: var(--blue); font-weight: 700; }
-
-        /* 요약 박스 */
-        .summary-box {
-            background: linear-gradient(135deg, #e8eaf6, #c5cae9);
-            border-radius: 14px; padding: 20px; margin: 16px 0;
-        }
-        .summary-box p { margin: 8px 0; font-size: 16px; }
-
-        /* 상승여력 바 */
-        .upside-bar {
-            background: #e0e0e0; border-radius: 10px; height: 24px;
-            margin: 10px 0; overflow: hidden; position: relative;
-        }
-        .upside-fill {
-            height: 100%; border-radius: 10px;
-            background: linear-gradient(90deg, var(--blue), var(--red));
-            display: flex; align-items: center; justify-content: flex-end;
-            padding-right: 10px; color: white; font-size: 13px; font-weight: 700;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>장모님을 위한 주식투자 정보 - 2026년 03월 22일 22:40</title>
+<style>
+:root{--red:#d32f2f;--blue:#1565c0;--bg:#f5f7fa;--card:#fff;--border:#e0e0e0;--text:#212121}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Apple SD Gothic Neo','Malgun Gothic','맑은 고딕',sans-serif;
+      background:var(--bg);color:var(--text);line-height:1.6;font-size:16px}
+.container{max-width:880px;margin:0 auto;padding:16px}
+header{background:linear-gradient(135deg,#1565c0,#0d47a1);color:#fff;
+        padding:28px 20px;text-align:center;border-radius:16px;margin-bottom:20px;
+        box-shadow:0 4px 20px rgba(21,101,192,.3)}
+header h1{font-size:26px;margin-bottom:6px}
+header .sub{font-size:14px;opacity:.85}
+.update-bar{background:#fff;border:1px solid var(--border);border-radius:10px;
+             padding:10px 16px;margin-bottom:20px;display:flex;align-items:center;
+             justify-content:space-between;font-size:14px;color:#555}
+.update-bar .live{display:flex;align-items:center;gap:6px;color:#1565c0;font-weight:600}
+.dot{width:8px;height:8px;background:#4caf50;border-radius:50%;
+      animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.idx-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px}
+.idx-card{border-radius:12px;padding:18px;text-align:center;border:1px solid var(--border)}
+.idx-flag{font-size:28px;margin-bottom:4px}
+.idx-title{font-size:13px;color:#666;margin-bottom:4px}
+.idx-price{font-size:22px;font-weight:700;margin-bottom:4px}
+.idx-chg{font-size:15px;font-weight:600}
+.sec-block{background:var(--card);border:1px solid var(--border);border-radius:12px;
+            margin-bottom:14px;overflow:hidden}
+.sec-title{background:#f0f4ff;padding:10px 16px;font-weight:700;font-size:15px;
+            color:#1565c0;border-bottom:1px solid #dde4f5}
+.s-table{width:100%;border-collapse:collapse}
+.s-table tr{border-bottom:1px solid #f0f0f0}
+.s-table tr:last-child{border-bottom:none}
+.s-table td{padding:11px 16px}
+.s-name{font-size:15px}
+.s-price{text-align:right;font-weight:700;font-size:15px}
+.s-chg{text-align:right;font-weight:600;font-size:14px;width:100px}
+.notice{background:#fff8e1;border:1px solid #ffe082;border-radius:10px;
+         padding:14px 16px;margin-top:20px;font-size:14px;color:#5d4037;line-height:1.7}
+footer{text-align:center;color:#999;font-size:13px;margin-top:20px;padding:16px}
+@media(max-width:480px){
+  header h1{font-size:20px}
+  .idx-price{font-size:18px}
+  .s-name,.s-price{font-size:14px}
+}
+</style>
 </head>
 <body>
-
 <div class="container">
+  <header>
+    <h1>📈 장모님을 위한 주식투자 정보</h1>
+    <div class="sub">2026년 03월 22일 22:40 (일요일) · Yahoo Finance 실시간 연동</div>
+  </header>
 
-    <!-- 헤더 -->
-    <header>
-        <h1>양평 장모님을 위한<br>주식투자 알짜 정보</h1>
-        <div class="subtitle">반도체주 중심 · 쉽고 친절하게 알려드려요</div>
-        <div class="date">2026년 3월 22일 (일요일) 기준</div>
-    </header>
+  <div class="update-bar">
+    <span class="live"><span class="dot"></span> 자동 업데이트 중 (30분마다)</span>
+    <span>최종: 2026년 03월 22일 22:40</span>
+  </div>
 
-    <!-- 네비게이션 -->
-    <nav class="nav-pills">
-        <a href="#market">시장 개요</a>
-        <a href="#picks">추천 종목</a>
-        <a href="#industry">반도체 동향</a>
-        <a href="#news">주요 뉴스</a>
-        <a href="#calendar">투자 캘린더</a>
-    </nav>
+  <div class="idx-row">
+        <div class="idx-card" style="background:#fff3f3">
+          <div class="idx-flag">🇰🇷</div>
+          <div class="idx-title">KOSPI</div>
+          <div class="idx-price">5,781원</div>
+          <div class="idx-chg" style="color:#d32f2f">▲ +0.31%</div>
+        </div>
+        <div class="idx-card" style="background:#fff3f3">
+          <div class="idx-flag">📊</div>
+          <div class="idx-title">KOSDAQ</div>
+          <div class="idx-price">1,161원</div>
+          <div class="idx-chg" style="color:#d32f2f">▲ +1.58%</div>
+        </div></div>
 
-    <!-- 1. 시장 개요 -->
-    <section id="market">
-        <div class="index-banner">
-            <div class="index-label">코스피 종합지수 (3월 20일 종가)</div>
-            <div class="index-value">5,781</div>
-            <div class="index-change up">▲ 18.00 (+0.31%)</div>
-            <div class="index-label" style="margin-top:8px">시가총액 약 4,893조원 · 반도체 비중 43%</div>
+  
+        <div class="sec-block">
+          <div class="sec-title">반도체·IT</div>
+          <table class="s-table"><tbody>
+            <tr>
+              <td class="s-name">📱 삼성전자</td>
+              <td class="s-price">199,400원</td>
+              <td class="s-chg" style="color:#1565c0">▼ -0.55%</td>
+            </tr>
+            <tr>
+              <td class="s-name">💾 SK하이닉스</td>
+              <td class="s-price">1,007,000원</td>
+              <td class="s-chg" style="color:#1565c0">▼ -0.59%</td>
+            </tr></tbody></table>
+        </div>
+        <div class="sec-block">
+          <div class="sec-title">플랫폼·AI</div>
+          <table class="s-table"><tbody>
+            <tr>
+              <td class="s-name">🟢 NAVER</td>
+              <td class="s-price">221,500원</td>
+              <td class="s-chg" style="color:#d32f2f">▲ +0.45%</td>
+            </tr>
+            <tr>
+              <td class="s-name">💛 카카오</td>
+              <td class="s-price">50,000원</td>
+              <td class="s-chg" style="color:#d32f2f">▲ +0.00%</td>
+            </tr></tbody></table>
+        </div>
+        <div class="sec-block">
+          <div class="sec-title">2차전지</div>
+          <table class="s-table"><tbody>
+            <tr>
+              <td class="s-name">🔋 LG에너지솔루션</td>
+              <td class="s-price">375,500원</td>
+              <td class="s-chg" style="color:#d32f2f">▲ +1.21%</td>
+            </tr>
+            <tr>
+              <td class="s-name">⚡ 에코프로비엠</td>
+              <td class="s-price">191,900원</td>
+              <td class="s-chg" style="color:#d32f2f">▲ +1.16%</td>
+            </tr></tbody></table>
+        </div>
+        <div class="sec-block">
+          <div class="sec-title">자동차</div>
+          <table class="s-table"><tbody>
+            <tr>
+              <td class="s-name">🚗 현대차</td>
+              <td class="s-price">517,000원</td>
+              <td class="s-chg" style="color:#1565c0">▼ -0.96%</td>
+            </tr>
+            <tr>
+              <td class="s-name">🚙 기아</td>
+              <td class="s-price">168,500원</td>
+              <td class="s-chg" style="color:#1565c0">▼ -1.17%</td>
+            </tr></tbody></table>
+        </div>
+        <div class="sec-block">
+          <div class="sec-title">금융</div>
+          <table class="s-table"><tbody>
+            <tr>
+              <td class="s-name">🏦 KB금융</td>
+              <td class="s-price">155,200원</td>
+              <td class="s-chg" style="color:#1565c0">▼ -0.32%</td>
+            </tr>
+            <tr>
+              <td class="s-name">🏛️ 신한지주</td>
+              <td class="s-price">97,900원</td>
+              <td class="s-chg" style="color:#d32f2f">▲ +1.45%</td>
+            </tr></tbody></table>
+        </div>
+        <div class="sec-block">
+          <div class="sec-title">철강·소재</div>
+          <table class="s-table"><tbody>
+            <tr>
+              <td class="s-name">🏗️ POSCO홀딩스</td>
+              <td class="s-price">343,500원</td>
+              <td class="s-chg" style="color:#d32f2f">▲ +1.63%</td>
+            </tr></tbody></table>
+        </div>
+        <div class="sec-block">
+          <div class="sec-title">바이오</div>
+          <table class="s-table"><tbody>
+            <tr>
+              <td class="s-name">💊 셀트리온</td>
+              <td class="s-price">202,000원</td>
+              <td class="s-chg" style="color:#d32f2f">▲ +0.00%</td>
+            </tr></tbody></table>
         </div>
 
-        <div class="card">
-            <h2><span class="emoji">🌍</span> 글로벌 시장 동향</h2>
+  <div class="notice">
+    💡 <strong>투자 유의사항</strong><br>
+    본 페이지는 Yahoo Finance 데이터를 30분마다 자동 갱신합니다. 주식 거래는 본인 판단 하에 신중하게 결정하세요.
+    표시 가격은 전 거래일 종가 또는 장중 최근 데이터 기준이며, 실제 거래 가격과 차이가 있을 수 있습니다.
+    <br><br>💝 재용 드림
+  </div>
 
-            <div class="global-grid">
-                <div class="global-item">
-                    <div class="flag">🇺🇸</div>
-                    <div class="name">S&P 500</div>
-                    <div class="value">5,640</div>
-                    <div class="change down">▼ -0.52%</div>
-                </div>
-                <div class="global-item">
-                    <div class="flag">🇺🇸</div>
-                    <div class="name">나스닥</div>
-                    <div class="value">17,850</div>
-                    <div class="change down">▼ -0.33%</div>
-                </div>
-                <div class="global-item">
-                    <div class="flag">🇯🇵</div>
-                    <div class="name">닛케이225</div>
-                    <div class="value">37,677</div>
-                    <div class="change down">▼ -0.20%</div>
-                </div>
-                <div class="global-item">
-                    <div class="flag">🛢️</div>
-                    <div class="name">브렌트유</div>
-                    <div class="value">$107</div>
-                    <div class="change up">▲ 급등</div>
-                </div>
-            </div>
-
-            <div class="explain-box">
-                <strong>장모님, 지금 시장은 이래요 👇</strong><br>
-                코스피가 <strong>5,781</strong>까지 올라왔어요. 올해 초 사상 최고치를 경신한 이후, 최근 중동 불안으로 유가가 많이 오르면서 주가가 좀 출렁이고 있어요. 하지만 반도체 수요가 워낙 좋아서 <strong>삼성전자</strong>와 <strong>SK하이닉스</strong>가 코스피의 43%를 차지하며 시장을 든든하게 받치고 있답니다.
-            </div>
-        </div>
-    </section>
-
-    <!-- 2. 추천 종목 -->
-    <section id="picks">
-        <div class="card">
-            <h2><span class="emoji">⭐</span> 추천 종목 분석</h2>
-
-            <!-- 삼성전자 -->
-            <div class="stock-card">
-                <div class="stock-header">
-                    <div>
-                        <div class="stock-name">삼성전자</div>
-                        <div class="stock-code">005930 · 코스피</div>
-                    </div>
-                    <div style="text-align:right">
-                        <div class="stock-price">188,200원</div>
-                        <div class="stock-change down">▼ -3.84% (3/20 기준)</div>
-                    </div>
-                </div>
-
-                <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
-                    <span class="badge badge-buy">매수 추천</span>
-                    <span class="badge badge-target">목표가 260,000~270,000원</span>
-                </div>
-
-                <div class="explain-box">
-                    <strong>왜 삼성전자를 사야 할까요?</strong><br>
-                    삼성전자는 우리나라에서 <strong>가장 큰 회사</strong>예요 (시가총액 1,234조원). AI 인공지능에 쓰이는 <strong>특별한 반도체(HBM)</strong>를 만들어서 세계적으로 수요가 폭발하고 있어요. 증권사들은 주가가 지금보다 <strong>40~50% 더 오를 수 있다</strong>고 보고 있답니다.
-                </div>
-
-                <h3>증권사 목표주가</h3>
-                <table class="broker-table">
-                    <tr><th>증권사</th><th>목표주가</th><th>투자의견</th></tr>
-                    <tr><td>한국투자증권</td><td class="highlight-red">270,000원</td><td>매수</td></tr>
-                    <tr><td>대신증권</td><td class="highlight-red">270,000원</td><td>매수</td></tr>
-                    <tr><td>키움증권</td><td class="highlight-red">260,000원</td><td>매수 (최선호주)</td></tr>
-                    <tr><td>SK증권</td><td class="highlight-red">260,000원</td><td>매수</td></tr>
-                    <tr><td>KB증권</td><td class="highlight-red">240,000원</td><td>매수 (최선호주)</td></tr>
-                </table>
-
-                <p style="margin-top:12px;font-size:15px;color:var(--text-light)">📊 평균 목표주가: <strong class="highlight-red">260,000원</strong> (현재가 대비 약 <strong>+38%</strong> 상승 여력)</p>
-
-                <div class="upside-bar">
-                    <div class="upside-fill" style="width:72%">현재 → 목표 +38%</div>
-                </div>
-
-                <!-- 삼성전자 주가 흐름 SVG 차트 -->
-                <h3>최근 주가 흐름 (52주)</h3>
-                <div class="chart-container">
-                    <svg class="svg-chart" viewBox="0 0 700 220" xmlns="http://www.w3.org/2000/svg">
-                        <defs>
-                            <linearGradient id="grad1" x1="0%" y1="0%" x2="0%" y2="100%">
-                                <stop offset="0%" style="stop-color:#1565c0;stop-opacity:0.3"/>
-                                <stop offset="100%" style="stop-color:#1565c0;stop-opacity:0.02"/>
-                            </linearGradient>
-                        </defs>
-                        <!-- 그리드 -->
-                        <line x1="50" y1="20" x2="50" y2="180" stroke="#e0e0e0" stroke-width="1"/>
-                        <line x1="50" y1="180" x2="680" y2="180" stroke="#e0e0e0" stroke-width="1"/>
-                        <line x1="50" y1="100" x2="680" y2="100" stroke="#e0e0e0" stroke-width="0.5" stroke-dasharray="4"/>
-                        <line x1="50" y1="60" x2="680" y2="60" stroke="#e0e0e0" stroke-width="0.5" stroke-dasharray="4"/>
-                        <line x1="50" y1="140" x2="680" y2="140" stroke="#e0e0e0" stroke-width="0.5" stroke-dasharray="4"/>
-                        <!-- Y축 레이블 -->
-                        <text x="45" y="25" text-anchor="end" font-size="11" fill="#999">22만</text>
-                        <text x="45" y="65" text-anchor="end" font-size="11" fill="#999">19만</text>
-                        <text x="45" y="105" text-anchor="end" font-size="11" fill="#999">16만</text>
-                        <text x="45" y="145" text-anchor="end" font-size="11" fill="#999">13만</text>
-                        <text x="45" y="183" text-anchor="end" font-size="11" fill="#999">9.5만</text>
-                        <!-- 주가 라인 (52주 최저 94,500 → 최고 223,000, 현재 188,200) -->
-                        <path d="M60,170 L110,165 L160,140 L210,120 L260,80 L310,40 L360,25 L410,55 L460,70 L510,65 L560,50 L610,60 L660,55" fill="none" stroke="#1565c0" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M60,170 L110,165 L160,140 L210,120 L260,80 L310,40 L360,25 L410,55 L460,70 L510,65 L560,50 L610,60 L660,55 L660,180 L60,180 Z" fill="url(#grad1)"/>
-                        <!-- 현재가 점 -->
-                        <circle cx="660" cy="55" r="5" fill="#d32f2f"/>
-                        <text x="660" y="48" text-anchor="middle" font-size="12" font-weight="700" fill="#d32f2f">188,200</text>
-                        <!-- X축 레이블 -->
-                        <text x="60" y="198" text-anchor="middle" font-size="10" fill="#999">'25.4</text>
-                        <text x="210" y="198" text-anchor="middle" font-size="10" fill="#999">'25.7</text>
-                        <text x="360" y="198" text-anchor="middle" font-size="10" fill="#999">'25.10</text>
-                        <text x="510" y="198" text-anchor="middle" font-size="10" fill="#999">'26.1</text>
-                        <text x="660" y="198" text-anchor="middle" font-size="10" fill="#999">'26.3</text>
-                        <!-- 52주 최고/최저 표시 -->
-                        <text x="370" y="18" text-anchor="middle" font-size="10" fill="#2e7d32">● 52주 최고 223,000원</text>
-                    </svg>
-                </div>
-
-                <div class="summary-box">
-                    <p><strong>핵심 요약:</strong></p>
-                    <p>✅ HBM(고대역폭메모리) 양산 본격화로 실적 개선 기대</p>
-                    <p>✅ 2026년 영업이익 148~200조원 전망</p>
-                    <p>✅ 52주 최저(94,500원) 대비 크게 회복</p>
-                    <p>⚠️ 중동 리스크로 단기 변동성 주의</p>
-                </div>
-            </div>
-
-            <!-- SK하이닉스 -->
-            <div class="stock-card">
-                <div class="stock-header">
-                    <div>
-                        <div class="stock-name">SK하이닉스</div>
-                        <div class="stock-code">000660 · 코스피</div>
-                    </div>
-                    <div style="text-align:right">
-                        <div class="stock-price">924,000원</div>
-                        <div class="stock-change down">▼ -4.26% (3/20 기준)</div>
-                    </div>
-                </div>
-
-                <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
-                    <span class="badge badge-buy">매수 추천</span>
-                    <span class="badge badge-target">목표가 84만~130만원</span>
-                </div>
-
-                <div class="explain-box">
-                    <strong>SK하이닉스는 어떤 회사예요?</strong><br>
-                    SK하이닉스는 <strong>HBM(고대역폭 메모리)</strong>이라는 AI에 꼭 필요한 반도체를 세계에서 가장 잘 만드는 회사예요. 엔비디아 같은 글로벌 기업이 SK하이닉스 반도체를 사려고 줄을 서고 있어요. <strong>2026년 생산량이 이미 다 팔린 상태</strong>랍니다!
-                </div>
-
-                <h3>증권사 목표주가</h3>
-                <table class="broker-table">
-                    <tr><th>증권사</th><th>목표주가</th><th>투자의견</th></tr>
-                    <tr><td>KB증권</td><td class="highlight-red">1,200,000원</td><td>매수</td></tr>
-                    <tr><td>하나증권</td><td class="highlight-red">1,120,000원</td><td>매수 (상향)</td></tr>
-                    <tr><td>목표가 상향 증권사</td><td class="highlight-red">1,300,000원</td><td>매수 (상향)</td></tr>
-                    <tr><td>대신증권</td><td class="highlight-red">840,000원</td><td>매수 (상향)</td></tr>
-                    <tr><td>DS투자증권</td><td class="highlight-red">800,000원</td><td>매수</td></tr>
-                </table>
-
-                <p style="margin-top:12px;font-size:15px;color:var(--text-light)">📊 평균 목표주가: <strong class="highlight-red">약 1,050,000원</strong> (현재가 대비 약 <strong>+14%</strong> 상승 여력)</p>
-
-                <div class="upside-bar">
-                    <div class="upside-fill" style="width:57%">현재 → 목표 +14%</div>
-                </div>
-
-                <!-- SK하이닉스 주가 흐름 SVG 차트 -->
-                <h3>최근 주가 흐름 (52주)</h3>
-                <div class="chart-container">
-                    <svg class="svg-chart" viewBox="0 0 700 220" xmlns="http://www.w3.org/2000/svg">
-                        <defs>
-                            <linearGradient id="grad2" x1="0%" y1="0%" x2="0%" y2="100%">
-                                <stop offset="0%" style="stop-color:#d32f2f;stop-opacity:0.3"/>
-                                <stop offset="100%" style="stop-color:#d32f2f;stop-opacity:0.02"/>
-                            </linearGradient>
-                        </defs>
-                        <line x1="50" y1="20" x2="50" y2="180" stroke="#e0e0e0" stroke-width="1"/>
-                        <line x1="50" y1="180" x2="680" y2="180" stroke="#e0e0e0" stroke-width="1"/>
-                        <line x1="50" y1="100" x2="680" y2="100" stroke="#e0e0e0" stroke-width="0.5" stroke-dasharray="4"/>
-                        <line x1="50" y1="60" x2="680" y2="60" stroke="#e0e0e0" stroke-width="0.5" stroke-dasharray="4"/>
-                        <line x1="50" y1="140" x2="680" y2="140" stroke="#e0e0e0" stroke-width="0.5" stroke-dasharray="4"/>
-                        <text x="45" y="25" text-anchor="end" font-size="11" fill="#999">110만</text>
-                        <text x="45" y="65" text-anchor="end" font-size="11" fill="#999">95만</text>
-                        <text x="45" y="105" text-anchor="end" font-size="11" fill="#999">80만</text>
-                        <text x="45" y="145" text-anchor="end" font-size="11" fill="#999">65만</text>
-                        <text x="45" y="183" text-anchor="end" font-size="11" fill="#999">50만</text>
-                        <!-- 주가 라인 (52주: 고점 1,099,000 → 현재 924,000) -->
-                        <path d="M60,100 L110,80 L160,60 L210,45 L260,30 L310,20 L360,35 L410,45 L460,55 L510,50 L560,60 L610,55 L660,52" fill="none" stroke="#d32f2f" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M60,100 L110,80 L160,60 L210,45 L260,30 L310,20 L360,35 L410,45 L460,55 L510,50 L560,60 L610,55 L660,52 L660,180 L60,180 Z" fill="url(#grad2)"/>
-                        <circle cx="660" cy="52" r="5" fill="#d32f2f"/>
-                        <text x="660" y="45" text-anchor="middle" font-size="12" font-weight="700" fill="#d32f2f">924,000</text>
-                        <text x="60" y="198" text-anchor="middle" font-size="10" fill="#999">'25.4</text>
-                        <text x="210" y="198" text-anchor="middle" font-size="10" fill="#999">'25.7</text>
-                        <text x="360" y="198" text-anchor="middle" font-size="10" fill="#999">'25.10</text>
-                        <text x="510" y="198" text-anchor="middle" font-size="10" fill="#999">'26.1</text>
-                        <text x="660" y="198" text-anchor="middle" font-size="10" fill="#999">'26.3</text>
-                        <text x="320" y="15" text-anchor="middle" font-size="10" fill="#2e7d32">● 52주 최고 1,099,000원</text>
-                    </svg>
-                </div>
-
-                <div class="summary-box">
-                    <p><strong>핵심 요약:</strong></p>
-                    <p>✅ HBM 시장 세계 1위, 2026년 생산분 이미 완판</p>
-                    <p>✅ 2026년 매출 166조, 영업이익 101조 전망 (역대 최대)</p>
-                    <p>✅ HBM3E 가격 20% 인상 → 수익성 개선</p>
-                    <p>⚠️ 52주 고점(109.9만원) 대비 15.9% 조정 상태</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- 3. 반도체 산업 동향 -->
-    <section id="industry">
-        <div class="card">
-            <h2><span class="emoji">🔬</span> 반도체 산업 동향</h2>
-
-            <div class="explain-box">
-                <strong>반도체가 뭐길래 이렇게 중요할까요?</strong><br>
-                요즘 ChatGPT 같은 <strong>AI(인공지능)</strong>가 엄청나게 발전하고 있죠? 이 AI를 돌리려면 아주 빠르고 특별한 반도체가 필요해요. 그게 바로 <strong>HBM(고대역폭 메모리)</strong>이에요. 삼성전자와 SK하이닉스가 이걸 세계에서 가장 잘 만든답니다!
-            </div>
-
-            <h3>HBM 시장 규모 전망</h3>
-            <div class="chart-container">
-                <div class="bar-chart">
-                    <div class="bar-item">
-                        <div class="bar" style="height:40%;background:var(--blue);position:relative">
-                            <span class="bar-value" style="color:var(--blue)">100억$</span>
-                        </div>
-                        <div class="bar-label">2023</div>
-                    </div>
-                    <div class="bar-item">
-                        <div class="bar" style="height:55%;background:var(--blue);position:relative">
-                            <span class="bar-value" style="color:var(--blue)">196억$</span>
-                        </div>
-                        <div class="bar-label">2024</div>
-                    </div>
-                    <div class="bar-item">
-                        <div class="bar" style="height:72%;background:#1976d2;position:relative">
-                            <span class="bar-value" style="color:#1976d2">345억$</span>
-                        </div>
-                        <div class="bar-label">2025</div>
-                    </div>
-                    <div class="bar-item">
-                        <div class="bar" style="height:95%;background:var(--red);position:relative">
-                            <span class="bar-value" style="color:var(--red)">546억$</span>
-                        </div>
-                        <div class="bar-label">2026(E)</div>
-                    </div>
-                </div>
-                <p style="text-align:center;font-size:13px;color:#999;margin-top:12px">출처: BofA 추정치 · (E)는 전망치</p>
-            </div>
-
-            <h3>핵심 키워드로 보는 반도체 트렌드</h3>
-            <div class="keyword-cloud">
-                <span class="keyword hot">🔥 HBM3E 주력 부상</span>
-                <span class="keyword hot">🔥 AI 추론 시대 개막</span>
-                <span class="keyword hot">🔥 메모리 슈퍼사이클</span>
-                <span class="keyword warm">⚡ 공급 부족(쇼티지)</span>
-                <span class="keyword warm">⚡ HBM 가격 20% 인상</span>
-                <span class="keyword cool">💡 HBM4 차세대 준비</span>
-                <span class="keyword cool">💡 반도체 시장 1조$ 돌파</span>
-            </div>
-
-            <h3>주요 산업 포인트</h3>
-
-            <div style="margin:16px 0">
-                <p style="margin:12px 0;padding:12px;background:#f5f5f5;border-radius:10px">
-                    <strong style="color:var(--red)">1. 메모리 슈퍼사이클 진행 중</strong><br>
-                    AI 덕분에 반도체 수요가 폭발적으로 늘고 있어요. 2026년 글로벌 반도체 시장이 사상 처음 <strong>1조 달러(약 1,400조원)</strong>에 가까워질 전망이에요.
-                </p>
-                <p style="margin:12px 0;padding:12px;background:#f5f5f5;border-radius:10px">
-                    <strong style="color:var(--red)">2. HBM3E가 돈을 벌어다 줘요</strong><br>
-                    2026년 HBM 중에서 <strong>HBM3E</strong>라는 최신형이 전체의 2/3를 차지할 거예요. 가격도 작년보다 <strong>20% 올렸는데</strong>도 주문이 밀려들고 있어요.
-                </p>
-                <p style="margin:12px 0;padding:12px;background:#f5f5f5;border-radius:10px">
-                    <strong style="color:var(--red)">3. 만들어도 만들어도 모자라요</strong><br>
-                    SK하이닉스와 마이크론은 <strong>2026년 HBM 생산량이 이미 전량 매진</strong>됐다고 발표했어요. 수요가 공급보다 훨씬 많은 '쇼티지(공급부족)' 상태예요.
-                </p>
-                <p style="margin:12px 0;padding:12px;background:#f5f5f5;border-radius:10px">
-                    <strong style="color:var(--blue)">4. 삼성+하이닉스 합산 영업이익 178조원!</strong><br>
-                    KB증권에 따르면 두 회사의 2026년 영업이익이 합쳐서 <strong>178조원</strong>에 달할 전망이에요. 정말 엄청난 숫자죠!
-                </p>
-            </div>
-        </div>
-    </section>
-
-    <!-- 4. 주요 뉴스 -->
-    <section id="news">
-        <div class="card">
-            <h2><span class="emoji">📰</span> 주요 뉴스</h2>
-
-            <div class="news-item">
-                <div class="news-dot"></div>
-                <div>
-                    <div class="news-title">코스피, 중동 불안에 급락 후 반등</div>
-                    <div class="news-desc">중동 지정학적 리스크로 유가가 급등(브렌트유 $107~$114)하면서 코스피가 2.73% 급락했으나, 이후 우려 완화로 소폭 반등하며 5,781로 마감했어요.</div>
-                    <div class="news-date">2026.03.20</div>
-                </div>
-            </div>
-
-            <div class="news-item">
-                <div class="news-dot" style="background:var(--blue)"></div>
-                <div>
-                    <div class="news-title">삼성전자·SK하이닉스, 대형 기술주 동반 하락</div>
-                    <div class="news-desc">삼성전자(-3.84%)와 SK하이닉스(-4.26%)가 시장 하락을 주도했어요. 하지만 증권사들은 단기 조정일 뿐이며 반도체 업황은 여전히 좋다는 의견이에요.</div>
-                    <div class="news-date">2026.03.20</div>
-                </div>
-            </div>
-
-            <div class="news-item">
-                <div class="news-dot" style="background:var(--green)"></div>
-                <div>
-                    <div class="news-title">키움증권, 삼성전자 목표가 26만원 상향</div>
-                    <div class="news-desc">키움증권이 삼성전자를 업종 최선호주로 유지하면서 목표주가를 26만원으로 올렸어요. HBM 양산 본격화가 핵심 근거에요.</div>
-                    <div class="news-date">2026.03.03</div>
-                </div>
-            </div>
-
-            <div class="news-item">
-                <div class="news-dot" style="background:var(--green)"></div>
-                <div>
-                    <div class="news-title">SK하이닉스, 2026년 영업이익 100조원 시대 전망</div>
-                    <div class="news-desc">대신증권은 SK하이닉스의 2026년 영업이익을 약 101조원으로 전망했어요. 매출은 166조원으로 전년 대비 73.6% 증가 예상이에요.</div>
-                    <div class="news-date">2026.03.08</div>
-                </div>
-            </div>
-
-            <div class="news-item">
-                <div class="news-dot" style="background:var(--orange)"></div>
-                <div>
-                    <div class="news-title">삼성전자, 메모리 공급 부족 경고</div>
-                    <div class="news-desc">삼성전자가 2026년 메모리 반도체 공급 부족을 경고하며, 전 산업 가격 급등이 불가피하다는 전망을 내놨어요.</div>
-                    <div class="news-date">2026.03</div>
-                </div>
-            </div>
-
-            <div class="news-item">
-                <div class="news-dot" style="background:var(--blue)"></div>
-                <div>
-                    <div class="news-title">2026년 첫 거래일 코스피 사상 최고치 경신</div>
-                    <div class="news-desc">새해 첫 거래일에 코스피가 장중 사상 최고치를 기록했어요. 삼성전자와 SK하이닉스가 동반 상승하며 시장을 이끌었어요.</div>
-                    <div class="news-date">2026.01.02</div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- 5. 투자 캘린더 -->
-    <section id="calendar">
-        <div class="card">
-            <h2><span class="emoji">📅</span> 투자 캘린더</h2>
-
-            <div class="explain-box">
-                <strong>캘린더가 왜 중요해요?</strong><br>
-                실적 발표일에는 주가가 크게 움직여요. 배당을 받으려면 배당 기준일 전에 주식을 갖고 있어야 해요. 중요한 날짜를 미리 알아두면 투자에 도움이 된답니다!
-            </div>
-
-            <h3>삼성전자 주요 일정</h3>
-
-            <div class="calendar-item">
-                <div class="cal-date">
-                    <div class="cal-month">3월</div>
-                    <div class="cal-day">18</div>
-                </div>
-                <div class="cal-info">
-                    <div class="cal-title">삼성전자 정기 주주총회</div>
-                    <div class="cal-desc">2025년 결산 배당 승인 (보통주 1,668원)</div>
-                </div>
-            </div>
-
-            <div class="calendar-item">
-                <div class="cal-date">
-                    <div class="cal-month">3월</div>
-                    <div class="cal-day">31</div>
-                </div>
-                <div class="cal-info">
-                    <div class="cal-title">삼성전자 1분기 배당 기준일</div>
-                    <div class="cal-desc">이날까지 주식 보유 시 1분기 배당 수령 가능</div>
-                </div>
-            </div>
-
-            <div class="calendar-item">
-                <div class="cal-date" style="background:var(--blue)">
-                    <div class="cal-month">4월</div>
-                    <div class="cal-day">중</div>
-                </div>
-                <div class="cal-info">
-                    <div class="cal-title">삼성전자 1분기 실적 발표 (잠정)</div>
-                    <div class="cal-desc">2026년 1분기 매출·영업이익 잠정 실적</div>
-                </div>
-            </div>
-
-            <div class="calendar-item">
-                <div class="cal-date" style="background:var(--green)">
-                    <div class="cal-month">4월</div>
-                    <div class="cal-day">17</div>
-                </div>
-                <div class="cal-info">
-                    <div class="cal-title">삼성전자 결산 배당금 지급 예정</div>
-                    <div class="cal-desc">2025년 결산 배당금 지급 (보통주 1,668원)</div>
-                </div>
-            </div>
-
-            <h3 style="margin-top:20px">SK하이닉스 주요 일정</h3>
-
-            <div class="calendar-item">
-                <div class="cal-date" style="background:var(--blue)">
-                    <div class="cal-month">4월</div>
-                    <div class="cal-day">중</div>
-                </div>
-                <div class="cal-info">
-                    <div class="cal-title">SK하이닉스 1분기 실적 발표 (잠정)</div>
-                    <div class="cal-desc">2026년 1분기 매출·영업이익 잠정 실적</div>
-                </div>
-            </div>
-
-            <div class="calendar-item">
-                <div class="cal-date" style="background:var(--green)">
-                    <div class="cal-month">5월</div>
-                    <div class="cal-day">중</div>
-                </div>
-                <div class="cal-info">
-                    <div class="cal-title">SK하이닉스 분기 배당금 지급</div>
-                    <div class="cal-desc">분기 배당 시행 (2022년부터 분기배당 전환)</div>
-                </div>
-            </div>
-
-            <h3 style="margin-top:20px">기타 중요 일정</h3>
-
-            <div class="calendar-item">
-                <div class="cal-date" style="background:var(--orange)">
-                    <div class="cal-month">6월</div>
-                    <div class="cal-day">중</div>
-                </div>
-                <div class="cal-info">
-                    <div class="cal-title">MSCI 반기 리밸런싱</div>
-                    <div class="cal-desc">글로벌 지수 편입/편출에 따라 외국인 매매 영향</div>
-                </div>
-            </div>
-
-            <div class="calendar-item">
-                <div class="cal-date" style="background:#7b1fa2">
-                    <div class="cal-month">연중</div>
-                    <div class="cal-day">🔔</div>
-                </div>
-                <div class="cal-info">
-                    <div class="cal-title">삼성전자 분기 배당 (연 4회)</div>
-                    <div class="cal-desc">4월, 5월, 8월, 11월에 분기 배당금 지급</div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- 면책조항 -->
-    <div class="disclaimer">
-        <strong>⚠️ 투자 유의사항</strong>
-        이 페이지의 정보는 참고용이며, 투자 권유가 아닙니다.<br>
-        <strong>주식 투자의 모든 책임은 본인에게 있습니다.</strong><br>
-        투자 전 반드시 충분한 공부와 상담을 하시고,<br>
-        <strong>여유 자금으로만 투자하세요.</strong><br>
-        <span style="font-size:13px;color:#e57373;margin-top:8px;display:block">
-            출처: 한국경제, 매일경제, 부산일보, Investing.com, ZDNet Korea, SK하이닉스 뉴스룸, 각 증권사 리포트<br>
-            작성일: 2026년 3월 22일 | 데이터 기준: 2026년 3월 20일 종가
-        </span>
-    </div>
-
-    <footer>
-        <p>장모님, 궁금한 거 있으시면 언제든 전화 주세요! 📞</p>
-        <p style="margin-top:8px">재용 드림</p>
-    </footer>
-
+  <footer>
+    자동 업데이트 · 데이터 출처: Yahoo Finance · GitHub Actions<br>
+    2026년 03월 22일 22:40 생성
+  </footer>
 </div>
-
 </body>
 </html>
