@@ -658,7 +658,7 @@ async function sendMessage(text) {
   if (chatHistory.length > 6) chatHistory = chatHistory.slice(-6);
 
   // 모델 우선순위: 기본 → 라이트(한도초과 시 자동 전환)
-  const MODELS = ['gemini-2.0-flash', 'gemini-2.0-flash-lite', 'gemini-1.5-flash'];
+  const MODELS = ['gemini-2.0-flash', 'gemini-2.0-flash-lite'];
   let activeModelIdx = 0;
 
   const fetchModel = async (modelName) => {
@@ -762,7 +762,7 @@ async function sendMessage(text) {
 
     // 사용 모델 배지 업데이트
     const badge = document.getElementById('model-badge');
-    if (badge) badge.textContent = `✨ ${model === 'gemini-2.0-flash' ? 'Gemini 2.0 Flash' : model === 'gemini-2.0-flash-lite' ? 'Gemini Lite ⚡' : 'Gemini 1.5 Flash ⚡'}`;
+    if (badge) badge.textContent = `✨ ${model === 'gemini-2.0-flash' ? 'Gemini 2.0 Flash' : 'Gemini Lite ⚡'}`;
 
     const formatted = reply
       .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
