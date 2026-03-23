@@ -105,6 +105,7 @@
     <div class="menu-item" onclick="setContext(this,'expense')"><span class="menu-icon">✈️</span> 경비 / 정산</div>
     <div class="menu-item" onclick="setContext(this,'manager')"><span class="menu-icon">👤</span> 담당자 찾기</div>
     <div class="menu-item" onclick="setContext(this,'etc')"><span class="menu-icon">❓</span> 기타</div>
+    <div class="menu-item" onclick="clearChat()" style="margin-top:8px;border-top:1px solid #2d3a50;padding-top:14px;color:#ef4444;"><span class="menu-icon">🗑️</span> 대화 초기화</div>
   </div>
   <div id="sidebar-footer">
     <div style="color:#6b7a94;font-size:11px;margin-bottom:6px;">📧 이외 문의사항</div>
@@ -555,6 +556,17 @@ function setContext(el, cat) {
 }
 
 /* ─────────────────────────────────────
+   대화 초기화
+───────────────────────────────────── */
+function clearChat() {
+  chatHistory = [];
+  lastRequestTime = 0;
+  document.getElementById('chatArea').innerHTML = '';
+  addMsg('대화 기록이 초기화됐습니다. 새로 질문해주세요! 😊', 'bot');
+  closeSidebar();
+}
+
+/* ─────────────────────────────────────
    퀵버튼
 ───────────────────────────────────── */
 function renderQuicks(cat) {
@@ -642,39 +654,63 @@ async function sendMessage(text) {
 
   addTyping();
 
-  // 히스토리 최대 10개 메시지로 트림 (토큰 절약 → 한도 소진 방지)
-  if (chatHistory.length > 10) chatHistory = chatHistory.slice(-10);
+  // 히스토리 최대 6개 메시지로 트림 (토큰 절약 — 시스템 프롬프트가 커서 6개로 제한)
+  if (chatHistory.length > 6) chatHistory = chatHistory.slice(-6);
 
   const callGemini = async (retryCount = 0) => {
-    const res = await fetch(
-      'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' + apiKey,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
-          contents: chatHistory,
-          generationConfig: { maxOutputTokens: 1024, temperature: 0.3 }
-        })
-      }
-    );
+    // 30초 타임아웃 설정 (fetch 무한 대기 방지)
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000);
+
+    let res;
+    try {
+      res = await fetch(
+        'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' + apiKey,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          signal: controller.signal,
+          body: JSON.stringify({
+            system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
+            contents: chatHistory,
+            generationConfig: { maxOutputTokens: 1024, temperature: 0.3 }
+          })
+        }
+      );
+    } catch (fetchErr) {
+      clearTimeout(timeoutId);
+      if (fetchErr.name === 'AbortError') throw new Error('응답 시간 초과 (30초). 네트워크 상태를 확인하고 다시 시도해주세요.');
+      throw new Error('네트워크 오류: 인터넷 연결을 확인해주세요.');
+    }
+    clearTimeout(timeoutId);
 
     if (!res.ok) {
-      const errBody = await res.json();
-      const code = errBody.error?.code || res.status;
-      const msg  = errBody.error?.message || '알 수 없는 오류';
+      let code = res.status;
+      let msg = '알 수 없는 오류';
+      try {
+        const errBody = await res.json();
+        code = errBody.error?.code || res.status;
+        msg  = errBody.error?.message || msg;
+      } catch (_) { /* 에러 바디 파싱 실패 무시 */ }
+
       if (code === 400) throw new Error('API 키가 올바르지 않습니다. 키를 다시 확인해주세요.');
+
       if (code === 429) {
+        // 일일 한도(RESOURCE_EXHAUSTED) vs 분당 한도 구분
+        const isDaily = msg.toLowerCase().includes('quota') || msg.toLowerCase().includes('resource');
+        if (isDaily && retryCount >= 1) {
+          throw new Error('일일 요청 한도(1,500건) 초과. 내일 다시 이용하거나 새 API 키를 발급해주세요.');
+        }
         if (retryCount < 1) {
-          const waitSec = 62;
-          // 올바른 ID(typing-ind)의 bubble 영역에 카운트다운 표시
+          const waitSec = isDaily ? 10 : 62; // 일일한도면 짧게, 분당한도면 62초
           const bubble = document.querySelector('#typing-ind .bubble');
           let remaining = waitSec;
-          if (bubble) bubble.innerHTML = `<span style="font-size:12px;color:#f59e0b;">⏳ 요청 한도 초과 — ${remaining}초 후 자동 재시도</span>`;
+          const label = isDaily ? '일일 한도 초과' : '분당 한도 초과';
+          if (bubble) bubble.innerHTML = `<span style="font-size:12px;color:#f59e0b;">⏳ ${label} — ${remaining}초 후 재시도</span>`;
           const tick = setInterval(() => {
             remaining--;
             if (bubble) bubble.innerHTML = remaining > 0
-              ? `<span style="font-size:12px;color:#f59e0b;">⏳ 요청 한도 초과 — ${remaining}초 후 자동 재시도</span>`
+              ? `<span style="font-size:12px;color:#f59e0b;">⏳ ${label} — ${remaining}초 후 재시도</span>`
               : `<span style="font-size:12px;color:#60a5fa;">⏳ 재시도 중...</span>`;
           }, 1000);
           await new Promise(r => setTimeout(r, waitSec * 1000));
@@ -682,16 +718,36 @@ async function sendMessage(text) {
           lastRequestTime = Date.now();
           return callGemini(retryCount + 1);
         }
-        throw new Error('요청 한도 초과. 잠시 후 다시 시도해주세요. (Gemini 무료: 분당 15건)');
+        throw new Error('요청 한도 초과. 잠시 후 다시 시도해주세요. (Gemini 무료: 분당 15건 / 일 1,500건)');
       }
-      throw new Error('API 오류 ' + code + ': ' + msg);
+
+      // 503: 서버 과부하 — 10초 후 1회 자동 재시도
+      if (code === 503 && retryCount < 1) {
+        const bubble = document.querySelector('#typing-ind .bubble');
+        if (bubble) bubble.innerHTML = `<span style="font-size:12px;color:#9ca3af;">⏳ 서버 과부하 — 10초 후 재시도...</span>`;
+        await new Promise(r => setTimeout(r, 10000));
+        return callGemini(retryCount + 1);
+      }
+
+      throw new Error(`API 오류 [${code}]: ${msg.substring(0, 120)}`);
     }
-    return res.json();
+
+    let data;
+    try {
+      data = await res.json();
+    } catch (_) {
+      throw new Error('응답 파싱 오류. 다시 시도해주세요.');
+    }
+    return data;
   };
 
   try {
     const data  = await callGemini();
-    const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || '응답을 받지 못했습니다.';
+    // finishReason 확인 (SAFETY / RECITATION 등으로 차단된 경우)
+    const candidate = data.candidates?.[0];
+    const finishReason = candidate?.finishReason;
+    if (finishReason === 'SAFETY') throw new Error('안전 정책으로 인해 응답이 차단되었습니다. 질문을 다시 작성해주세요.');
+    const reply = candidate?.content?.parts?.[0]?.text || '응답을 받지 못했습니다.';
 
     removeTyping();
     chatHistory.push({ role: 'model', parts: [{ text: reply }] });
