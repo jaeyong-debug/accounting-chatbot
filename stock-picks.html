@@ -2,494 +2,499 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>장모님을 위한 코스피 주식 투자 안내</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ì½ì¤í¼ ì£¼ì ì¶ì² â ì¥ëª¨ëì ìí í¬ì ì ë³´</title>
   <style>
     :root {
-      --red: #e53935;
-      --blue: #1565c0;
-      --green: #2e7d32;
-      --bg: #f5f7fa;
+      --up: #d63031;
+      --down: #0984e3;
+      --neutral: #636e72;
+      --bg: #f8f9fa;
       --card: #ffffff;
-      --text: #212121;
-      --sub: #555;
-      --border: #dde3ec;
+      --border: #dee2e6;
+      --text: #212529;
+      --subtext: #495057;
+      --accent: #6c5ce7;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', '맑은 고딕', sans-serif;
+      font-family: 'Noto Sans KR', 'Apple SD Gothic Neo', sans-serif;
       background: var(--bg);
       color: var(--text);
       font-size: 18px;
-      line-height: 1.7;
+      line-height: 1.6;
     }
     header {
-      background: linear-gradient(135deg, #1565c0 0%, #0d47a1 100%);
-      color: #fff;
-      padding: 28px 20px 22px;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+      color: white;
+      padding: 24px 20px 20px;
       text-align: center;
     }
-    header h1 { font-size: 2rem; font-weight: 800; margin-bottom: 6px; }
-    header .subtitle { font-size: 1rem; opacity: 0.85; }
-    header .update-time {
+    header h1 { font-size: 2rem; font-weight: 900; letter-spacing: -0.5px; }
+    header .subtitle { font-size: 1.05rem; opacity: 0.85; margin-top: 6px; }
+    .update-time {
       display: inline-block;
-      margin-top: 10px;
-      background: rgba(255,255,255,0.18);
+      background: rgba(255,255,255,0.15);
       border-radius: 20px;
       padding: 4px 16px;
       font-size: 0.9rem;
+      margin-top: 10px;
     }
-    .container { max-width: 860px; margin: 0 auto; padding: 20px 16px; }
+    .container { max-width: 900px; margin: 0 auto; padding: 20px 16px 40px; }
 
-    /* ── 섹션 공통 ── */
-    .section { margin-bottom: 28px; }
+    /* ââ Section titles ââ */
     .section-title {
-      font-size: 1.35rem;
+      font-size: 1.4rem;
       font-weight: 800;
-      color: var(--blue);
-      border-left: 6px solid var(--blue);
+      color: #1a1a2e;
+      border-left: 6px solid var(--accent);
       padding-left: 12px;
-      margin-bottom: 16px;
+      margin: 32px 0 16px;
     }
 
-    /* ── 시장 개요 ── */
-    .market-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    /* ââ KOSPI index bar ââ */
+    .market-bar {
+      display: flex;
       gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 8px;
     }
-    .market-card {
+    .market-box {
+      flex: 1 1 200px;
       background: var(--card);
-      border-radius: 14px;
-      padding: 18px 16px;
-      text-align: center;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
       border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px 18px;
+      text-align: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
     }
-    .market-card .label { font-size: 0.9rem; color: var(--sub); margin-bottom: 6px; }
-    .market-card .value { font-size: 1.8rem; font-weight: 800; }
-    .market-card .change { font-size: 1rem; font-weight: 700; margin-top: 4px; }
-    .down { color: var(--blue); }
-    .up   { color: var(--red); }
-    .neutral { color: #555; }
+    .market-box .label { font-size: 0.85rem; color: var(--subtext); }
+    .market-box .val { font-size: 1.7rem; font-weight: 900; margin: 4px 0 2px; }
+    .market-box .chg { font-size: 1rem; font-weight: 700; }
+    .up { color: var(--up); }
+    .down { color: var(--down); }
 
-    /* ── 추천 종목 카드 ── */
+    /* ââ Stock cards ââ */
     .stock-card {
       background: var(--card);
-      border-radius: 16px;
-      padding: 22px 20px;
-      margin-bottom: 18px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+      border-radius: 18px;
       border: 1px solid var(--border);
+      padding: 22px 24px;
+      margin-bottom: 20px;
+      box-shadow: 0 3px 12px rgba(0,0,0,0.07);
     }
     .stock-header {
       display: flex;
-      align-items: center;
-      gap: 14px;
-      margin-bottom: 14px;
+      justify-content: space-between;
+      align-items: flex-start;
       flex-wrap: wrap;
-    }
-    .stock-name { font-size: 1.5rem; font-weight: 800; }
-    .stock-code {
-      font-size: 0.85rem;
-      color: #fff;
-      background: var(--blue);
-      border-radius: 20px;
-      padding: 3px 12px;
-    }
-    .opinion-badge {
-      font-size: 0.9rem;
-      font-weight: 700;
-      color: #fff;
-      background: var(--red);
-      border-radius: 20px;
-      padding: 3px 14px;
-    }
-    .stock-prices {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
       gap: 10px;
-      margin-bottom: 16px;
+      margin-bottom: 14px;
     }
-    .price-box {
-      background: #f0f4ff;
-      border-radius: 10px;
-      padding: 12px;
-      text-align: center;
+    .stock-name { font-size: 1.4rem; font-weight: 900; }
+    .stock-code { font-size: 0.85rem; color: var(--subtext); font-weight: 500; }
+    .badge-buy {
+      background: #d63031;
+      color: white;
+      border-radius: 20px;
+      padding: 5px 16px;
+      font-size: 0.95rem;
+      font-weight: 700;
     }
-    .price-box .p-label { font-size: 0.82rem; color: var(--sub); margin-bottom: 4px; }
-    .price-box .p-val  { font-size: 1.35rem; font-weight: 800; }
-    .price-box .p-val.current { color: var(--blue); }
-    .price-box .p-val.target  { color: var(--red); }
-    .price-box .p-val.upside  { color: var(--green); }
+    .badge-hold {
+      background: #fdcb6e;
+      color: #333;
+      border-radius: 20px;
+      padding: 5px 16px;
+      font-size: 0.95rem;
+      font-weight: 700;
+    }
+    .price-row {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+    .price-item { }
+    .price-label { font-size: 0.8rem; color: var(--subtext); }
+    .price-val { font-size: 1.5rem; font-weight: 900; }
+    .price-val.up { color: var(--up); }
+    .price-val.down { color: var(--down); }
+    .price-val.green { color: #00b894; }
+    .target-price { font-size: 1.35rem; font-weight: 900; color: #6c5ce7; }
 
-    .stock-desc {
-      background: #fffde7;
-      border-left: 4px solid #f9a825;
+    .analyst-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+    .analyst-pill {
+      background: #f1f3f5;
+      border-radius: 10px;
+      padding: 6px 14px;
+      font-size: 0.88rem;
+      font-weight: 600;
+    }
+    .analyst-pill span { color: var(--accent); font-weight: 800; }
+
+    .easy-explain {
+      background: #ffeaa7;
+      border-left: 5px solid #fdcb6e;
       border-radius: 0 10px 10px 0;
       padding: 12px 16px;
       font-size: 1rem;
-      color: #444;
+      line-height: 1.7;
+      margin-top: 10px;
     }
-    .stock-desc strong { color: #e65100; }
+    .easy-explain .emoji { font-size: 1.3rem; margin-right: 6px; }
 
-    /* ── 뉴스 ── */
-    .news-list { list-style: none; }
-    .news-list li {
+    /* ââ News ââ */
+    .news-card {
       background: var(--card);
-      border-radius: 12px;
-      padding: 14px 16px;
-      margin-bottom: 10px;
-      border-left: 5px solid var(--blue);
-      box-shadow: 0 1px 5px rgba(0,0,0,0.06);
-      font-size: 1rem;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px 20px;
+      margin-bottom: 14px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
     }
-    .news-list li .news-tag {
-      display: inline-block;
-      background: #e3f2fd;
-      color: var(--blue);
-      font-size: 0.78rem;
-      font-weight: 700;
-      border-radius: 10px;
-      padding: 2px 10px;
-      margin-right: 8px;
-    }
-    .news-list li .news-tag.hot { background: #fce4ec; color: var(--red); }
+    .news-date { font-size: 0.82rem; color: var(--subtext); margin-bottom: 4px; }
+    .news-title { font-size: 1.05rem; font-weight: 700; margin-bottom: 6px; }
+    .news-body { font-size: 0.95rem; color: var(--subtext); line-height: 1.65; }
 
-    /* ── 반도체 동향 ── */
+    /* ââ Industry trend ââ */
     .trend-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 12px;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 14px;
+      margin-bottom: 8px;
     }
-    .trend-card {
+    .trend-box {
       background: var(--card);
-      border-radius: 12px;
-      padding: 16px;
-      border-top: 4px solid var(--blue);
-      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
-    }
-    .trend-card .t-icon { font-size: 2rem; margin-bottom: 8px; }
-    .trend-card .t-title { font-size: 1rem; font-weight: 700; margin-bottom: 6px; color: var(--blue); }
-    .trend-card .t-body  { font-size: 0.92rem; color: var(--sub); }
-
-    /* ── 캘린더 ── */
-    .calendar-table {
-      width: 100%;
-      border-collapse: collapse;
-      background: var(--card);
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
-    }
-    .calendar-table th {
-      background: var(--blue);
-      color: #fff;
-      padding: 12px 10px;
-      font-size: 1rem;
-      text-align: left;
-    }
-    .calendar-table td {
-      padding: 12px 10px;
-      border-bottom: 1px solid var(--border);
-      font-size: 0.95rem;
-    }
-    .calendar-table tr:last-child td { border-bottom: none; }
-    .calendar-table tr:nth-child(even) td { background: #f9fbff; }
-
-    /* ── 면책 ── */
-    .disclaimer {
-      background: #fff3e0;
-      border: 1px solid #ffcc80;
-      border-radius: 12px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
       padding: 16px 18px;
-      font-size: 0.9rem;
-      color: #6d4c41;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    }
+    .trend-box .t-icon { font-size: 2rem; margin-bottom: 6px; }
+    .trend-box .t-title { font-size: 1rem; font-weight: 800; margin-bottom: 4px; }
+    .trend-box .t-body { font-size: 0.9rem; color: var(--subtext); line-height: 1.6; }
+
+    /* ââ Calendar ââ */
+    .cal-table { width: 100%; border-collapse: collapse; }
+    .cal-table th {
+      background: #1a1a2e;
+      color: white;
+      padding: 12px 14px;
+      text-align: left;
+      font-size: 1rem;
+    }
+    .cal-table td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.97rem;
+    }
+    .cal-table tr:last-child td { border-bottom: none; }
+    .cal-table tr:nth-child(even) td { background: #f8f9fa; }
+
+    /* ââ Disclaimer ââ */
+    .disclaimer {
+      background: #fff3cd;
+      border: 1px solid #ffc107;
+      border-radius: 14px;
+      padding: 16px 20px;
+      margin-top: 30px;
+      font-size: 0.92rem;
+      color: #856404;
       line-height: 1.7;
     }
-    .disclaimer strong { color: #bf360c; }
+    .disclaimer strong { font-size: 1rem; display: block; margin-bottom: 4px; }
 
-    /* ── 반응형 ── */
     @media (max-width: 600px) {
-      header h1 { font-size: 1.4rem; }
-      .section-title { font-size: 1.15rem; }
-      .stock-name { font-size: 1.25rem; }
-      .price-box .p-val { font-size: 1.1rem; }
-      body { font-size: 16px; }
+      header h1 { font-size: 1.5rem; }
+      .val { font-size: 1.4rem !important; }
+      .price-val { font-size: 1.3rem !important; }
+      .target-price { font-size: 1.2rem !important; }
     }
   </style>
 </head>
 <body>
 
 <header>
-  <h1>📈 코스피 주식 투자 안내</h1>
-  <div class="subtitle">증권사 리포트 · 최신 시황 기반 정보 제공</div>
-  <div class="update-time">🕐 업데이트: 2026년 3월 23일 (오전 기준)</div>
+  <h1>ð ì½ì¤í¼ ì£¼ì ì¶ì² íì´ì§</h1>
+  <div class="subtitle">ì¥ëª¨ëì ìí ì¬ì´ ì£¼ì í¬ì ì ë³´</div>
+  <div class="update-time">ð ìµì¢ ìë°ì´í¸: 2026ë 3ì 23ì¼</div>
 </header>
 
 <div class="container">
 
-  <!-- ① 시장 개요 -->
-  <div class="section">
-    <div class="section-title">🌏 오늘의 시장 현황</div>
-    <div class="market-grid">
-      <div class="market-card">
-        <div class="label">코스피 지수</div>
-        <div class="value down">5,689</div>
-        <div class="change down">▼ 전주比 하락세</div>
+  <!-- ââââââââââââââââââââââââââââââââââââââââââ
+       ìì¥ ê°ì
+  ââââââââââââââââââââââââââââââââââââââââââ -->
+  <div class="section-title">ð ìì¥ ê°ì (2026.03.23 ê¸°ì¤)</div>
+  <div class="market-bar">
+    <div class="market-box">
+      <div class="label">ì½ì¤í¼ ì§ì</div>
+      <div class="val up">5,763</div>
+      <div class="chg down">â¼ ì ì£¼ ëë¹ -2.73%</div>
+    </div>
+    <div class="market-box">
+      <div class="label">ì¼ì±ì ì (005930)</div>
+      <div class="val up">199,400ì</div>
+      <div class="chg down">â¼ ì ì¼ ëë¹ ìí­ íë½</div>
+    </div>
+    <div class="market-box">
+      <div class="label">SKíì´ëì¤ (000660)</div>
+      <div class="val up">951,000ì</div>
+      <div class="chg down">â¼ ì ì¼ ëë¹ -5.6%</div>
+    </div>
+  </div>
+  <p style="font-size:0.88rem; color:var(--subtext); margin-top:4px;">
+    â» ì£¼ê° ë°ì´í°ë ì¹ ê²ì ê¸°ë° ìì§ê°ì´ë©° ì¤ìê° ìì¸ì ë¤ë¥¼ ì ììµëë¤. ì íí íì¬ê°ë ì¦ê¶ì¬ ì±ì íì¸íì¸ì.
+  </p>
+
+
+  <!-- ââââââââââââââââââââââââââââââââââââââââââ
+       ì¶ì² ì¢ëª© 1 â ì¼ì±ì ì
+  ââââââââââââââââââââââââââââââââââââââââââ -->
+  <div class="section-title">ðµ ì¶ì² ì¢ëª© ìì¸ ë¶ì</div>
+
+  <div class="stock-card">
+    <div class="stock-header">
+      <div>
+        <div class="stock-name">ì¼ì±ì ì</div>
+        <div class="stock-code">ì¢ëª©ì½ë: 005930 Â· ì½ì¤í¼</div>
       </div>
-      <div class="market-card">
-        <div class="label">삼성전자</div>
-        <div class="value down">187,300원</div>
-        <div class="change down">▼ 전일比 -5.07%</div>
+      <div class="badge-buy">ð£ ì ê·¹ ë§¤ì</div>
+    </div>
+
+    <div class="price-row">
+      <div class="price-item">
+        <div class="price-label">íì¬ê°</div>
+        <div class="price-val down">199,400ì</div>
       </div>
-      <div class="market-card">
-        <div class="label">SK하이닉스</div>
-        <div class="value down">951,000원</div>
-        <div class="change down">▼ 전일比 -5.6%</div>
+      <div class="price-item">
+        <div class="price-label">52ì£¼ ìµê³  / ìµì </div>
+        <div class="price-val" style="font-size:1.1rem; color:#333;">223,000 / 52,900ì</div>
       </div>
-      <div class="market-card">
-        <div class="label">주요 원인</div>
-        <div class="value" style="font-size:1.1rem; color:#555;">중동 갈등</div>
-        <div class="change neutral">국제유가 급등</div>
+      <div class="price-item">
+        <div class="price-label">ì¦ê¶ì¬ íê·  ëª©íì£¼ê°</div>
+        <div class="target-price">248,240ì</div>
       </div>
     </div>
-    <div style="margin-top:14px; background:#e8f0fe; border-radius:10px; padding:14px 16px; font-size:0.95rem; color:#333;">
-      💡 <strong>오늘 왜 주가가 내렸나요?</strong> 미국 트럼프 대통령이 이란에 경고를 발표하면서 중동 긴장이 높아졌습니다.
-      불안할 때 투자자들이 주식이 팔기 때문에 오늘 코스피 전반이 내렸습니다.
-      <strong>단기 하락이지, 기업의 실적이 나빠진 것은 아닙니다.</strong>
+
+    <div class="analyst-row">
+      <div class="analyst-pill">KBì¦ê¶ <span>320,000ì</span> ë§¤ì</div>
+      <div class="analyst-pill">íëì¦ê¶ <span>300,000ì</span> ë§¤ì</div>
+      <div class="analyst-pill">ê³¨ëë§ì­ì¤ <span>260,000ì</span> ë§¤ì</div>
+      <div class="analyst-pill">ì»¨ì¼ìì¤ 33ëª <span>ì ì ë§¤ì</span></div>
+    </div>
+
+    <div class="easy-explain">
+      <span class="emoji">ðµ</span><strong>ì¬ì´ ì¤ëª:</strong>
+      ì¼ì±ì ìë ì°ë¦¬ê° ì¼ììì ì°ë ì¤ë§í¸í°, TV, ëì¥ê³ ë¥¼ ë§ëë íì¬ìì. ì§ê¸ AI(ì¸ê³µì§ë¥) ì´íì¼ë¡ ë°ëì²´ ììê° ìì²­ëê² ëê³  ìì´ì, ì¼ì±ì ìë í° ííì ë°ê³  ìì´ì.
+      íì¬ ì£¼ê°(ì½ 20ë§ ì)ë ì¦ê¶ì¬ë¤ì´ ìê°íë ì ì  ê°ê²©(ì½ 25ë§ ì)ë³´ë¤ ë®ìì, ì ë¬¸ê° 33ëª ëª¨ëê° "<strong>ì§ê¸ ì¬ì¸ì!</strong>"ë¼ê³  ì¶ì²íê³  ìëµëë¤.
+      1ë ìì 20~60% ììµì ê¸°ëí  ì ìë ì¢ëª©ì´ìì. ð
     </div>
   </div>
 
-  <!-- ② 추천 종목 -->
-  <div class="section">
-    <div class="section-title">⭐ 추천 종목 분석</div>
 
-    <!-- 삼성전자 -->
-    <div class="stock-card">
-      <div class="stock-header">
-        <span class="stock-name">📱 삼성전자</span>
-        <span class="stock-code">005930</span>
-        <span class="opinion-badge">강력 매수 ★</span>
+  <!-- ââââââââââââââââââââââââââââââââââââââââââ
+       ì¶ì² ì¢ëª© 2 â SKíì´ëì¤
+  ââââââââââââââââââââââââââââââââââââââââââ -->
+  <div class="stock-card">
+    <div class="stock-header">
+      <div>
+        <div class="stock-name">SKíì´ëì¤</div>
+        <div class="stock-code">ì¢ëª©ì½ë: 000660 Â· ì½ì¤í¼</div>
       </div>
-      <div class="stock-prices">
-        <div class="price-box">
-          <div class="p-label">현재가 (오늘)</div>
-          <div class="p-val current">187,300원</div>
-        </div>
-        <div class="price-box">
-          <div class="p-label">전일 종가</div>
-          <div class="p-val" style="color:#555;">199,400원</div>
-        </div>
-        <div class="price-box">
-          <div class="p-label">증권사 평균 목표가</div>
-          <div class="p-val target">266,667원</div>
-        </div>
-        <div class="price-box">
-          <div class="p-label">상승 여력</div>
-          <div class="p-val upside">+42%</div>
-        </div>
+      <div class="badge-buy">ð£ ë§¤ì</div>
+    </div>
+
+    <div class="price-row">
+      <div class="price-item">
+        <div class="price-label">íì¬ê°</div>
+        <div class="price-val down">951,000ì</div>
       </div>
-      <div style="margin-bottom:10px; font-size:0.9rem; color:var(--sub);">
-        📊 목표가 범위: 240,000원 ~ 270,000원 | 33명 애널리스트 전원 <strong style="color:var(--red)">매수</strong>
+      <div class="price-item">
+        <div class="price-label">52ì£¼ ìµê³  / ìµì </div>
+        <div class="price-val" style="font-size:1.1rem; color:#333;">1,099,000 / 162,700ì</div>
       </div>
-      <div class="stock-desc">
-        🗣️ <strong>쉽게 말하면:</strong> 삼성전자는 우리나라에서 가장 큰 회사예요.
-        지금 오픈AI(ChatGPT 만든 회사)에 HBM4라는 특수 메모리를 <strong>독점 납품</strong>하기로 계약을 맺었어요.
-        지금 주가가 많이 빠져 있어서, 33명의 전문가 모두� � <strong>지금이 살 때다</strong>라고 말하고 있습니다.
-        목표 주가 게지 오��깭 지금각 <strong>42% 이상 오를 있는</strong> 구간이에요.
+      <div class="price-item">
+        <div class="price-label">ì¦ê¶ì¬ íê·  ëª©íì£¼ê°</div>
+        <div class="target-price">1,100,000ì</div>
       </div>
     </div>
 
-    <!-- SK하이닉스 -->
-    <div class="stock-card">
-      <div class="stock-header">
-        <span class="stock-name">💾 SK하이닉스</span>
-        <span class="stock-code">000660</span>
-        <span class="opinion-badge">매수 추천</span>
-      </div>
-      <div class="stock-prices">
-        <div class="price-box">
-          <div class="p-label">현재가 (오늘)</div>
-          <div class="p-val current">951,000원</div>
-        </div>
-        <div class="price-box">
-          <div class="p-label">전일 종가</div>
-          <div class="p-val" style="color:#555;">1,007,000원</div>
-        </div>
-        <div class="price-box">
-          <div class="p-label">증권사 평균 목표가</div>
-          <div class="p-val target">1,271,000원</div>
-        </div>
-        <div class="price-box">
-          <div class="p-label">상승 여력</div>
-          <div class="p-val upside">+34%</div>
-        </div>
-      </div>
-      <div style="margin-bottom:10px; font-size:0.9rem; color:var(--sub);">
-        📊 목표가 범위: 800,000원 ~ 1,300,000원 | 36명 매수 추천, 1명 매도
-      </div>
-      <div class="stock-desc">
-        🗣️ <strong>쉽게 말하면:</strong> SK하이닉스는 AI 칩에 들어가는 특수 메모리(HBM)를 세계에서 가장 잘 만드는 회사예요.
-        엔비디아(GPU 세계 1위)와 긴밀하게 협력하고 있고, <strong>2026년 생산물량이 이미 다 팔렸다</strong>고 발표했어요.
-        물건이 이미 다 팔린 회사의 주식이니, 장기적으로 오를 가능성이 높습니다.
-      </div>
+
+<div class="analyst-row">
+      <div class="analyst-pill">KBì¦ê¶ <span>1,200,000ì</span> ë§¤ì</div>
+      <div class="analyst-pill">íëì¦ê¶ <span>1,120,000ì</span> ë§¤ì</div>
+      <div class="analyst-pill">ê³¨ëë§ì­ì¤ <span>1,350,000ì</span> ë§¤ì</div>
     </div>
 
-    <!-- 현대차 -->
-    <div class="stock-card">
-      <div class="stock-header">
-        <span class="stock-name">🚗 현대차</span>
-        <span class="stock-code">005380</span>
-        <span class="opinion-badge" style="background:#1565c0;">매수</span>
-      </div>
-      <div class="stock-prices">
-        <div class="price-box">
-          <div class="p-label">현재가 (3월초 기준)</div>
-          <div class="p-val current">502,500원</div>
-        </div>
-        <div class="price-box">
-          <div class="p-label">52주 고점</div>
-          <div class="p-val" style="color:#555;">687,000원</div>
-        </div>
-        <div class="price-box">
-          <div class="p-label">증권사 평균 목표가</div>
-          <div class="p-val target">602,000원</div>
-        </div>
-        <div class="price-box">
-          <div class="p-label">상승 여력</div>
-          <div class="p-val upside">+20%</div>
-        </div>
-      </div>
-      <div style="margin-bottom:10px; font-size:0.9rem; color:var(--sub);">
-        📊 목표� : iM증권 650,000원 / BNK증권 650,000원 / 다올투자 640,000원
-      </div>
-      <div class="stock-desc">
-        🗣️ <strong>쉽게 말하면:</strong> 현대차는 이제 전기차·수소차·로봇까지 만드는 글로벌 기업이 됐어요.
-        최근 외국인 투자자들이 다시 사기 시작했고, 연간 실적도 꾸준히 좋아요.
-        반도체보다 변동성이 낮아서 <strong>안정적인 투자</strong>를 원하신다면 추천해 드려요.
-      </div>
+    <div class="easy-explain">
+      <span class="emoji">ðµ</span><strong>ì¬ì´ ì¤ëª:</strong>
+      SKíì´ëì¤ë 'HBM'ì´ë¼ë í¹ì ë°ëì²´ë¥¼ ë§ëë íì¬ìì. HBMì ChatGPT ê°ì AIë¥¼ ëë¦¬ë ë° ê¼­ íìí ë¶íì¸ë°, ì  ì¸ê³ìì SKíì´ëì¤ê° ê°ì¥ ì ë§ë ë¤ê³  ì¸ì ë°ê³  ìì´ì.
+      ìë¹ëì(NVIDIA)ì ëì  ë©í ì¤ì´ê³ , ì¬í´ ìì° ë¬¼ëì´ ê±°ì ë¤ íë¦° ìíìì.
+      ì£¼ê°ê° ìµê·¼ ì¡°ê¸ ë¹ ì¡ëë°, ì ë¬¸ê°ë¤ì ì´ê²ì´ <strong>ì ë ´íê² ì´ ì¢ì ê¸°í</strong>ë¼ê³  ë§í´ì. â¤ï¸
     </div>
   </div>
 
-  <!-- ③ 반도체 산업 동향 -->
-  <div class="section">
-    <div class="section-title">🔬 반도체·AI 산업 동향</div>
-    <div class="trend-grid">
-      <div class="trend-card">
-        <div class="t-icon">🤖</div>
-        <div class="t-title">AI 반도체 수요 폭발</div>
-        <div class="t-body">2026년 HBM 시장이 전년 대비 58% 성장해 546宗 규ꪨ가 될 전랧잝니다. (BofA 리서치)</div>
+
+  <!-- ââââââââââââââââââââââââââââââââââââââââââ
+       ì¶ì² ì¢ëª© 3 â LGìëì§ìë£¨ì
+  ââââââââââââââââââââââââââââââââââââââââââ -->
+  <div class="stock-card">
+    <div class="stock-header">
+      <div>
+        <div class="stock-name">LGìëì§ìë£¨ì</div>
+        <div class="stock-code">ì¢ëª©ì½ë: 373220 Â· ì½ì¤í¼</div>
       </div>
-      <div class="trend-card">
-        <div class="t-icon">📦</div>
-        <div class="t-title">SK하이닉스 완판</div>
-        <div class="t-body">SK하이닉스는 2026년 HBM 생산물량을 이미 모두 팔렸다. 수욤가 공급을 초과하는 상황읅니다.</div>
+      <div class="badge-hold">ð¤ ê´ë§ / ì ê° ë§¤ì ê³ ë ¤</div>
+    </div>
+
+    <div class="price-row">
+      <div class="price-item">
+        <div class="price-label">íì¬ê° (ì¶ì )</div>
+        <div class="price-val down">420,000ìë</div>
       </div>
-      <div class="trend-card">
-        <div class="t-icon">🤝</div>
-        <div class="t-title">삼성·오픈AI 계약</div>
-        <div class="t-body">삼성전자�  오픈AI에 HBM4 ꪔ모리 공급하기로 계약했습니다. 삼성의 HBM 경쟁력 쉼복 신호읅니다.</div>
+      <div class="price-item">
+        <div class="price-label">ëª©íì£¼ê° (í¤ìì¦ê¶)</div>
+        <div class="target-price">590,000ì</div>
       </div>
-      <div class="trend-card">
-        <div class="t-icon">🌏</div>
-        <div class="t-title">반도체 슈퍼사이클</div>
-        <div class="t-body">세계반도체무역통계(WSTS)는 2026년 전 세계 반도체 시장이 25% 이상 성장한다고 발표했습니다.</div>
-      </div>
+    </div>
+
+    <div class="easy-explain">
+      <span class="emoji">ðµ</span><strong>ì¬ì´ ì¤ëª:</strong>
+      LGìëì§ìë£¨ìì ì ê¸°ì°¨ ë°°í°ë¦¬ë¥¼ ë§ëë íì¬ìì. íì¬ë¼, GM ë± ì¸ê³ì ì¸ ìëì°¨ íì¬ë¤ì ë°°í°ë¦¬ë¥¼ ê³µê¸íê³  ìì´ì.
+      ì§ê¸ì ì ê¸°ì°¨ ìì¥ì´ ì ì ì£¼ì¶¤í´ì ì£¼ê°ê° ë®ê² ê±°ëëê³  ìëë°, ì ë¬¸ê°ë¤ì ëª©íì£¼ê°ê° íì¬ê°ë³´ë¤ 40% ì´ì ëë¤ê³  ë´ì.
+      <strong>ì¥ê¸° í¬ì(2~3ë)</strong>ë¡ ë³´ë©´ ê´ì°®ì ì¢ëª©ì´ìì. ð
     </div>
   </div>
 
-  <!-- ④ 주요 뉴스 -->
-  <div class="section">
-    <div class="section-title">📰 이번 주 주요 뉴스</div>
-    <ul class="news-list">
-      <li>
-        <span class="news-tag hot">🔥 핫뉴스</span>
-        삼성전자, 오픈AI에 HBM4 ꩔모리 <strong>독점 공급 계약</strong> 체결 — 하반기 공급 예정
-      </li>
-      <li>
-        <span class="news-tag">국제유가</span>
-        <strong>트럼프, 이란 경고</strong> 발표 → 국제유가 급등(브렌트유 $114) → 코스피·반도체주 동반 하락
-      </li>
-      <li>
-        <span class="news-tag">SK하이닉스</span>
-        최태원 회장, GTC 2026서 <strong>미국 증시 상장(ADR) 검토</strong> 발표 — 엔비디아와 AI 반도체 동맹 강화
-      </li>
-      <li>
-        <span class="news-tag">삼성전자</span>
-        삼성전자 주주총회: 전영현 부회장, <strong>'AI 초격차' 3대 전략</strong> 발표 — 시총 1,000조 돌파 선언
-      </li>
-      <li>
-        <span class="news-tag">시장전망</span>
-        증권사들 삼성전자 목표주가 잇따라 상향 — 키움 26만원, 한투·대신 27만원 제시
-      </li>
-      <li>
-        <span class="news-tag">반도체</span>
-        BofA: AI 전용 반도체(ASIC)향 HBM 수요 <strong>82% 급증</strong> 예상 — 엔비디아·구글·AWS 수요 확대
-      </li>
-    </ul>
+
+  <!-- ââââââââââââââââââââââââââââââââââââââââââ
+       ë°ëì²´ ì°ì ëí¥
+  ââââââââââââââââââââââââââââââââââââââââââ -->
+  <div class="section-title">â¡ ë°ëì²´ ì°ì ìµì  ëí¥</div>
+  <div class="trend-grid">
+    <div class="trend-box">
+      <div class="t-icon">ð¤</div>
+      <div class="t-title">AI ë°ëì²´ ìì í­ë°</div>
+      <div class="t-body">2026ë HBM ìì¥ ê·ëª¨ê° ì ë ëë¹ <strong>58% ì±ì¥</strong>í´ 546ìµ ë¬ë¬ë¡ ììë©ëë¤. ChatGPTÂ·AI ì´íì´ ê³ìëë©´ì ë°ëì²´ ììê° ìì²­ëê² ëê³  ìì´ì.</div>
+    </div>
+    <div class="trend-box">
+      <div class="t-icon">ð¦</div>
+      <div class="t-title">ê³µê¸ ë¶ì¡±ì¼ë¡ ê°ê²© ê¸ë±</div>
+      <div class="t-body">SKíì´ëì¤ë ì¬í´ HBMì´ "ì¬ì¤ì ìí"ì´ë¼ê³  ë°íì´ì. Dë¨ ê°ê²©ì´ 2ë¶ê¸°ê¹ì§ ìµë <strong>40% ë ì¤ë¥¼</strong> ê²ì´ë¼ë ì ë§ë ìì´ì.</div>
+    </div>
+    <div class="trend-box">
+      <div class="t-icon">ð</div>
+      <div class="t-title">ê¸ë¡ë² ë°ëì²´ ìì¥ ì±ì¥</div>
+      <div class="t-body">2026ë ì¸ê³ ë°ëì²´ ìì¥ì´ ì ë ëë¹ <strong>2g>25% ì´ì ì±ì¥</strong>í´ ì½ 9,750ìµ ë¬ë¬(ì½ 1,300ì¡° ì)ì ë¬í  ì ë§ì´ìì.</div>
+    </div>
+    <div class="trend-box">
+      <div class="t-icon">ð¬</div>
+      <div class="t-title">ì¼ì±, HBM5 ì°¨ì¸ë ê¸°ì </div>
+      <div class="t-body">ì¼ì±ì ìê° ì°¨ì¸ë AI ë©ëª¨ë¦¬ <strong>HBM5</strong>ì 2ëë¸ ê³µì ì ì ì©íë ê³íì ê³µê°íì´ì. ê¸°ì  ê²½ììì SKíì´ëì¤ì ì¹ì´íê² ë¤í¬ê³  ìì´ì.</div>
+    </div>
+    <div class="trend-box">
+      <div class="t-icon">ð</div>
+      <div class="t-title">ì½ì¤í¼ ë°ëì²´ ë¹ì¤ 43%</div>
+      <div class="t-body">ì¼ì±ì ì+SKíì´ëì¤ì ì½ì¤í¼ ìê°ì´ì¡ í©ì´ <strong>2,108ì¡° ì</strong>ì¼ë¡ ì ì²´ ì½ì¤í¼ì 43%ë¥¼ ì°¨ì§í´ì. ë°ëì²´ ê¸°ìì´ íêµ­ ì£¼ì ìì¥ì ì´ëê³  ìì´ì.</div>
+    </div>
+    <div class="trend-box">
+      <div class="t-icon">â³</div>
+      <div class="t-title">ìí¼ì¬ì´í´ 2028ëê¹ì§</div>
+      <div class="t-body">HBMì´ ì´ëë ë©ëª¨ë¦¬ ìí¼ì¬ì´í´ì´ <strong>2028ëê¹ì§ ì´ì´ì§ ê²</strong>ì´ë¼ë ì ë§ì´ ë§ìì. ì¥ê¸° í¬ìììê² ê¸°íê° ë  ì ìì´ì.</div>
+    </div>
   </div>
 
-  <!-- ⑤ 투자 캘린더 -->
-  <div class="section">
-    <div class="section-title">📅 주요 투자 일정 (2026년 3~4월)</div>
-    <table class="calendar-table">
-      <thead>
-        <tr>
-          <th>날짜</th>
-          <th>일정</th>
-          <th>관련 종목</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>3월 말</td>
-          <td>삼성전자 2026년 1분기 잠정실적 발표 예정</td>
-          <td>삼성전자</td>
-        </tr>
-        <tr>
-          <td>3월~4월</td>
-          <td>미국 연준(Fed) 금리 결정 회의 (금리 동결 가능성)</td>
-          <td>전 종목</td>
-        </tr>
-        <tr>
-          <td>4월 초</td>
-          <td>엔비디아 신제품 '베라 루빈' 출시 일정 — HBM4 탑재</td>
-          <td>SK하이닉스</td>
-        </tr>
-        <tr>
-          <td>4월 말</td>
-          <td>SK하이닉스 1분기 실적 발표 예정</td>
-          <td>SK하이닉스</td>
-        </tr>
-        <tr>
-          <td>4월 말</td>
-          <td>현대차 1분기 실적 발표 예정</td>
-          <td>현대차</td>
-        </tr>
-        <tr>
-          <td>중동 상황</td>
-          <td>이란·미국 갈등 추이 주목 — 유가 변동 주요 변수</td>
-          <td>전 종목</td>
-        </tr>
-      </tbody>
-    </table>
+
+  <!-- ââââââââââââââââââââââââââââââââââââââââââ
+       ì£¼ì ë´ì¤
+  ââââââââââââââââââââââââââââââââââââââââââ -->
+  <div class="section-title">ð° ì£¼ì ë´ì¤ (2026ë 3ì)</div>
+
+  <div class="news-card">
+    <div class="news-date">2026.03.16 Â· ê¸ë¡ë²ì´ì½ë¸ë¯¹</div>
+    <div class="news-title">ì¼ì±ì ìÂ·SKíì´ëì¤, ì¦ê¶ê° ëª©íì£¼ê° ì¤ì¤ì´ ìí¥</div>
+    <div class="news-body">êµ­ë´ì¸ ì¦ê¶ì¬ë¤ì´ ë°ëì²´ ìí© í¸ì¡°ë¥¼ ê·¼ê±°ë¡ ì¼ì±ì ìì SKíì´ëì¤ ëª©íì£¼ê°ë¥¼ ìë°ë¼ ëììµëë¤. ê³¨ëë§ì­ì¤ë ì¼ì±ì ì ëª©íê°ë¥¼ 26ë§ ìì¼ë¡ 27% ì¬ë ¸ê³ , SKíì´ëì¤ë 135ë§ ìì¼ë¡ ìí¥íìµëë¤.</div>
   </div>
 
-  <!-- ⑥ 면책 문구 -->
+  <div class="news-card">
+    <div class="news-date">2026.03.17 Â· ì¤ííìì¤ì½ë¦¬ì</div>
+    <div class="news-title">ì¼ì±ì ì, HBM5ì 2ëë¸ ê³µì  ì ì© â ì°¨ì¸ë AI ë©ëª¨ë¦¬ ì ëµ ê³µê°</div>
+    <div class="news-body">ì¼ì±ì ìê° HBM5Â·HBM5Eì D1cÂ·D1d 2ëë¸ ê³µì ì ì´ìí ì ì©íë ì ëµì ê³µê°íìµëë¤. AI ë©ëª¨ë¦¬ ê²½ììì ê¸°ì  ì°ìë¥¼ ì íë ¤ë ìì§ììëë¤.</div>
+  </div>
+
+  <div class="news-card">
+    <div class="news-date">2026.01.07 Â· ê¸ë¡ë²ì´ì½ë¸ë¯¹</div>
+    <div class="news-title">"ë¶ë¥´ë ê² ê°"â¦ AIê° ìì ì¬ë¦° ë©ëª¨ë¦¬ê° 40% í­ë±</div>
+    <div class="news-body">AI ìë² ìì ê¸ì¦ì¼ë¡ ë©ëª¨ë¦¬ ë°ëì²´ ê°ê²©ì´ ë¨ê¸°ê°ì ê¸ë±íê³  ììµëë¤. ê³µê¸ë³´ë¤ ììê° í¨ì¬ ë¹ ë¥´ê² ëì´ 2ë¶ê¸°ê¹ì§ ì¶ê° ìì¹ì´ ììë©ëë¤.</div>
+  </div>
+
+  <div class="news-card">
+    <div class="news-date">2026.03 Â· SKíì´ëì¤ ë´ì¤ë£¸</div>
+    <div class="news-title">2026ë ìì¥ ì ë§ â "HBMì´ ì´ëë ë©ëª¨ë¦¬ ìí¼ì¬ì´í´ì ì£¼ëª©"</div>
+    <div class="news-body">SKíì´ëì¤ê° ì¬í´ HBM ê³µê¸ ë¬¼ëì´ ì¬ì¤ì ìí ìíìì ë°íë©°, ê³ ë¶ê°ê°ì¹ AI ë©ëª¨ë¦¬ ì¤ì¬ì ì±ì¥ ì ëµì ì¬íì¸íìµëë¤.</div>
+  </div>
+
+
+  <!-- ââââââââââââââââââââââââââââââââââââââââââ
+       í¬ì ìºë¦°ë
+  ââââââââââââââââââââââââââââââââââââââââââ -->
+  <div class="section-title">ð í¬ì ì°¸ê³  ì¼ì  (2026ë 2ë¶ê¸°)</div>
+  <table class="cal-table">
+    <thead>
+      <tr>
+        <th>ë ì§</th>
+        <th>ì´ë²¤í¸</th>
+        <th>ì£¼ëª© ì´ì </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>4ì ì´</td>
+        <td>ì¼ì±ì ì 1ë¶ê¸° ì ì  ì¤ì  ë°í</td>
+        <td>ë°ëì²´ ë§¤ì¶ ì¤ì  íì¸, ì£¼ê° ë³ë ê°ë¥ì±</td>
+      </tr>
+      <tr>
+        <td>4ì ì¤ì</td>
+        <td>SKíì´ëì¤ 1ë¶ê¸° ì¤ì  ë°í</td>
+        <td>HBM íë§¤ëÂ·ì´ìµë¥  íì¸ í¬ì¸í¸</td>
+      </tr>
+      <tr>
+        <td>4ì~6ì</td>
+        <td>Dë¨ ê°ê²© ëí¥</td>
+        <td>ê³µê¸ ë¶ì¡± ì¬í ì ë°ëì²´ì£¼ ì¶ê° ìì¹ ê¸°ë</td>
+      </tr>
+      <tr>
+        <td>5ì</td>
+        <td>ì¼ì±ì ì ì£¼ì£¼ì´í ê²°ê³¼ ê³µì</td>
+        <td>ë°°ë¹ ì ì± íì¸</td>
+      </tr>
+      <tr>
+        <td>ìì</td>
+        <td>ë¯¸êµ­ ìë¹ëì ì¤ì Â·AI í¬ì ë´ì¤</td>
+        <td>SKíì´ëì¤ HBM ììì ì§ê²°</td>
+      </tr>
+    </tbody>
+  </table>
+
+
+  <!-- ââââââââââââââââââââââââââââââââââââââââââ
+       ë©´ì± ë¬¸êµ¬
+  ââââââââââââââââââââââââââââââââââââââââââ -->
   <div class="disclaimer">
-    ⚠️ <strong>투자 유의사항</strong><br />
-    본 페이지는 공개된 증권사 리포트 및 뉴스를 바탕으로 작성된 정보 제공 목적의 자료입니다.
-    <strong>모든 투자의 최종 결정과 책임은 투자자 본인에게 있습니다.</strong>
-    주식 투자는 원금 손실의 위험이 있으며, 과거 수익률이 미래 수익을 보장하지 않습니다.
-    투자 전 증권사 상담사 또는 금융 전문가와 상의하시기를 권장합니다.
+    <strong>â ï¸ í¬ìë ë³¸ì¸ ì±ììëë¤</strong>
+    ì´ íì´ì§ì ëª¨ë  ì ë³´ë ê³µê°ë ìë£ì ì¹ ê²ìì ë°íì¼ë¡ ìì±ë ì°¸ê³ ì© ì ë³´ì´ë©°, í¹ì  ì¢ëª©ì ë§¤ìÂ·ë§¤ëë¥¼ ê¶ì íë ê²ì´ ìëëë¤.
+    ì£¼ì í¬ìë ìê¸ ìì¤ì ìíì´ ìì¼ë©°, í¬ì ê²°ì ê³¼ ê²°ê³¼ë í¬ìì ë³¸ì¸ìê² ììµëë¤.
+    ì íí í¬ì ìë´ì ê³µì¸ë ê¸ìµ ì ë¬¸ê°ìê² ë¬¸ìíì¸ì.<br><br>
+    ð ë³¸ íì´ì§ë ìë ìë°ì´í¸ë¡ ìì±ë©ëë¤ Â· ìµì¢ ê°±ì : <strong>2026ë 3ì 23ì¼</strong>
   </div>
 
-  <div style="text-align:center; margin-top:20px; font-size:0.82rem; color:#999;">
-    데이터 출처: 키움증권, 한국투자증권, KB증권, 하나증권, 중앙이코노미뉴스, SK하이닉스 뉴스룸, BofA 리서치 등<br/>
-    자동 업데이트: 2026년 3월 23일
-  </div>
-
-</div>
+</div><!-- /container -->
 </body>
 </html>
