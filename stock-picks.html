@@ -1,500 +1,181 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>ì½ì¤í¼ ì£¼ì ì¶ì² â ì¥ëª¨ëì ìí í¬ì ì ë³´</title>
-  <style>
-    :root {
-      --up: #d63031;
-      --down: #0984e3;
-      --neutral: #636e72;
-      --bg: #f8f9fa;
-      --card: #ffffff;
-      --border: #dee2e6;
-      --text: #212529;
-      --subtext: #495057;
-      --accent: #6c5ce7;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: 'Noto Sans KR', 'Apple SD Gothic Neo', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      font-size: 18px;
-      line-height: 1.6;
-    }
-    header {
-      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-      color: white;
-      padding: 24px 20px 20px;
-      text-align: center;
-    }
-    header h1 { font-size: 2rem; font-weight: 900; letter-spacing: -0.5px; }
-    header .subtitle { font-size: 1.05rem; opacity: 0.85; margin-top: 6px; }
-    .update-time {
-      display: inline-block;
-      background: rgba(255,255,255,0.15);
-      border-radius: 20px;
-      padding: 4px 16px;
-      font-size: 0.9rem;
-      margin-top: 10px;
-    }
-    .container { max-width: 900px; margin: 0 auto; padding: 20px 16px 40px; }
-
-    /* ââ Section titles ââ */
-    .section-title {
-      font-size: 1.4rem;
-      font-weight: 800;
-      color: #1a1a2e;
-      border-left: 6px solid var(--accent);
-      padding-left: 12px;
-      margin: 32px 0 16px;
-    }
-
-    /* ââ KOSPI index bar ââ */
-    .market-bar {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-      margin-bottom: 8px;
-    }
-    .market-box {
-      flex: 1 1 200px;
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 16px 18px;
-      text-align: center;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-    }
-    .market-box .label { font-size: 0.85rem; color: var(--subtext); }
-    .market-box .val { font-size: 1.7rem; font-weight: 900; margin: 4px 0 2px; }
-    .market-box .chg { font-size: 1rem; font-weight: 700; }
-    .up { color: var(--up); }
-    .down { color: var(--down); }
-
-    /* ââ Stock cards ââ */
-    .stock-card {
-      background: var(--card);
-      border-radius: 18px;
-      border: 1px solid var(--border);
-      padding: 22px 24px;
-      margin-bottom: 20px;
-      box-shadow: 0 3px 12px rgba(0,0,0,0.07);
-    }
-    .stock-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-bottom: 14px;
-    }
-    .stock-name { font-size: 1.4rem; font-weight: 900; }
-    .stock-code { font-size: 0.85rem; color: var(--subtext); font-weight: 500; }
-    .badge-buy {
-      background: #d63031;
-      color: white;
-      border-radius: 20px;
-      padding: 5px 16px;
-      font-size: 0.95rem;
-      font-weight: 700;
-    }
-    .badge-hold {
-      background: #fdcb6e;
-      color: #333;
-      border-radius: 20px;
-      padding: 5px 16px;
-      font-size: 0.95rem;
-      font-weight: 700;
-    }
-    .price-row {
-      display: flex;
-      gap: 20px;
-      flex-wrap: wrap;
-      margin-bottom: 14px;
-    }
-    .price-item { }
-    .price-label { font-size: 0.8rem; color: var(--subtext); }
-    .price-val { font-size: 1.5rem; font-weight: 900; }
-    .price-val.up { color: var(--up); }
-    .price-val.down { color: var(--down); }
-    .price-val.green { color: #00b894; }
-    .target-price { font-size: 1.35rem; font-weight: 900; color: #6c5ce7; }
-
-    .analyst-row {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-bottom: 14px;
-    }
-    .analyst-pill {
-      background: #f1f3f5;
-      border-radius: 10px;
-      padding: 6px 14px;
-      font-size: 0.88rem;
-      font-weight: 600;
-    }
-    .analyst-pill span { color: var(--accent); font-weight: 800; }
-
-    .easy-explain {
-      background: #ffeaa7;
-      border-left: 5px solid #fdcb6e;
-      border-radius: 0 10px 10px 0;
-      padding: 12px 16px;
-      font-size: 1rem;
-      line-height: 1.7;
-      margin-top: 10px;
-    }
-    .easy-explain .emoji { font-size: 1.3rem; margin-right: 6px; }
-
-    /* ââ News ââ */
-    .news-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 16px 20px;
-      margin-bottom: 14px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-    }
-    .news-date { font-size: 0.82rem; color: var(--subtext); margin-bottom: 4px; }
-    .news-title { font-size: 1.05rem; font-weight: 700; margin-bottom: 6px; }
-    .news-body { font-size: 0.95rem; color: var(--subtext); line-height: 1.65; }
-
-    /* ââ Industry trend ââ */
-    .trend-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-      gap: 14px;
-      margin-bottom: 8px;
-    }
-    .trend-box {
-      background: var(--card);
-      border-radius: 14px;
-      border: 1px solid var(--border);
-      padding: 16px 18px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-    }
-    .trend-box .t-icon { font-size: 2rem; margin-bottom: 6px; }
-    .trend-box .t-title { font-size: 1rem; font-weight: 800; margin-bottom: 4px; }
-    .trend-box .t-body { font-size: 0.9rem; color: var(--subtext); line-height: 1.6; }
-
-    /* ââ Calendar ââ */
-    .cal-table { width: 100%; border-collapse: collapse; }
-    .cal-table th {
-      background: #1a1a2e;
-      color: white;
-      padding: 12px 14px;
-      text-align: left;
-      font-size: 1rem;
-    }
-    .cal-table td {
-      padding: 12px 14px;
-      border-bottom: 1px solid var(--border);
-      font-size: 0.97rem;
-    }
-    .cal-table tr:last-child td { border-bottom: none; }
-    .cal-table tr:nth-child(even) td { background: #f8f9fa; }
-
-    /* ââ Disclaimer ââ */
-    .disclaimer {
-      background: #fff3cd;
-      border: 1px solid #ffc107;
-      border-radius: 14px;
-      padding: 16px 20px;
-      margin-top: 30px;
-      font-size: 0.92rem;
-      color: #856404;
-      line-height: 1.7;
-    }
-    .disclaimer strong { font-size: 1rem; display: block; margin-bottom: 4px; }
-
-    @media (max-width: 600px) {
-      header h1 { font-size: 1.5rem; }
-      .val { font-size: 1.4rem !important; }
-      .price-val { font-size: 1.3rem !important; }
-      .target-price { font-size: 1.2rem !important; }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>장모님을 위한 주식투자 정보 - 2026년 03월 23일 14:49</title>
+<style>
+:root{--red:#d32f2f;--blue:#1565c0;--bg:#f5f7fa;--card:#fff;--border:#e0e0e0;--text:#212121}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Apple SD Gothic Neo','Malgun Gothic','맑은 고딕',sans-serif;
+      background:var(--bg);color:var(--text);line-height:1.6;font-size:16px}
+.container{max-width:880px;margin:0 auto;padding:16px}
+header{background:linear-gradient(135deg,#1565c0,#0d47a1);color:#fff;
+        padding:28px 20px;text-align:center;border-radius:16px;margin-bottom:20px;
+        box-shadow:0 4px 20px rgba(21,101,192,.3)}
+header h1{font-size:26px;margin-bottom:6px}
+header .sub{font-size:14px;opacity:.85}
+.update-bar{background:#fff;border:1px solid var(--border);border-radius:10px;
+             padding:10px 16px;margin-bottom:20px;display:flex;align-items:center;
+             justify-content:space-between;font-size:14px;color:#555}
+.update-bar .live{display:flex;align-items:center;gap:6px;color:#1565c0;font-weight:600}
+.dot{width:8px;height:8px;background:#4caf50;border-radius:50%;
+      animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.idx-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px}
+.idx-card{border-radius:12px;padding:18px;text-align:center;border:1px solid var(--border)}
+.idx-flag{font-size:28px;margin-bottom:4px}
+.idx-title{font-size:13px;color:#666;margin-bottom:4px}
+.idx-price{font-size:22px;font-weight:700;margin-bottom:4px}
+.idx-chg{font-size:15px;font-weight:600}
+.sec-block{background:var(--card);border:1px solid var(--border);border-radius:12px;
+            margin-bottom:14px;overflow:hidden}
+.sec-title{background:#f0f4ff;padding:10px 16px;font-weight:700;font-size:15px;
+            color:#1565c0;border-bottom:1px solid #dde4f5}
+.s-table{width:100%;border-collapse:collapse}
+.s-table tr{border-bottom:1px solid #f0f0f0}
+.s-table tr:last-child{border-bottom:none}
+.s-table td{padding:11px 16px}
+.s-name{font-size:15px}
+.s-price{text-align:right;font-weight:700;font-size:15px}
+.s-chg{text-align:right;font-weight:600;font-size:14px;width:100px}
+.notice{background:#fff8e1;border:1px solid #ffe082;border-radius:10px;
+         padding:14px 16px;margin-top:20px;font-size:14px;color:#5d4037;line-height:1.7}
+footer{text-align:center;color:#999;font-size:13px;margin-top:20px;padding:16px}
+@media(max-width:480px){
+  header h1{font-size:20px}
+  .idx-price{font-size:18px}
+  .s-name,.s-price{font-size:14px}
+}
+</style>
 </head>
 <body>
-
-<header>
-  <h1>ð ì½ì¤í¼ ì£¼ì ì¶ì² íì´ì§</h1>
-  <div class="subtitle">ì¥ëª¨ëì ìí ì¬ì´ ì£¼ì í¬ì ì ë³´</div>
-  <div class="update-time">ð ìµì¢ ìë°ì´í¸: 2026ë 3ì 23ì¼</div>
-</header>
-
 <div class="container">
+  <header>
+    <h1>📈 장모님을 위한 주식투자 정보</h1>
+    <div class="sub">2026년 03월 23일 14:49 (월요일) · Yahoo Finance 실시간 연동</div>
+  </header>
 
-  <!-- ââââââââââââââââââââââââââââââââââââââââââ
-       ìì¥ ê°ì
-  ââââââââââââââââââââââââââââââââââââââââââ -->
-  <div class="section-title">ð ìì¥ ê°ì (2026.03.23 ê¸°ì¤)</div>
-  <div class="market-bar">
-    <div class="market-box">
-      <div class="label">ì½ì¤í¼ ì§ì</div>
-      <div class="val up">5,763</div>
-      <div class="chg down">â¼ ì ì£¼ ëë¹ -2.73%</div>
-    </div>
-    <div class="market-box">
-      <div class="label">ì¼ì±ì ì (005930)</div>
-      <div class="val up">199,400ì</div>
-      <div class="chg down">â¼ ì ì¼ ëë¹ ìí­ íë½</div>
-    </div>
-    <div class="market-box">
-      <div class="label">SKíì´ëì¤ (000660)</div>
-      <div class="val up">951,000ì</div>
-      <div class="chg down">â¼ ì ì¼ ëë¹ -5.6%</div>
-    </div>
-  </div>
-  <p style="font-size:0.88rem; color:var(--subtext); margin-top:4px;">
-    â» ì£¼ê° ë°ì´í°ë ì¹ ê²ì ê¸°ë° ìì§ê°ì´ë©° ì¤ìê° ìì¸ì ë¤ë¥¼ ì ììµëë¤. ì íí íì¬ê°ë ì¦ê¶ì¬ ì±ì íì¸íì¸ì.
-  </p>
-
-
-  <!-- ââââââââââââââââââââââââââââââââââââââââââ
-       ì¶ì² ì¢ëª© 1 â ì¼ì±ì ì
-  ââââââââââââââââââââââââââââââââââââââââââ -->
-  <div class="section-title">ðµ ì¶ì² ì¢ëª© ìì¸ ë¶ì</div>
-
-  <div class="stock-card">
-    <div class="stock-header">
-      <div>
-        <div class="stock-name">ì¼ì±ì ì</div>
-        <div class="stock-code">ì¢ëª©ì½ë: 005930 Â· ì½ì¤í¼</div>
-      </div>
-      <div class="badge-buy">ð£ ì ê·¹ ë§¤ì</div>
-    </div>
-
-    <div class="price-row">
-      <div class="price-item">
-        <div class="price-label">íì¬ê°</div>
-        <div class="price-val down">199,400ì</div>
-      </div>
-      <div class="price-item">
-        <div class="price-label">52ì£¼ ìµê³  / ìµì </div>
-        <div class="price-val" style="font-size:1.1rem; color:#333;">223,000 / 52,900ì</div>
-      </div>
-      <div class="price-item">
-        <div class="price-label">ì¦ê¶ì¬ íê·  ëª©íì£¼ê°</div>
-        <div class="target-price">248,240ì</div>
-      </div>
-    </div>
-
-    <div class="analyst-row">
-      <div class="analyst-pill">KBì¦ê¶ <span>320,000ì</span> ë§¤ì</div>
-      <div class="analyst-pill">íëì¦ê¶ <span>300,000ì</span> ë§¤ì</div>
-      <div class="analyst-pill">ê³¨ëë§ì­ì¤ <span>260,000ì</span> ë§¤ì</div>
-      <div class="analyst-pill">ì»¨ì¼ìì¤ 33ëª <span>ì ì ë§¤ì</span></div>
-    </div>
-
-    <div class="easy-explain">
-      <span class="emoji">ðµ</span><strong>ì¬ì´ ì¤ëª:</strong>
-      ì¼ì±ì ìë ì°ë¦¬ê° ì¼ììì ì°ë ì¤ë§í¸í°, TV, ëì¥ê³ ë¥¼ ë§ëë íì¬ìì. ì§ê¸ AI(ì¸ê³µì§ë¥) ì´íì¼ë¡ ë°ëì²´ ììê° ìì²­ëê² ëê³  ìì´ì, ì¼ì±ì ìë í° ííì ë°ê³  ìì´ì.
-      íì¬ ì£¼ê°(ì½ 20ë§ ì)ë ì¦ê¶ì¬ë¤ì´ ìê°íë ì ì  ê°ê²©(ì½ 25ë§ ì)ë³´ë¤ ë®ìì, ì ë¬¸ê° 33ëª ëª¨ëê° "<strong>ì§ê¸ ì¬ì¸ì!</strong>"ë¼ê³  ì¶ì²íê³  ìëµëë¤.
-      1ë ìì 20~60% ììµì ê¸°ëí  ì ìë ì¢ëª©ì´ìì. ð
-    </div>
+  <div class="update-bar">
+    <span class="live"><span class="dot"></span> 자동 업데이트 중 (30분마다)</span>
+    <span>최종: 2026년 03월 23일 14:49</span>
   </div>
 
+  <div class="idx-row">
+        <div class="idx-card" style="background:#f0f4ff">
+          <div class="idx-flag">🇰🇷</div>
+          <div class="idx-title">KOSPI</div>
+          <div class="idx-price">5,445원</div>
+          <div class="idx-chg" style="color:#1565c0">▼ -5.87%</div>
+        </div>
+        <div class="idx-card" style="background:#f0f4ff">
+          <div class="idx-flag">📊</div>
+          <div class="idx-title">KOSDAQ</div>
+          <div class="idx-price">1,107원</div>
+          <div class="idx-chg" style="color:#1565c0">▼ -4.61%</div>
+        </div></div>
 
-  <!-- ââââââââââââââââââââââââââââââââââââââââââ
-       ì¶ì² ì¢ëª© 2 â SKíì´ëì¤
-  ââââââââââââââââââââââââââââââââââââââââââ -->
-  <div class="stock-card">
-    <div class="stock-header">
-      <div>
-        <div class="stock-name">SKíì´ëì¤</div>
-        <div class="stock-code">ì¢ëª©ì½ë: 000660 Â· ì½ì¤í¼</div>
-      </div>
-      <div class="badge-buy">ð£ ë§¤ì</div>
-    </div>
+  
+        <div class="sec-block">
+          <div class="sec-title">반도체·IT</div>
+          <table class="s-table"><tbody>
+            <tr>
+              <td class="s-name">📱 삼성전자</td>
+              <td class="s-price">188,100원</td>
+              <td class="s-chg" style="color:#1565c0">▼ -5.86%</td>
+            </tr>
+            <tr>
+              <td class="s-name">💾 SK하이닉스</td>
+              <td class="s-price">939,000원</td>
+              <td class="s-chg" style="color:#1565c0">▼ -6.94%</td>
+            </tr></tbody></table>
+        </div>
+        <div class="sec-block">
+          <div class="sec-title">플랫폼·AI</div>
+          <table class="s-table"><tbody>
+            <tr>
+              <td class="s-name">🟢 NAVER</td>
+              <td class="s-price">209,750원</td>
+              <td class="s-chg" style="color:#1565c0">▼ -5.30%</td>
+            </tr>
+            <tr>
+              <td class="s-name">💛 카카오</td>
+              <td class="s-price">47,350원</td>
+              <td class="s-chg" style="color:#1565c0">▼ -5.49%</td>
+            </tr></tbody></table>
+        </div>
+        <div class="sec-block">
+          <div class="sec-title">2차전지</div>
+          <table class="s-table"><tbody>
+            <tr>
+              <td class="s-name">🔋 LG에너지솔루션</td>
+              <td class="s-price">359,000원</td>
+              <td class="s-chg" style="color:#1565c0">▼ -3.62%</td>
+            </tr>
+            <tr>
+              <td class="s-name">⚡ 에코프로비엠</td>
+              <td class="s-price">194,000원</td>
+              <td class="s-chg" style="color:#d32f2f">▲ +2.27%</td>
+            </tr></tbody></table>
+        </div>
+        <div class="sec-block">
+          <div class="sec-title">자동차</div>
+          <table class="s-table"><tbody>
+            <tr>
+              <td class="s-name">🚗 현대차</td>
+              <td class="s-price">487,500원</td>
+              <td class="s-chg" style="color:#1565c0">▼ -6.25%</td>
+            </tr>
+            <tr>
+              <td class="s-name">🚙 기아</td>
+              <td class="s-price">163,000원</td>
+              <td class="s-chg" style="color:#1565c0">▼ -3.61%</td>
+            </tr></tbody></table>
+        </div>
+        <div class="sec-block">
+          <div class="sec-title">금융</div>
+          <table class="s-table"><tbody>
+            <tr>
+              <td class="s-name">🏦 KB금융</td>
+              <td class="s-price">145,500원</td>
+              <td class="s-chg" style="color:#1565c0">▼ -6.55%</td>
+            </tr>
+            <tr>
+              <td class="s-name">🏛️ 신한지주</td>
+              <td class="s-price">89,900원</td>
+              <td class="s-chg" style="color:#1565c0">▼ -7.42%</td>
+            </tr></tbody></table>
+        </div>
+        <div class="sec-block">
+          <div class="sec-title">철강·소재</div>
+          <table class="s-table"><tbody>
+            <tr>
+              <td class="s-name">🏗️ POSCO홀딩스</td>
+              <td class="s-price">327,250원</td>
+              <td class="s-chg" style="color:#1565c0">▼ -4.17%</td>
+            </tr></tbody></table>
+        </div>
+        <div class="sec-block">
+          <div class="sec-title">바이오</div>
+          <table class="s-table"><tbody>
+            <tr>
+              <td class="s-name">💊 셀트리온</td>
+              <td class="s-price">189,000원</td>
+              <td class="s-chg" style="color:#1565c0">▼ -6.20%</td>
+            </tr></tbody></table>
+        </div>
 
-    <div class="price-row">
-      <div class="price-item">
-        <div class="price-label">íì¬ê°</div>
-        <div class="price-val down">951,000ì</div>
-      </div>
-      <div class="price-item">
-        <div class="price-label">52ì£¼ ìµê³  / ìµì </div>
-        <div class="price-val" style="font-size:1.1rem; color:#333;">1,099,000 / 162,700ì</div>
-      </div>
-      <div class="price-item">
-        <div class="price-label">ì¦ê¶ì¬ íê·  ëª©íì£¼ê°</div>
-        <div class="target-price">1,100,000ì</div>
-      </div>
-    </div>
-
-
-<div class="analyst-row">
-      <div class="analyst-pill">KBì¦ê¶ <span>1,200,000ì</span> ë§¤ì</div>
-      <div class="analyst-pill">íëì¦ê¶ <span>1,120,000ì</span> ë§¤ì</div>
-      <div class="analyst-pill">ê³¨ëë§ì­ì¤ <span>1,350,000ì</span> ë§¤ì</div>
-    </div>
-
-    <div class="easy-explain">
-      <span class="emoji">ðµ</span><strong>ì¬ì´ ì¤ëª:</strong>
-      SKíì´ëì¤ë 'HBM'ì´ë¼ë í¹ì ë°ëì²´ë¥¼ ë§ëë íì¬ìì. HBMì ChatGPT ê°ì AIë¥¼ ëë¦¬ë ë° ê¼­ íìí ë¶íì¸ë°, ì  ì¸ê³ìì SKíì´ëì¤ê° ê°ì¥ ì ë§ë ë¤ê³  ì¸ì ë°ê³  ìì´ì.
-      ìë¹ëì(NVIDIA)ì ëì  ë©í ì¤ì´ê³ , ì¬í´ ìì° ë¬¼ëì´ ê±°ì ë¤ íë¦° ìíìì.
-      ì£¼ê°ê° ìµê·¼ ì¡°ê¸ ë¹ ì¡ëë°, ì ë¬¸ê°ë¤ì ì´ê²ì´ <strong>ì ë ´íê² ì´ ì¢ì ê¸°í</strong>ë¼ê³  ë§í´ì. â¤ï¸
-    </div>
+  <div class="notice">
+    💡 <strong>투자 유의사항</strong><br>
+    본 페이지는 Yahoo Finance 데이터를 30분마다 자동 갱신합니다. 주식 거래는 본인 판단 하에 신중하게 결정하세요.
+    표시 가격은 전 거래일 종가 또는 장중 최근 데이터 기준이며, 실제 거래 가격과 차이가 있을 수 있습니다.
+    <br><br>💝 재용 드림
   </div>
 
-
-  <!-- ââââââââââââââââââââââââââââââââââââââââââ
-       ì¶ì² ì¢ëª© 3 â LGìëì§ìë£¨ì
-  ââââââââââââââââââââââââââââââââââââââââââ -->
-  <div class="stock-card">
-    <div class="stock-header">
-      <div>
-        <div class="stock-name">LGìëì§ìë£¨ì</div>
-        <div class="stock-code">ì¢ëª©ì½ë: 373220 Â· ì½ì¤í¼</div>
-      </div>
-      <div class="badge-hold">ð¤ ê´ë§ / ì ê° ë§¤ì ê³ ë ¤</div>
-    </div>
-
-    <div class="price-row">
-      <div class="price-item">
-        <div class="price-label">íì¬ê° (ì¶ì )</div>
-        <div class="price-val down">420,000ìë</div>
-      </div>
-      <div class="price-item">
-        <div class="price-label">ëª©íì£¼ê° (í¤ìì¦ê¶)</div>
-        <div class="target-price">590,000ì</div>
-      </div>
-    </div>
-
-    <div class="easy-explain">
-      <span class="emoji">ðµ</span><strong>ì¬ì´ ì¤ëª:</strong>
-      LGìëì§ìë£¨ìì ì ê¸°ì°¨ ë°°í°ë¦¬ë¥¼ ë§ëë íì¬ìì. íì¬ë¼, GM ë± ì¸ê³ì ì¸ ìëì°¨ íì¬ë¤ì ë°°í°ë¦¬ë¥¼ ê³µê¸íê³  ìì´ì.
-      ì§ê¸ì ì ê¸°ì°¨ ìì¥ì´ ì ì ì£¼ì¶¤í´ì ì£¼ê°ê° ë®ê² ê±°ëëê³  ìëë°, ì ë¬¸ê°ë¤ì ëª©íì£¼ê°ê° íì¬ê°ë³´ë¤ 40% ì´ì ëë¤ê³  ë´ì.
-      <strong>ì¥ê¸° í¬ì(2~3ë)</strong>ë¡ ë³´ë©´ ê´ì°®ì ì¢ëª©ì´ìì. ð
-    </div>
-  </div>
-
-
-  <!-- ââââââââââââââââââââââââââââââââââââââââââ
-       ë°ëì²´ ì°ì ëí¥
-  ââââââââââââââââââââââââââââââââââââââââââ -->
-  <div class="section-title">â¡ ë°ëì²´ ì°ì ìµì  ëí¥</div>
-  <div class="trend-grid">
-    <div class="trend-box">
-      <div class="t-icon">ð¤</div>
-      <div class="t-title">AI ë°ëì²´ ìì í­ë°</div>
-      <div class="t-body">2026ë HBM ìì¥ ê·ëª¨ê° ì ë ëë¹ <strong>58% ì±ì¥</strong>í´ 546ìµ ë¬ë¬ë¡ ììë©ëë¤. ChatGPTÂ·AI ì´íì´ ê³ìëë©´ì ë°ëì²´ ììê° ìì²­ëê² ëê³  ìì´ì.</div>
-    </div>
-    <div class="trend-box">
-      <div class="t-icon">ð¦</div>
-      <div class="t-title">ê³µê¸ ë¶ì¡±ì¼ë¡ ê°ê²© ê¸ë±</div>
-      <div class="t-body">SKíì´ëì¤ë ì¬í´ HBMì´ "ì¬ì¤ì ìí"ì´ë¼ê³  ë°íì´ì. Dë¨ ê°ê²©ì´ 2ë¶ê¸°ê¹ì§ ìµë <strong>40% ë ì¤ë¥¼</strong> ê²ì´ë¼ë ì ë§ë ìì´ì.</div>
-    </div>
-    <div class="trend-box">
-      <div class="t-icon">ð</div>
-      <div class="t-title">ê¸ë¡ë² ë°ëì²´ ìì¥ ì±ì¥</div>
-      <div class="t-body">2026ë ì¸ê³ ë°ëì²´ ìì¥ì´ ì ë ëë¹ <strong>2g>25% ì´ì ì±ì¥</strong>í´ ì½ 9,750ìµ ë¬ë¬(ì½ 1,300ì¡° ì)ì ë¬í  ì ë§ì´ìì.</div>
-    </div>
-    <div class="trend-box">
-      <div class="t-icon">ð¬</div>
-      <div class="t-title">ì¼ì±, HBM5 ì°¨ì¸ë ê¸°ì </div>
-      <div class="t-body">ì¼ì±ì ìê° ì°¨ì¸ë AI ë©ëª¨ë¦¬ <strong>HBM5</strong>ì 2ëë¸ ê³µì ì ì ì©íë ê³íì ê³µê°íì´ì. ê¸°ì  ê²½ììì SKíì´ëì¤ì ì¹ì´íê² ë¤í¬ê³  ìì´ì.</div>
-    </div>
-    <div class="trend-box">
-      <div class="t-icon">ð</div>
-      <div class="t-title">ì½ì¤í¼ ë°ëì²´ ë¹ì¤ 43%</div>
-      <div class="t-body">ì¼ì±ì ì+SKíì´ëì¤ì ì½ì¤í¼ ìê°ì´ì¡ í©ì´ <strong>2,108ì¡° ì</strong>ì¼ë¡ ì ì²´ ì½ì¤í¼ì 43%ë¥¼ ì°¨ì§í´ì. ë°ëì²´ ê¸°ìì´ íêµ­ ì£¼ì ìì¥ì ì´ëê³  ìì´ì.</div>
-    </div>
-    <div class="trend-box">
-      <div class="t-icon">â³</div>
-      <div class="t-title">ìí¼ì¬ì´í´ 2028ëê¹ì§</div>
-      <div class="t-body">HBMì´ ì´ëë ë©ëª¨ë¦¬ ìí¼ì¬ì´í´ì´ <strong>2028ëê¹ì§ ì´ì´ì§ ê²</strong>ì´ë¼ë ì ë§ì´ ë§ìì. ì¥ê¸° í¬ìììê² ê¸°íê° ë  ì ìì´ì.</div>
-    </div>
-  </div>
-
-
-  <!-- ââââââââââââââââââââââââââââââââââââââââââ
-       ì£¼ì ë´ì¤
-  ââââââââââââââââââââââââââââââââââââââââââ -->
-  <div class="section-title">ð° ì£¼ì ë´ì¤ (2026ë 3ì)</div>
-
-  <div class="news-card">
-    <div class="news-date">2026.03.16 Â· ê¸ë¡ë²ì´ì½ë¸ë¯¹</div>
-    <div class="news-title">ì¼ì±ì ìÂ·SKíì´ëì¤, ì¦ê¶ê° ëª©íì£¼ê° ì¤ì¤ì´ ìí¥</div>
-    <div class="news-body">êµ­ë´ì¸ ì¦ê¶ì¬ë¤ì´ ë°ëì²´ ìí© í¸ì¡°ë¥¼ ê·¼ê±°ë¡ ì¼ì±ì ìì SKíì´ëì¤ ëª©íì£¼ê°ë¥¼ ìë°ë¼ ëììµëë¤. ê³¨ëë§ì­ì¤ë ì¼ì±ì ì ëª©íê°ë¥¼ 26ë§ ìì¼ë¡ 27% ì¬ë ¸ê³ , SKíì´ëì¤ë 135ë§ ìì¼ë¡ ìí¥íìµëë¤.</div>
-  </div>
-
-  <div class="news-card">
-    <div class="news-date">2026.03.17 Â· ì¤ííìì¤ì½ë¦¬ì</div>
-    <div class="news-title">ì¼ì±ì ì, HBM5ì 2ëë¸ ê³µì  ì ì© â ì°¨ì¸ë AI ë©ëª¨ë¦¬ ì ëµ ê³µê°</div>
-    <div class="news-body">ì¼ì±ì ìê° HBM5Â·HBM5Eì D1cÂ·D1d 2ëë¸ ê³µì ì ì´ìí ì ì©íë ì ëµì ê³µê°íìµëë¤. AI ë©ëª¨ë¦¬ ê²½ììì ê¸°ì  ì°ìë¥¼ ì íë ¤ë ìì§ììëë¤.</div>
-  </div>
-
-  <div class="news-card">
-    <div class="news-date">2026.01.07 Â· ê¸ë¡ë²ì´ì½ë¸ë¯¹</div>
-    <div class="news-title">"ë¶ë¥´ë ê² ê°"â¦ AIê° ìì ì¬ë¦° ë©ëª¨ë¦¬ê° 40% í­ë±</div>
-    <div class="news-body">AI ìë² ìì ê¸ì¦ì¼ë¡ ë©ëª¨ë¦¬ ë°ëì²´ ê°ê²©ì´ ë¨ê¸°ê°ì ê¸ë±íê³  ììµëë¤. ê³µê¸ë³´ë¤ ììê° í¨ì¬ ë¹ ë¥´ê² ëì´ 2ë¶ê¸°ê¹ì§ ì¶ê° ìì¹ì´ ììë©ëë¤.</div>
-  </div>
-
-  <div class="news-card">
-    <div class="news-date">2026.03 Â· SKíì´ëì¤ ë´ì¤ë£¸</div>
-    <div class="news-title">2026ë ìì¥ ì ë§ â "HBMì´ ì´ëë ë©ëª¨ë¦¬ ìí¼ì¬ì´í´ì ì£¼ëª©"</div>
-    <div class="news-body">SKíì´ëì¤ê° ì¬í´ HBM ê³µê¸ ë¬¼ëì´ ì¬ì¤ì ìí ìíìì ë°íë©°, ê³ ë¶ê°ê°ì¹ AI ë©ëª¨ë¦¬ ì¤ì¬ì ì±ì¥ ì ëµì ì¬íì¸íìµëë¤.</div>
-  </div>
-
-
-  <!-- ââââââââââââââââââââââââââââââââââââââââââ
-       í¬ì ìºë¦°ë
-  ââââââââââââââââââââââââââââââââââââââââââ -->
-  <div class="section-title">ð í¬ì ì°¸ê³  ì¼ì  (2026ë 2ë¶ê¸°)</div>
-  <table class="cal-table">
-    <thead>
-      <tr>
-        <th>ë ì§</th>
-        <th>ì´ë²¤í¸</th>
-        <th>ì£¼ëª© ì´ì </th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td>4ì ì´</td>
-        <td>ì¼ì±ì ì 1ë¶ê¸° ì ì  ì¤ì  ë°í</td>
-        <td>ë°ëì²´ ë§¤ì¶ ì¤ì  íì¸, ì£¼ê° ë³ë ê°ë¥ì±</td>
-      </tr>
-      <tr>
-        <td>4ì ì¤ì</td>
-        <td>SKíì´ëì¤ 1ë¶ê¸° ì¤ì  ë°í</td>
-        <td>HBM íë§¤ëÂ·ì´ìµë¥  íì¸ í¬ì¸í¸</td>
-      </tr>
-      <tr>
-        <td>4ì~6ì</td>
-        <td>Dë¨ ê°ê²© ëí¥</td>
-        <td>ê³µê¸ ë¶ì¡± ì¬í ì ë°ëì²´ì£¼ ì¶ê° ìì¹ ê¸°ë</td>
-      </tr>
-      <tr>
-        <td>5ì</td>
-        <td>ì¼ì±ì ì ì£¼ì£¼ì´í ê²°ê³¼ ê³µì</td>
-        <td>ë°°ë¹ ì ì± íì¸</td>
-      </tr>
-      <tr>
-        <td>ìì</td>
-        <td>ë¯¸êµ­ ìë¹ëì ì¤ì Â·AI í¬ì ë´ì¤</td>
-        <td>SKíì´ëì¤ HBM ììì ì§ê²°</td>
-      </tr>
-    </tbody>
-  </table>
-
-
-  <!-- ââââââââââââââââââââââââââââââââââââââââââ
-       ë©´ì± ë¬¸êµ¬
-  ââââââââââââââââââââââââââââââââââââââââââ -->
-  <div class="disclaimer">
-    <strong>â ï¸ í¬ìë ë³¸ì¸ ì±ììëë¤</strong>
-    ì´ íì´ì§ì ëª¨ë  ì ë³´ë ê³µê°ë ìë£ì ì¹ ê²ìì ë°íì¼ë¡ ìì±ë ì°¸ê³ ì© ì ë³´ì´ë©°, í¹ì  ì¢ëª©ì ë§¤ìÂ·ë§¤ëë¥¼ ê¶ì íë ê²ì´ ìëëë¤.
-    ì£¼ì í¬ìë ìê¸ ìì¤ì ìíì´ ìì¼ë©°, í¬ì ê²°ì ê³¼ ê²°ê³¼ë í¬ìì ë³¸ì¸ìê² ììµëë¤.
-    ì íí í¬ì ìë´ì ê³µì¸ë ê¸ìµ ì ë¬¸ê°ìê² ë¬¸ìíì¸ì.<br><br>
-    ð ë³¸ íì´ì§ë ìë ìë°ì´í¸ë¡ ìì±ë©ëë¤ Â· ìµì¢ ê°±ì : <strong>2026ë 3ì 23ì¼</strong>
-  </div>
-
-</div><!-- /container -->
+  <footer>
+    자동 업데이트 · 데이터 출처: Yahoo Finance · GitHub Actions<br>
+    2026년 03월 23일 14:49 생성
+  </footer>
+</div>
 </body>
 </html>
