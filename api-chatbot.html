@@ -23,20 +23,25 @@
 
     #main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
 
-    /* API 키 배너 */
-    #api-banner { background: #1e3a5f; padding: 10px 20px; display: flex; align-items: center; gap: 10px; flex-shrink: 0; border-bottom: 1px solid #2d4a7a; flex-wrap: wrap; }
-    #api-banner label { color: #93c5fd; font-size: 12.5px; white-space: nowrap; font-weight: 600; }
-    #apiKeyInput { flex: 1; min-width: 200px; padding: 7px 12px; border: 1px solid #3b5998; border-radius: 8px; background: #0f1f3d; color: #e2e8f0; font-size: 12.5px; font-family: monospace; outline: none; }
-    #apiKeyInput:focus { border-color: #5ba8ff; }
-    #apiKeyInput::placeholder { color: #4a6080; }
-    #saveKeyBtn { background: #2563eb; color: #fff; border: none; padding: 7px 14px; border-radius: 8px; font-size: 12.5px; cursor: pointer; white-space: nowrap; font-family: inherit; }
-    #saveKeyBtn:hover { background: #1d4ed8; }
-    #keyStatus { font-size: 11.5px; white-space: nowrap; }
-    .status-ok   { color: #34d399; }
-    .status-err  { color: #f87171; }
-    .status-none { color: #6b7280; }
-    #free-tip { font-size: 11px; color: #60a5fa; width: 100%; }
-    #free-tip a { color: #93c5fd; }
+    /* 설정 배너 (Worker URL 미설정 시) */
+    #setup-banner { background: #1e3a5f; padding: 8px 20px; display: flex; align-items: center; gap: 8px; flex-shrink: 0; border-bottom: 1px solid #2d4a7a; flex-wrap: wrap; }
+    #setup-banner label { color: #93c5fd; font-size: 12px; white-space: nowrap; font-weight: 600; }
+    #workerUrlInput { flex: 1; min-width: 220px; padding: 6px 10px; border: 1px solid #3b5998; border-radius: 7px; background: #0f1f3d; color: #e2e8f0; font-size: 12px; font-family: monospace; outline: none; }
+    #workerUrlInput:focus { border-color: #5ba8ff; }
+    #workerUrlInput::placeholder { color: #4a6080; }
+    #saveWorkerBtn { background: #2563eb; color: #fff; border: none; padding: 6px 12px; border-radius: 7px; font-size: 12px; cursor: pointer; white-space: nowrap; font-family: inherit; }
+    #saveWorkerBtn:hover { background: #1d4ed8; }
+    #workerStatus { font-size: 11px; white-space: nowrap; }
+    .s-ok   { color: #34d399; }
+    .s-err  { color: #f87171; }
+    .s-none { color: #6b7280; }
+
+    /* 부서 선택 바 */
+    #dept-bar { background: #f8fafc; padding: 7px 20px; display: flex; align-items: center; gap: 10px; flex-shrink: 0; border-bottom: 1px solid #e5e8ed; }
+    #dept-bar label { font-size: 12px; color: #6b7280; white-space: nowrap; }
+    #deptSelect { padding: 4px 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 12.5px; color: #374151; background: #fff; outline: none; cursor: pointer; }
+    #deptSelect:focus { border-color: #2563eb; }
+    #dept-tip { font-size: 11px; color: #9ca3af; }
 
     #topbar { background: #fff; padding: 0 20px; height: 52px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #e5e8ed; flex-shrink: 0; }
     #hamburger { display: none; cursor: pointer; font-size: 22px; color: #374151; background: none; border: none; }
@@ -56,7 +61,6 @@
     .bubble table { border-collapse: collapse; width: 100%; margin: 6px 0; font-size: 12.5px; }
     .bubble td { padding: 5px 8px; border: 1px solid #e5e7eb; }
     .bubble th { padding: 6px 8px; border: 1px solid #dbeafe; background: #eff6ff; font-weight: 600; }
-    .info-box { background: #fffbeb; border-left: 3px solid #f59e0b; padding: 8px 12px; margin-top: 8px; border-radius: 0 8px 8px 0; font-size: 12.5px; color: #78350f; }
 
     .typing-dots { display: flex; gap: 4px; align-items: center; padding: 6px 2px; }
     .typing-dots span { width: 7px; height: 7px; background: #9ca3af; border-radius: 50%; animation: bounce 1.2s infinite; }
@@ -106,6 +110,7 @@
     <div class="menu-item" onclick="setContext(this,'manager')"><span class="menu-icon">👤</span> 담당자 찾기</div>
     <div class="menu-item" onclick="setContext(this,'etc')"><span class="menu-icon">❓</span> 기타</div>
     <div class="menu-item" onclick="clearChat()" style="margin-top:8px;border-top:1px solid #2d3a50;padding-top:14px;color:#ef4444;"><span class="menu-icon">🗑️</span> 대화 초기화</div>
+    <div class="menu-item" onclick="window.open('admin.html','_blank')" style="margin-top:4px;color:#f59e0b;"><span class="menu-icon">⚙️</span> 관리자</div>
   </div>
   <div id="sidebar-footer">
     <div style="color:#6b7a94;font-size:11px;margin-bottom:6px;">📧 이외 문의사항</div>
@@ -116,12 +121,40 @@
 <div id="overlay" onclick="closeSidebar()"></div>
 
 <div id="main">
-  <div id="api-banner">
-    <label>🔑 Anthropic API Key</label>
-    <input id="apiKeyInput" type="password" placeholder="sk-ant-... (console.anthropic.com에서 발급)">
-    <button id="saveKeyBtn" onclick="saveKey()">저장</button>
-    <span id="keyStatus" class="status-none">미입력</span>
-    <div id="free-tip">💡 API 키 발급 → <a href="https://console.anthropic.com/settings/keys" target="_blank">console.anthropic.com/settings/keys</a></div>
+  <!-- Worker URL 설정 배너 (미설정 시만 표시) -->
+  <div id="setup-banner">
+    <label>🔗 Worker URL</label>
+    <input id="workerUrlInput" type="text" placeholder="https://accounting-chatbot.your-account.workers.dev">
+    <button id="saveWorkerBtn" onclick="saveWorkerUrl()">저장</button>
+    <span id="workerStatus" class="s-none">미설정</span>
+  </div>
+
+  <!-- 부서 선택 -->
+  <div id="dept-bar">
+    <label>📂 소속 부서:</label>
+    <select id="deptSelect" onchange="saveDept()">
+      <option value="unknown">선택안함</option>
+      <option value="bom">봄툰사업본부</option>
+      <option value="lezhin_biz">레진사업본부</option>
+      <option value="lezhin_plan">레진기획부</option>
+      <option value="japan">일본사업본부</option>
+      <option value="brand">브랜드콘텐츠부</option>
+      <option value="global">글로벌콘텐츠부</option>
+      <option value="europe_thai">유럽/태국사업본부</option>
+      <option value="tech">기술부문</option>
+      <option value="tech_strat">기술전략부</option>
+      <option value="commerce">커머스사업본부</option>
+      <option value="md">MD사업부</option>
+      <option value="novel">소설사업부</option>
+      <option value="webtoon">웹툰사업부</option>
+      <option value="video">영상콘텐츠사업본부</option>
+      <option value="studio_m">스튜디오M/AM센터</option>
+      <option value="sourcing">콘텐츠소싱본부</option>
+      <option value="edit">편집부</option>
+      <option value="mgmt">경영지원본부</option>
+      <option value="other">기타</option>
+    </select>
+    <span id="dept-tip" class="dept-tip">부서 선택 시 사용량이 집계됩니다</span>
   </div>
 
   <div id="topbar">
@@ -142,8 +175,8 @@
 
   <div id="inputArea">
     <div id="inputRow">
-      <input id="userInput" type="text" placeholder="궁금한 내용을 자유롭게 입력하세요..." autocomplete="off" disabled>
-      <button id="sendBtn" onclick="handleSend()" disabled>&#10148;</button>
+      <input id="userInput" type="text" placeholder="궁금한 내용을 자유롭게 입력하세요..." autocomplete="off">
+      <button id="sendBtn" onclick="handleSend()">&#10148;</button>
     </div>
   </div>
 </div>
@@ -496,45 +529,52 @@ const catQuicks = {
 /* ─────────────────────────────────────
    상태
 ───────────────────────────────────── */
-let apiKey = localStorage.getItem('claude_api_key') || '';
+let workerUrl = localStorage.getItem('worker_url') || '';
+let currentDept = localStorage.getItem('dept') || 'unknown';
 let isLoading = false;
 let chatHistory = [];
 let currentCat = 'home';
 const CLAUDE_MODEL = 'claude-haiku-4-5-20251001';
 
 /* ─────────────────────────────────────
-   API 키 관리 (localStorage 저장)
+   Worker URL 설정
 ───────────────────────────────────── */
-function saveKey() {
-  const val = document.getElementById('apiKeyInput').value.trim();
-  if (!val.startsWith('sk-ant-')) {
-    showKeyStatus('형식 오류 (sk-ant-...)', 'err'); return;
+function saveWorkerUrl() {
+  const val = document.getElementById('workerUrlInput').value.trim().replace(/\/$/, '');
+  if (!val.startsWith('https://')) {
+    showWorkerStatus('https://로 시작해야 합니다', 'err'); return;
   }
-  apiKey = val;
-  localStorage.setItem('claude_api_key', val);
+  workerUrl = val;
+  localStorage.setItem('worker_url', val);
+  showWorkerStatus('✓ 연결됨', 'ok');
+  document.getElementById('workerUrlInput').value = '';
+  document.getElementById('setup-banner').style.background = '#14532d';
+  enableChat();
+}
+
+function showWorkerStatus(msg, type) {
+  const el = document.getElementById('workerStatus');
+  el.textContent = msg;
+  el.className = 's-' + type;
+}
+
+function enableChat() {
   document.getElementById('sendBtn').disabled = false;
   document.getElementById('userInput').disabled = false;
   document.getElementById('userInput').placeholder = '궁금한 내용을 자유롭게 입력하세요...';
-  showKeyStatus('✓ 저장됨 (재접속 불필요)', 'ok');
-  document.getElementById('apiKeyInput').value = '';
-  const inp = document.getElementById('apiKeyInput');
-  inp.style.borderColor = '';
-  inp.placeholder = 'sk-ant-... (console.anthropic.com에서 발급)';
 }
 
-function showKeyStatus(msg, type) {
-  const el = document.getElementById('keyStatus');
-  el.textContent = msg;
-  el.className = 'status-' + type;
+/* ─────────────────────────────────────
+   부서 선택
+───────────────────────────────────── */
+function saveDept() {
+  currentDept = document.getElementById('deptSelect').value;
+  localStorage.setItem('dept', currentDept);
 }
 
-function initKey() {
-  if (apiKey) {
-    showKeyStatus('✓ 저장됨', 'ok');
-    document.getElementById('sendBtn').disabled = false;
-    document.getElementById('userInput').disabled = false;
-    document.getElementById('userInput').placeholder = '궁금한 내용을 자유롭게 입력하세요...';
-  }
+function initDept() {
+  const sel = document.getElementById('deptSelect');
+  sel.value = currentDept;
 }
 
 /* ─────────────────────────────────────
@@ -552,7 +592,11 @@ function setContext(el, cat) {
   document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
   el.classList.add('active');
   currentCat = cat;
-  document.getElementById('topbar-sub').textContent = { home:'무엇이든 물어보세요', card:'법인카드', voucher:'전표/결산', vendor:'거래처/계좌', tax:'세금/세무', expense:'경비/정산', manager:'담당자 찾기', etc:'기타' }[cat];
+  document.getElementById('topbar-sub').textContent = {
+    home:'무엇이든 물어보세요', card:'법인카드', voucher:'전표/결산',
+    vendor:'거래처/계좌', tax:'세금/세무', expense:'경비/정산',
+    manager:'담당자 찾기', etc:'기타'
+  }[cat];
   renderQuicks(cat);
   closeSidebar();
 }
@@ -562,7 +606,6 @@ function setContext(el, cat) {
 ───────────────────────────────────── */
 function clearChat() {
   chatHistory = [];
-  lastRequestTime = 0;
   document.getElementById('chatArea').innerHTML = '';
   addMsg('대화 기록이 초기화됐습니다. 새로 질문해주세요! 😊', 'bot');
   closeSidebar();
@@ -621,8 +664,8 @@ function handleQ(q) { if (!isLoading) sendMessage(q); }
 document.getElementById('userInput').addEventListener('keydown', function(e) { if (e.key === 'Enter') handleSend(); });
 
 async function sendMessage(text) {
-  if (!apiKey) {
-    addMsg('API 키를 먼저 입력해주세요. 상단의 키 입력란에 Anthropic API 키를 입력하고 저장 버튼을 눌러주세요.\n\n키 발급: https://console.anthropic.com/settings/keys', 'bot');
+  if (!workerUrl) {
+    addMsg('⚠️ 상단에 <strong>Worker URL</strong>을 먼저 입력해주세요.<br><small>관리자에게 Worker URL을 받아서 입력하거나, admin.html에서 Cloudflare Worker를 설정해주세요.</small>', 'bot');
     return;
   }
 
@@ -636,7 +679,7 @@ async function sendMessage(text) {
 
   addTyping();
 
-  // 히스토리 최대 10개 메시지로 트림
+  // 히스토리 최대 10개 유지
   if (chatHistory.length > 10) chatHistory = chatHistory.slice(-10);
 
   try {
@@ -645,48 +688,35 @@ async function sendMessage(text) {
 
     let res;
     try {
-      res = await fetch('https://api.anthropic.com/v1/messages', {
+      res = await fetch(workerUrl + '/chat', {
         method: 'POST',
-        headers: {
-          'content-type': 'application/json',
-          'x-api-key': apiKey,
-          'anthropic-version': '2023-06-01',
-          'anthropic-dangerous-direct-browser-access': 'true'
-        },
+        headers: { 'Content-Type': 'application/json' },
         signal: controller.signal,
         body: JSON.stringify({
-          model: CLAUDE_MODEL,
-          max_tokens: 1024,
+          messages: chatHistory,
           system: SYSTEM_PROMPT,
-          messages: chatHistory
-        })
+          dept: currentDept,
+        }),
       });
     } catch (fetchErr) {
       clearTimeout(timeoutId);
       if (fetchErr.name === 'AbortError') throw new Error('응답 시간 초과(30초). 네트워크 상태를 확인해주세요.');
-      throw new Error('네트워크 오류: 인터넷 연결을 확인해주세요.');
+      throw new Error('네트워크 오류: 인터넷 연결 또는 Worker URL을 확인해주세요.');
     }
     clearTimeout(timeoutId);
 
-    if (!res.ok) {
-      let code = res.status, errMsg = '';
-      try { const b = await res.json(); errMsg = b.error?.message || ''; } catch (_) {}
-      if (code === 401) throw new Error('API_KEY_ERROR: API 키가 유효하지 않습니다. 다시 확인해주세요.');
-      if (code === 429) throw new Error('요청 한도를 초과했습니다. 잠시 후 다시 시도해주세요.');
-      throw new Error(`API 오류 [${code}]: ${errMsg.substring(0, 100)}`);
-    }
-
     let data;
-    try { data = await res.json(); } catch (_) { throw new Error('응답 파싱 오류. 다시 시도해주세요.'); }
+    try { data = await res.json(); } catch (_) { throw new Error('응답 파싱 오류'); }
+
+    if (!res.ok || data.error) {
+      if (res.status === 429 && data.quota_exceeded) throw new Error(data.error);
+      throw new Error(data.error || `API 오류 [${res.status}]`);
+    }
 
     const reply = data.content?.[0]?.text || '응답을 받지 못했습니다.';
 
     removeTyping();
     chatHistory.push({ role: 'assistant', content: reply });
-
-    // 모델 배지 업데이트
-    const badge = document.getElementById('model-badge');
-    if (badge) badge.textContent = '✨ Claude Haiku';
 
     const formatted = reply
       .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
@@ -696,14 +726,7 @@ async function sendMessage(text) {
   } catch (err) {
     removeTyping();
     chatHistory.pop();
-    const isKeyErr = err.message.startsWith('API_KEY_ERROR:');
-    const displayMsg = isKeyErr ? err.message.replace('API_KEY_ERROR: ', '') : err.message;
-    addMsg('⚠️ ' + displayMsg.replace(/\n/g, '<br>'), 'bot');
-    if (isKeyErr) {
-      showKeyStatus('✗ 키 오류', 'err');
-      const inp = document.getElementById('apiKeyInput');
-      if (inp) { inp.style.borderColor = '#f59e0b'; inp.placeholder = '올바른 API 키를 다시 입력하세요 (sk-ant-...)'; }
-    }
+    addMsg('⚠️ ' + err.message.replace(/\n/g, '<br>'), 'bot');
   } finally {
     isLoading = false;
     document.getElementById('sendBtn').disabled = false;
@@ -714,15 +737,25 @@ async function sendMessage(text) {
    초기화
 ───────────────────────────────────── */
 function init() {
-  addMsg('안녕하세요! ✨ <strong>키다리스튜디오 회계팀 AI 챗봇</strong>입니다.<br><br>' +
-    '자연어로 자유롭게 질문하면 AI가 답변합니다.<br>' +
-    '(예: "법인카드 전표 어떻게 올려요?", "봄툰 담당자 누구예요?")<br><br>' +
-    (apiKey
-      ? '✅ API 키가 저장되어 있습니다. 바로 질문해 주세요!'
-      : '⚡ 시작하려면 상단에 <strong>Anthropic API 키</strong>를 입력해주세요.<br><span style="font-size:12px;color:#9ca3af;">키 발급: console.anthropic.com/settings/keys</span>'),
-    'bot');
-  initKey();
+  initDept();
   renderQuicks('home');
+
+  if (workerUrl) {
+    showWorkerStatus('✓ 연결됨 (' + workerUrl.replace('https://', '').substring(0, 30) + '...)', 'ok');
+    document.getElementById('setup-banner').style.background = '#14532d';
+    enableChat();
+    addMsg('안녕하세요! ✨ <strong>키다리스튜디오 회계팀 AI 챗봇</strong>입니다.<br><br>' +
+      '자연어로 자유롭게 질문하면 AI가 답변합니다.<br>' +
+      '(예: "법인카드 전표 어떻게 올려요?", "봄툰 담당자 누구예요?")<br><br>' +
+      '✅ 서버 연결됨 — 바로 질문해 주세요!', 'bot');
+  } else {
+    document.getElementById('sendBtn').disabled = true;
+    document.getElementById('userInput').disabled = true;
+    document.getElementById('userInput').placeholder = 'Worker URL 설정 후 사용 가능합니다...';
+    addMsg('안녕하세요! ✨ <strong>키다리스튜디오 회계팀 AI 챗봇</strong>입니다.<br><br>' +
+      '⚡ 시작하려면 상단에 <strong>Worker URL</strong>을 입력해주세요.<br>' +
+      '<small style="color:#9ca3af;">관리자에게 Worker URL을 요청하세요.</small>', 'bot');
+  }
 }
 
 init();
