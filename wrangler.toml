@@ -1,0 +1,12 @@
+name = "accounting-chatbot"
+main = "worker.js"
+compatibility_date = "2024-01-01"
+
+# KV 네임스페이스 (아래 id는 배포 후 실제 값으로 교체)
+[[kv_namespaces]]
+binding = "USAGE_KV"
+id = "YOUR_KV_NAMESPACE_ID_HERE"
+
+# 환경변수는 wrangler secret으로 설정 (절대 이 파일에 직접 입력 X)
+# wrangler secret put CLAUDE_API_KEY
+# wrangler secret put ADMIN_PASSWORD
