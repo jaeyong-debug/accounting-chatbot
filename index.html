@@ -3,90 +3,93 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>회계팀 챗봇</title>
+  <title>회계팀 AI 챗봇</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif; background: #f0f2f5; display: flex; height: 100vh; overflow: hidden; }
 
-    /* ── 사이드바 ── */
-    #sidebar {
-      width: 220px; min-width: 220px; background: #1a2236; display: flex; flex-direction: column;
-      transition: transform 0.3s; z-index: 100;
-    }
+    #sidebar { width: 220px; min-width: 220px; background: #1a2236; display: flex; flex-direction: column; transition: transform 0.3s; z-index: 100; }
     #sidebar-header { padding: 18px 16px 14px; background: #111827; border-bottom: 1px solid #2d3a50; }
     #sidebar-header .logo { color: #fff; font-size: 15px; font-weight: 700; }
     #sidebar-header .sub  { color: #8b9ab5; font-size: 11px; margin-top: 3px; }
     #sidebar-menu { flex: 1; overflow-y: auto; padding: 10px 0; }
-    .menu-item {
-      display: flex; align-items: center; gap: 10px; padding: 11px 18px;
-      color: #b0bdd0; font-size: 13.5px; cursor: pointer; border-left: 3px solid transparent;
-      transition: all 0.18s;
-    }
+    .menu-item { display: flex; align-items: center; gap: 10px; padding: 11px 18px; color: #b0bdd0; font-size: 13.5px; cursor: pointer; border-left: 3px solid transparent; transition: all 0.18s; }
     .menu-item:hover { background: #222e45; color: #fff; }
     .menu-item.active { background: #1e3a5f; color: #5ba8ff; border-left-color: #5ba8ff; font-weight: 600; }
     .menu-icon { font-size: 17px; width: 22px; text-align: center; }
     #sidebar-footer { padding: 14px 16px; border-top: 1px solid #2d3a50; }
-    #sidebar-footer a { display: block; color: #8b9ab5; font-size: 11.5px; text-decoration: none; word-break: break-all; line-height: 1.6; }
+    #sidebar-footer a { display: block; color: #8b9ab5; font-size: 11.5px; text-decoration: none; word-break: break-all; }
     #sidebar-footer a:hover { color: #5ba8ff; }
 
-    /* ── 메인 ── */
     #main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
 
-    /* ── 헤더 ── */
-    #topbar {
-      background: #fff; padding: 0 20px; height: 52px; display: flex; align-items: center;
-      justify-content: space-between; border-bottom: 1px solid #e5e8ed; flex-shrink: 0;
-    }
+    /* 설정 배너 (Worker URL 미설정 시) */
+    #setup-banner { background: #1e3a5f; padding: 8px 20px; display: flex; align-items: center; gap: 8px; flex-shrink: 0; border-bottom: 1px solid #2d4a7a; flex-wrap: wrap; }
+    #setup-banner label { color: #93c5fd; font-size: 12px; white-space: nowrap; font-weight: 600; }
+    #workerUrlInput { flex: 1; min-width: 220px; padding: 6px 10px; border: 1px solid #3b5998; border-radius: 7px; background: #0f1f3d; color: #e2e8f0; font-size: 12px; font-family: monospace; outline: none; }
+    #workerUrlInput:focus { border-color: #5ba8ff; }
+    #workerUrlInput::placeholder { color: #4a6080; }
+    #saveWorkerBtn { background: #2563eb; color: #fff; border: none; padding: 6px 12px; border-radius: 7px; font-size: 12px; cursor: pointer; white-space: nowrap; font-family: inherit; }
+    #saveWorkerBtn:hover { background: #1d4ed8; }
+    #workerStatus { font-size: 11px; white-space: nowrap; }
+    .s-ok   { color: #34d399; }
+    .s-err  { color: #f87171; }
+    .s-none { color: #6b7280; }
+
+    /* 부서 선택 바 */
+    #dept-bar { background: #f8fafc; padding: 7px 20px; display: flex; align-items: center; gap: 10px; flex-shrink: 0; border-bottom: 1px solid #e5e8ed; }
+    #dept-bar label { font-size: 12px; color: #6b7280; white-space: nowrap; }
+    #deptSelect { padding: 4px 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 12.5px; color: #374151; background: #fff; outline: none; cursor: pointer; }
+    #deptSelect:focus { border-color: #2563eb; }
+    #dept-tip { font-size: 11px; color: #9ca3af; }
+
+    #topbar { background: #fff; padding: 0 20px; height: 52px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #e5e8ed; flex-shrink: 0; }
     #hamburger { display: none; cursor: pointer; font-size: 22px; color: #374151; background: none; border: none; }
     #topbar-title { font-size: 15px; font-weight: 700; color: #111827; }
     #topbar-sub { font-size: 12px; color: #9ca3af; margin-left: 8px; }
-    #category-badge {
-      background: #eff6ff; color: #2563eb; font-size: 12px; font-weight: 600;
-      padding: 3px 10px; border-radius: 20px; border: 1px solid #bfdbfe;
-    }
+    #model-badge { background: #f0fdf4; color: #166534; font-size: 11.5px; font-weight: 600; padding: 3px 10px; border-radius: 20px; border: 1px solid #bbf7d0; }
 
-    /* ── 채팅 영역 ── */
     #chatArea { flex: 1; overflow-y: auto; padding: 18px 20px; display: flex; flex-direction: column; gap: 12px; }
     .msg { display: flex; gap: 10px; max-width: 84%; }
-    .msg.bot { align-self: flex-start; }
+    .msg.bot  { align-self: flex-start; }
     .msg.user { align-self: flex-end; flex-direction: row-reverse; }
     .avatar { width: 34px; height: 34px; border-radius: 50%; background: #2563eb; color: #fff; font-size: 16px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
-    .bubble { padding: 11px 15px; border-radius: 16px; font-size: 13.5px; line-height: 1.7; max-width: 100%; }
+    .bubble { padding: 11px 15px; border-radius: 16px; font-size: 13.5px; line-height: 1.7; max-width: 100%; white-space: pre-wrap; word-break: break-word; }
     .msg.bot  .bubble { background: #fff; color: #1f2937; border-radius: 4px 16px 16px 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
     .msg.user .bubble { background: #2563eb; color: #fff; border-radius: 16px 4px 16px 16px; }
     .bubble strong { font-weight: 700; }
-    .info-box { background: #fffbeb; border-left: 3px solid #f59e0b; padding: 8px 12px; margin-top: 10px; border-radius: 0 8px 8px 0; font-size: 12.5px; color: #78350f; }
-    .step-box { background: #f0f9ff; border-left: 3px solid #0ea5e9; padding: 8px 12px; margin-top: 10px; border-radius: 0 8px 8px 0; font-size: 12.5px; color: #0c4a6e; }
-    .tag { display: inline-block; background: #eff6ff; color: #1d4ed8; font-size: 11px; padding: 2px 7px; border-radius: 10px; margin: 2px 2px 0 0; }
-    table { border-collapse: collapse; width: 100%; }
-    td { padding: 5px 8px; border: 1px solid #e5e7eb; font-size: 12.5px; }
-    th { padding: 6px 8px; border: 1px solid #dbeafe; background: #eff6ff; font-weight: 600; font-size: 12.5px; }
+    .bubble table { border-collapse: collapse; width: 100%; margin: 6px 0; font-size: 12.5px; }
+    .bubble td { padding: 5px 8px; border: 1px solid #e5e7eb; }
+    .bubble th { padding: 6px 8px; border: 1px solid #dbeafe; background: #eff6ff; font-weight: 600; }
 
-    /* ── 퀵버튼 ── */
+    .typing-dots { display: flex; gap: 4px; align-items: center; padding: 6px 2px; }
+    .typing-dots span { width: 7px; height: 7px; background: #9ca3af; border-radius: 50%; animation: bounce 1.2s infinite; }
+    .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes bounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-5px)} }
+
     #quickArea { padding: 10px 20px 0; flex-shrink: 0; }
     #quickLabel { font-size: 11.5px; color: #9ca3af; margin-bottom: 6px; }
     #quickBtns { display: flex; flex-wrap: wrap; gap: 7px; }
     .qbtn { background: #fff; border: 1px solid #d1d5db; color: #374151; font-size: 12.5px; padding: 6px 13px; border-radius: 20px; cursor: pointer; transition: all 0.15s; white-space: nowrap; }
     .qbtn:hover { background: #eff6ff; border-color: #93c5fd; color: #1d4ed8; }
 
-    /* ── 입력 영역 ── */
     #inputArea { padding: 12px 20px 16px; background: #fff; border-top: 1px solid #e5e8ed; flex-shrink: 0; }
     #inputRow { display: flex; gap: 8px; }
     #userInput { flex: 1; padding: 10px 14px; border: 1.5px solid #d1d5db; border-radius: 24px; font-size: 13.5px; outline: none; font-family: inherit; }
     #userInput:focus { border-color: #2563eb; }
+    #userInput:disabled { background: #f9fafb; color: #9ca3af; }
     #sendBtn { background: #2563eb; color: #fff; border: none; border-radius: 50%; width: 40px; height: 40px; cursor: pointer; font-size: 18px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: background 0.15s; }
-    #sendBtn:hover { background: #1d4ed8; }
+    #sendBtn:hover:not(:disabled) { background: #1d4ed8; }
+    #sendBtn:disabled { background: #9ca3af; cursor: not-allowed; }
 
-    /* ── 오버레이 ── */
     #overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 90; }
-
-    /* ── 반응형 ── */
     @media (max-width: 700px) {
       #sidebar { position: fixed; left: 0; top: 0; bottom: 0; transform: translateX(-100%); }
       #sidebar.open { transform: translateX(0); }
       #hamburger { display: flex; }
       #overlay.show { display: block; }
-      .msg { max-width: 92%; }
+      .msg { max-width: 93%; }
     }
   </style>
 </head>
@@ -94,18 +97,19 @@
 
 <nav id="sidebar">
   <div id="sidebar-header">
-    <div class="logo">💼 회계팀 챗봇</div>
-    <div class="sub">키다리스튜디오 재무회계</div>
+    <div class="logo">🤖 회계팀 AI 챗봇</div>
+    <div class="sub">Powered by Claude (Anthropic)</div>
   </div>
   <div id="sidebar-menu">
-    <div class="menu-item active" data-cat="home" onclick="selectCat(this,'home')"><span class="menu-icon">🏠</span> 처음으로</div>
-    <div class="menu-item" data-cat="card" onclick="selectCat(this,'card')"><span class="menu-icon">💳</span> 법인카드</div>
-    <div class="menu-item" data-cat="voucher" onclick="selectCat(this,'voucher')"><span class="menu-icon">📄</span> 전표 / 결산</div>
-    <div class="menu-item" data-cat="vendor" onclick="selectCat(this,'vendor')"><span class="menu-icon">🏢</span> 거래처 / 계좌</div>
-    <div class="menu-item" data-cat="tax" onclick="selectCat(this,'tax')"><span class="menu-icon">🧾</span> 세금 / 세무</div>
-    <div class="menu-item" data-cat="expense" onclick="selectCat(this,'expense')"><span class="menu-icon">✈️</span> 경비 / 정산</div>
-    <div class="menu-item" data-cat="manager" onclick="selectCat(this,'manager')"><span class="menu-icon">👤</span> 담당자 찾기</div>
-    <div class="menu-item" data-cat="etc" onclick="selectCat(this,'etc')"><span class="menu-icon">❓</span> 기타</div>
+    <div class="menu-item active" onclick="setContext(this,'home')"><span class="menu-icon">🏠</span> 처음으로</div>
+    <div class="menu-item" onclick="setContext(this,'card')"><span class="menu-icon">💳</span> 법인카드</div>
+    <div class="menu-item" onclick="setContext(this,'voucher')"><span class="menu-icon">📄</span> 전표 / 결산</div>
+    <div class="menu-item" onclick="setContext(this,'vendor')"><span class="menu-icon">🏢</span> 거래처 / 계좌</div>
+    <div class="menu-item" onclick="setContext(this,'tax')"><span class="menu-icon">🧾</span> 세금 / 세무</div>
+    <div class="menu-item" onclick="setContext(this,'expense')"><span class="menu-icon">✈️</span> 경비 / 정산</div>
+    <div class="menu-item" onclick="setContext(this,'manager')"><span class="menu-icon">👤</span> 담당자 찾기</div>
+    <div class="menu-item" onclick="setContext(this,'etc')"><span class="menu-icon">❓</span> 기타</div>
+    <div class="menu-item" onclick="clearChat()" style="margin-top:8px;border-top:1px solid #2d3a50;padding-top:14px;color:#ef4444;"><span class="menu-icon">🗑️</span> 대화 초기화</div>
   </div>
   <div id="sidebar-footer">
     <div style="color:#6b7a94;font-size:11px;margin-bottom:6px;">📧 이외 문의사항</div>
@@ -116,500 +120,478 @@
 <div id="overlay" onclick="closeSidebar()"></div>
 
 <div id="main">
+  <!-- 부서 선택 -->
+  <div id="dept-bar">
+    <label>📂 소속 부서:</label>
+    <select id="deptSelect" onchange="saveDept()">
+      <option value="unknown">선택안함</option>
+      <option value="bom">봄툰사업본부</option>
+      <option value="lezhin_biz">레진사업본부</option>
+      <option value="lezhin_plan">레진기획부</option>
+      <option value="japan">일본사업본부</option>
+      <option value="brand">브랜드콘텐츠부</option>
+      <option value="global">글로벌콘텐츠부</option>
+      <option value="europe_thai">유럽/태국사업본부</option>
+      <option value="tech">기술부문</option>
+      <option value="tech_strat">기술전략부</option>
+      <option value="commerce">커머스사업본부</option>
+      <option value="md">MD사업부</option>
+      <option value="novel">소설사업부</option>
+      <option value="webtoon">웹툰사업부</option>
+      <option value="video">영상콘텐츠사업본부</option>
+      <option value="studio_m">스튜디오M/AM센터</option>
+      <option value="sourcing">콘텐츠소싱본부</option>
+      <option value="edit">편집부</option>
+      <option value="mgmt">경영지원본부</option>
+      <option value="other">기타</option>
+    </select>
+    <span id="dept-tip" class="dept-tip">부서 선택 시 사용량이 집계됩니다</span>
+  </div>
+
   <div id="topbar">
     <div style="display:flex;align-items:center;gap:10px;">
       <button id="hamburger" onclick="toggleSidebar()">☰</button>
-      <span id="topbar-title">회계팀 챗봇</span>
-      <span id="topbar-sub">무엇이든 물어보세요</span>
+      <span id="topbar-title">회계팀 AI 챗봇</span>
+      <span id="topbar-sub">자연어로 질문해보세요</span>
     </div>
-    <span id="category-badge">전체</span>
+    <span id="model-badge">✨ Claude Haiku</span>
   </div>
+
   <div id="chatArea"></div>
+
   <div id="quickArea">
     <div id="quickLabel">자주 묻는 질문</div>
     <div id="quickBtns"></div>
   </div>
+
   <div id="inputArea">
     <div id="inputRow">
-      <input id="userInput" type="text" placeholder="궁금한 내용을 입력하세요..." autocomplete="off">
+      <input id="userInput" type="text" placeholder="궁금한 내용을 자유롭게 입력하세요..." autocomplete="off">
       <button id="sendBtn" onclick="handleSend()">&#10148;</button>
     </div>
   </div>
 </div>
 
 <script>
-/* ─────────────────────────────────────────
-   담당자 데이터 (2026.03.16 기준)
-───────────────────────────────────────── */
-const managers = [
-  { keys: ['법인카드 키다리','키다리 법인카드'], name: '유지수 매니저', area: '법인카드 (키다리법인)' },
-  { keys: ['법인카드 레진','레진 법인카드'], name: '김민정(B) 매니저', area: '법인카드 (레진법인)' },
-  { keys: ['봄툰','봄툰사업','봄툰마케팅','봄툰소설'], name: '고수희 매니저', area: '봄툰사업본부' },
-  { keys: ['레진사업본부','레진사업부','레진기획','레진ui','레진cr','레진마케팅','레진미주'], name: '민지영 매니저', area: '레진사업본부 (플랫폼사업부문)' },
-  { keys: ['일본사업본부','일본사업부','일본마케팅','일본유통','jp제작','jp기획'], name: '고수희 매니저', area: '일본사업본부' },
-  { keys: ['shinano','시나노','shinano kr'], name: '민지영 매니저', area: 'Shinano KR' },
-  { keys: ['브랜드콘텐츠','미디어제작','브랜드기획','콘텐츠디자인'], name: '오민지 매니저', area: '브랜드콘텐츠부' },
-  { keys: ['글로벌콘텐츠','아시아콘텐츠','유럽콘텐츠','미주콘텐츠','현지화','원고관리'], name: '최은아 매니저', area: '글로벌콘텐츠부' },
-  { keys: ['유럽태국','유럽태국사업','유럽태국마케팅'], name: '김민정(B) 매니저', area: '유럽/태국사업본부' },
-  { keys: ['delitoon sas','delitoon','델리툰','프랑스 법인'], name: '김민정(B) 매니저', area: 'DELITOON SAS (프랑스)' },
-  { keys: ['플랫폼기술','레봄개발','레진백엔드','레진프론트','발코니','백오피스개발','플랫폼개선','qa엔지니어링','숏폼개발'], name: '유지수 매니저', area: '기술부문 (플랫폼기술본부)' },
-  { keys: ['기술전략','인프라개발','인프라기술'], name: '유지수 매니저', area: '기술부문 (기술전략부/인프라)' },
-  { keys: ['intelilab','인텔리랩'], name: '민지영 매니저', area: 'R&D Intelilab' },
-  { keys: ['숏폼사업','숏폼기획'], name: '민지영 매니저', area: '숏폼사업부' },
-  { keys: ['커머스','md사업','md 사업','굿즈','출판제작'], name: '남우영 매니저', area: '커머스사업본부 (MD사업부)' },
-  { keys: ['소설사업','소설편집','소설유통','소설'], name: '최은아 매니저', area: '스토리웨어사업본부 (소설사업부)' },
-  { keys: ['웹툰사업','국내사업','ip프로듀싱','해외사업'], name: '고수희 매니저', area: '스토리웨어사업본부 (웹툰사업부)' },
-  { keys: ['영상콘텐츠','영상사업','투자관리','기획제작','디지털사업'], name: '유지수 매니저', area: '영상콘텐츠사업본부' },
-  { keys: ['스튜디오m','스튜디오 m','am센터','am 센터','am팀','3d배경','편집식자','ip개발','작화기술'], name: '박찬민 매니저', area: '스튜디오M / AM센터' },
-  { keys: ['소싱1팀','소싱 1팀','플랫폼소싱'], name: '박찬민 매니저', area: '콘텐츠소싱본부 (소싱1팀)' },
-  { keys: ['소싱2팀','소싱 2팀'], name: '송선아 매니저', area: '콘텐츠소싱본부 (소싱2팀)' },
-  { keys: ['편집1팀','편집2팀','편집3팀','편집4팀','편집5팀','편집6팀','편집부','편집팀'], name: '송선아 매니저', area: '콘텐츠소싱본부 (편집부)' },
-  { keys: ['경영지원','경영관리','재무관리','재무기획','경영기획','영업관리','인력운영','인재문화'], name: '유지수 매니저', area: '경영지원본부' },
-  { keys: ['lezhin jp','레진jp','레진 jp','일본 법인'], name: '최은아 매니저', area: 'Lezhin JP (레진 일본법인)' },
-  { keys: ['lezhin us','레진us','레진 us','미국 법인','레진 미국'], name: '오민지 매니저', area: 'Lezhin US (레진 미국법인)' },
-  { keys: ['kidari th','키다리 th','키다리th','태국 법인','태국법인'], name: '김재용 팀장', area: 'Kidari TH (태국법인)' },
-  { keys: ['급여','원천세','원천','월급','연말정산'], name: '최은아 매니저', area: '급여 / 원천세' },
-  { keys: ['정산 레진','레진 정산'], name: '김민정(B) 매니저', area: '정산 (레진)' },
-  { keys: ['정산 키다리','키다리 정산','정산 델리툰','델리툰 정산'], name: '남우영 매니저', area: '정산 (키다리 / DELITOON)' },
-  { keys: ['세무조정','부가가치세'], name: '김재용 팀장', area: '세무조정 / 부가세' },
-];
+/* ─────────────────────────────────────
+   지식 베이스 (시스템 프롬프트)
+───────────────────────────────────── */
+const SYSTEM_PROMPT = `당신은 키다리스튜디오 회계팀 챗봇입니다. 임직원들의 회계, 전표, 법인카드, 거래처 등록, 세무 관련 질문에 친절하고 정확하게 답변하세요.
+답변은 한국어로, 핵심만 간결하게 작성하세요. 지식 베이스에 없는 내용은 "accounting_fi@kidaristudio.com으로 문의해 주세요"라고 안내하세요.
 
-const allManagerTable = [
-  { area: '봄툰사업본부', name: '고수희 매니저' },
-  { area: '레진사업본부 (플랫폼사업부문)', name: '민지영 매니저' },
-  { area: '일본사업본부', name: '고수희 매니저' },
-  { area: 'Shinano KR', name: '민지영 매니저' },
-  { area: '브랜드콘텐츠부', name: '오민지 매니저' },
-  { area: '글로벌콘텐츠부', name: '최은아 매니저' },
-  { area: '유럽/태국사업본부', name: '김민정(B) 매니저' },
-  { area: 'DELITOON SAS', name: '김민정(B) 매니저' },
-  { area: '기술부문', name: '유지수 매니저' },
-  { area: '커머스사업본부 (MD사업부)', name: '남우영 매니저' },
-  { area: '소설사업부', name: '최은아 매니저' },
-  { area: '웹툰사업부', name: '고수희 매니저' },
-  { area: '영상콘텐츠사업본부', name: '유지수 매니저' },
-  { area: '스튜디오M / AM센터', name: '박찬민 매니저' },
-  { area: '콘텐츠소싱본부', name: '박찬민 / 송선아 매니저' },
-  { area: '편집부', name: '송선아 매니저' },
-  { area: '경영지원본부', name: '유지수 매니저' },
-  { area: '법인카드 (키다리법인)', name: '유지수 매니저' },
-  { area: '법인카드 (레진법인)', name: '김민정(B) 매니저' },
-  { area: 'Lezhin JP', name: '최은아 매니저' },
-  { area: 'Lezhin US', name: '오민지 매니저' },
-  { area: 'Kidari TH', name: '김재용 팀장' },
-  { area: '급여 / 원천세', name: '최은아 매니저' },
-  { area: '세무조정 / 부가세', name: '김재용 팀장' },
-];
+=== 사업부별 담당자 (2026.03.16 기준) ===
+[법인/사업부별 회계팀 담당자]
+봄툰사업본부(봄툰사업부, 봄툰마케팅팀, 대만사업팀, 봄툰소설편집팀, 플랫폼기획부): 고수희 매니저 (담당인원 38명)
+레진사업본부(레진미주사업팀, 레진사업팀): 민지영 매니저 / 오민지 매니저 (레진US법인:오민지M, 그 외:민지영M) (담당인원 36명)
+레진기획부(레진기획팀, 레진UI/UX팀, 레진CR팀, 레진마케팅팀): 민지영 매니저
+일본사업본부(일본사업팀, 일본마케팅팀, 일본유통팀): 고수희 매니저, 레진JP법인 담당=최은아M, 번역/외주비 포함 (담당인원 20명)
+브랜드콘텐츠부(미디어제작팀, 브랜드기획팀, 콘텐츠디자인1팀, 콘텐츠디자인2팀): 오민지 매니저 (담당인원 31명)
+글로벌콘텐츠부(미주콘텐츠팀, 아시아콘텐츠팀, 유럽콘텐츠팀, 현지화전략팀, 원고관리팀): 최은아 매니저 (*4월 결산부터 오민지로 변경) (담당인원 59명)
+유럽/태국사업본부(유럽태국사업팀, 유럽태국마케팅팀): 최은아M/김민정(B)M (델리툰 관련:김민정M, 봄툰TH(레진TH):최은아M) (담당인원 15명)
+DELITOON SAS 법인: 김민정(B) 매니저
+기술부문(레봄개발부, 발코니백엔드팀, 발코니프론트팀, 레진백엔드팀, 레진프론트팀): 김민정(B) 매니저 (법인카드: 키다리법인=유지수M, 레진법인=김민정(B)M)
+기술전략부(백오피스개발팀, 플랫폼개선팀, QA엔지니어링팀, 숏폼개발팀): 유지수 매니저 (담당인원 13명)
+인프라기술부(인프라개발팀): 유지수 매니저 (담당인원 5명)
+R&D기술부(Intelilab): 유지수 매니저 (담당인원 7명)
+커머스사업본부(숏폼사업부, 숏폼기획팀): 민지영 매니저 (담당인원 5명)
+MD사업부(굿즈제작팀, MD사업팀, 출판제작팀, 디자인팀): 남우영 매니저 (담당인원 36명)
+소설사업부(소설편집팀, 소설유통팀): 최은아 매니저 (담당인원 12명)
+웹툰사업부(국내사업팀, IP프로듀싱팀, 해외사업팀): 고수희 매니저 (*4월 결산부터 박찬민으로 변경) (담당인원 21명)
+해외출판사업팀: 고수희 매니저 (담당인원 4명)
+영상콘텐츠사업본부(투자관리팀, 기획제작팀): 유지수 매니저 (담당인원 12명)
+디지털사업팀: 오민지 매니저
+Shinano KR(JP제작팀, JP기획팀): 민지영 매니저 (레진JP 관련:최은아M) (담당인원 20명)
+스튜디오M/AM센터(AM1팀, AM2팀, AM3팀, 3D배경팀, 편집/식자팀): 박찬민 매니저 (담당인원 53명)
+스튜디오M 디렉터팀, IP개발팀, 작화기술지원팀: 박찬민 매니저 (담당인원 14명)
+콘텐츠소싱본부 소싱1팀: 박찬민/송선아 매니저 (키다리법인=송선아M, 레진법인=박찬민M) (담당인원 11명)
+콘텐츠소싱본부 소싱2팀: 송선아 매니저 (담당인원 6명)
+편집부(편집1팀~편집6팀): 송선아 매니저 (담당인원 32명)
+콘텐츠지원팀: 송선아 매니저 (담당인원 3명)
+경영지원본부(회계팀, 재무기획팀, 경영기획팀, 영업관리팀, 법무팀): 유지수 매니저 (담당인원 47명)
+Lezhin JP: 최은아 매니저
+Lezhin US: 오민지 매니저
+Kidari TH: 김재용 팀장
 
-/* ─────────────────────────────────────────
-   카테고리별 퀵버튼
-───────────────────────────────────────── */
-const catQuicks = {
-  home:    ['법인카드 전표 입력','결산 마감 일정','거래처 등록 방법','위임전결규정','담당자 찾기','세금계산서 발행'],
-  card:    ['ERP10 전표 입력 방법','재발급/분실신고','한도 문의','카카오T 택시','후불교통카드','미수금 처리','결제취소','식대 처리','인터넷결제/비밀번호'],
-  voucher: ['전표 처리 방법','결산 마감 일정','위임전결규정','결재라인 설정 방법','회계일자/계정과목','전표 반려','경조사비/출장일비'],
-  vendor:  ['거래처 등록 방법','개인 거래처 등록','기등록 거래처 수정','계좌 등록','중복 사업자번호 오류','KLIN 동기화'],
-  tax:     ['세금계산서 발행','부가세 일정','원천징수/지급명세서'],
-  expense: ['경비정산 방법','해외출장비 처리','정기 지급 일정'],
-  manager: ['담당자 찾기','전체 담당자 보기'],
-  etc:     ['급여명세서','해촉/연재 증명서','IPS 시스템','예산단위 오류'],
+=== 업무별 담당자 분장 (2026년 3월 결산 기준) ===
+[담당자 약어: 수희=고수희, 지영=민지영, 은아=최은아, 민지=오민지, 찬민=박찬민, 지수=유지수, 선아=송선아, 민정=김민정(B), 재용=김재용, 우영=남우영, 다영=최다영]
+
+[코인 매출]
+- KR: 키다리=수희(정), 레진=지영(정)/팀장님(검토)
+- 해외플랫폼: 키다리=수희(TW)/은아(TH), 레진=은아/민지(정)/팀장님(검토)
+
+[유통매출]
+- 게임: 키다리=수희(정)
+- 웹툰(국내): 키다리=수희(>찬민)(정), 레진=수희(>찬민)(정)
+- 웹툰(해외): 키다리=수희(>찬민)(정), 레진=수희(>찬민)(정)
+- 소설: 키다리=은아(정)
+- 외부유통: 키다리=수희(>찬민)(정)/수희(부), 레진=수희(>찬민)(정)/수희(부)
+- 영상(영화): 키다리=지수(>민지)(정)/지수(부)
+- 영상(부가): 키다리=민지(정)/지수(부)
+- 영상(일드): 키다리=지수(>민지)(정)/지수(부)
+- MD: 레진=우영(정)
+- 레진스낵: 레진=지영(정)/지수(부) (유통매출)
+- 숏드/숏툰: 키다리=수희(정)/지수(부), 레진=지영(정)/지수(부)
+- 번역비: 레진=은아(>민지)(정)/수희(부)
+
+[MG 상각/손상]
+- KR: 키다리=수희(정), 레진=은아(정)/지영(검토)
+- 해외플랫폼: 키다리=선아(정)/수희(부), 레진=찬민(정)/지수(부)
+- 외부유통: 키다리=수희(정)/지수(부), 레진=수희(정)/지수(부)
+- 소설: 키다리=은아(정)/지수(부)
+- 부가판권: 키다리=민지(정)/지수(부)
+- 숏툰/숏드: 키다리=수희(정)/지수(부), 레진=지영(정)/지수(부)
+- 게임: 키다리=수희(정)/지수(부)
+
+[원고료]
+- KR: 키다리=선아(정)/수희(부), 레진=은아(정)/지영(부)
+- 해외플랫폼: 키다리=선아(정)/수희(부), 레진=찬민(정)/지영(부)
+- 키다리-델리툰(FR/DE): 수희(부)
+- 키다리-봄툰(TH/TW): 선아(정)/수희(부)
+- 국내/해외유통: 키다리=민정/선아(정)/수희(부), 레진=찬민/민정(정)/지영(부) *R&R 재배분 예정(4월 중)
+
+[세무(TAX)]
+- 원천세: 키다리=찬민(정)/수희(부) *4월 신고분(5월)부터, 레진=민지(정)/지영(부)
+- 지급명세서(간이 포함): 키다리=찬민(정)/수희(부), 레진=민지(정)/지영(부) *4월 신고분부터
+- 예술인고용보험: 키다리=찬민(정)/수희(부), 레진=민지(정)/지영(부) *4월 신고분부터
+- 부가세: 키다리=은아(정)/수희(부) *1기 예정 신고부터, 레진=민정(정)/지영(부)
+
+[마감 관련]
+- 법인카드 미처리: 키다리=은아/수희, 레진=찬민/지영
+- 세금계산서 미처리: 키다리=선아/수희, 레진=민정/지영
+- 통합분개 미처리 확인: 키다리=민지/수희, 레진=민지/지영
+- 손익조정(가마감) 전표 작성+역분개: 키다리=수희(정)/지수(부), 레진=지영(정)/지수(부)
+- 손익보고(개별법인): 키다리=수희/지수, 레진KR=지영/지수, 레진JP=은아, 레진US=민지, 델리툰=민정
+- 손익보고(연결조정): 지수
+- 결산조정 전표(월/분기): 키다리=3월부터 지수>수희, 레진=3월부터 우영>지영
+
+[회계감사]
+- 특수관계자: 키다리=수희(은아)/지영(민정)(부), 레진=은아, 레진US=민지, 델리툰=민정
+- 별도 PKG(정산표): 키다리=수희/지수, 레진KR=지영/지수, 레진JP=은아, 레진US=민지, 델리툰=민정
+
+[일반 업무]
+- 출금noti채널(전일): 키다리=수희(부재시 은아), 레진KR=지영(부재시 찬민)
+- 기간비용(월결산): 키다리=민지/수희, 레진JP=은아/지영
+- 감가상각: 키다리=은아/수희, 레진JP=민정/지영
+- 리스: 수희/지영
+- 손익보고(개별법인): 키다리=수희/지수, 레진=지영/지수
+
+=== 결산 체크리스트 - 레진 ===
+[매월 정기 업무]
+- 간이지급명세서(거주자-사업소득) 제출: 익월 말일, 담당=지영
+- 간이지급명세서(거주자-기타소득) 제출: 익월 말일, 담당=지영 (인적용역만 해당)
+- 예술인고용보험 고지서 전표 처리: 익월 10일까지 납부, 담당=지영 (법무팀 전표 처리)
+- 학자금명세서 신고: 익월 10일까지 신고/납부, 담당=지영
+- 연재일 확인 요청 메일 발송: D+1, 담당=지영 (레진편집부/JP기획팀/웹툰사업부(숏폼) 담당자에게 요청, 8일 전후 회신)
+- 예술인 고용보험 자료(노무법인 전달): 8일까지 발송, 담당=지영 (원천세 신고자료 완성 후 작성)
+- 법인카드(신규/재발급) 업데이트: D+1, 담당=수희 (삼성카드만 회계팀 처리)
+- 사내식당 중식매출 세금계산서 발행: 10일까지, 담당=지영
+- 마감 공지 업로드(그룹웨어/Slack): D+2, 담당=재용 (총무팀 카카오T 작업 완료 확인 후)
+- 주식보상비용: 2영업일까지 메일 발송, 담당=지수 (기획팀 오수인M 확인 요청)
+- 법인카드 전표(사업부): 마감 공지일까지, 담당=다같이
+- 법인카드 미처리건 알림 메일: 법카 마감일 -1일 + 마감일, 담당=은아
+- 법인카드 반려건 재상신 알림: 법카 마감일 -1일 + 마감일, 담당=찬민
+- 법인카드(교통비 사용내역): 마감 공지일까지, 담당=수희
+- 전자(세금)계산서 대사: 10일 이후, 담당=다같이 (ERP에 내역 업로드)
+- 법인카드 청구금액 대사(신한카드): 마감일까지, 담당=수희 (12일 전후, 해외결제/취소 건 확인)
+- 법인카드 청구금액 대사(삼성카드): 마감일까지, 담당=수희 (15일부터 가능)
+- 가기표(KR): 담당=지수 (웰레이드 기표, 개인 및 정산월 수취 세금계산서 제외)
+- 가기표(KR) 취소: 담당=지수
+- 가기표(KR-추가 인센티브): 23년 3Q부터, 담당=은아 (분기+1M에 취소)
+- 가기표(부가세불공제분): 25년 1기 확정(141,652,141원/월 47,217,380원), 담당=수희 (분기마다 금액 변경)
+- 국내사업팀 유통매출 확인: 담당=수희
+- 매출 가기표(국내): 당월+전월 취소, 담당=수희
+- 가기표(3rd): KR/US/JP, 담당=수희
+- 가기표(굿즈-로열티): 매월 굿즈매출의 10%, 실제 정산월(분기+2M)에 취소, 담당=지영
+- 가기표(해외매출-출판 등): D+10, 레진KR 서비스매출-해외/관계사매출-B2B, 담당=지수
+- 가기표-해외출판사업팀: 마지막주, 담당=지수
+- 가기표(해외): D+10, US/X/ES/JP/벨툰, 담당=찬민
+- 선급비용-기간인식: D+8, 담당=수희 (매입세금계산서 마감 후)
+- 선급비용 상각(KR): D+8, 담당=지수 (원고료 마스터파일 마감 후)
+- 선지급금 상각 대체(KR): D+8, 담당=지수 (선지급금MG만 별도 처리)
+- 선급비용 상각(해외 플랫폼): JP/벨툰/US/US-X/ES, 담당=지수
+- 선수수익 -> 매출: 선수수익-봄툰, 담당=지영
+- 감가상각비(리스): 담당=수희 (매년 7월 리스료 변동, 분기마다 유동성 대체 금액 확인)
+- 감가상각비(유.무형,기타자산): 매입 완료 후, 담당=수희
+- 기간비용 전표처리: 매입 완료 후, 담당=수희
+- 코인 파일 작성(KR): D+8, PG사 관련 데이터 취합, 담당=우영
+- 회계팀 고정비 내역 처리: 마감일까지, 영림원ERP/삼일아이/세포아소프트/더존비즈온, 담당=찬민
+- 가기표-상여금: 매월 1억(2025Y), 담당=지수
+- 가기표-장기근속수당: 매월 25,183,130원 (24년 연간 302,197,559원), 담당=지수
+- 가기표-퇴직급여: 매월 83,775,510원 (25년 연간 1,005,306,120원), 담당=지수
+- MG 손상 기표: 분기마다 평가, 매월 1/3씩 기표, 담당=지수
+- 연차수당 수정분개 전표: 인력운영팀에서 작성, 담당=지수
+- 내부거래 인식(US): D+8, 코인담당자 확인 후 작성, 담당=우영
+- 내부거래 인식(JP): D+8, 코인담당자 확인 후 작성, 담당=우영
+- MD 재이미샵 매출 확인 및 조정: D+7, 담당=지영
+- MD 원가 마감(CO): D+8, SCM 마감 후, 담당=지영
+- MD 기타출고 부가세 기표: D+8, CO 마감 후, 담당=지영
+- 직원-미수금/선수금 반제 일괄: 담당=지수
+- 수정세금계산서/계산서 일괄 처리: 담당=다같이
+- 결산 명세서 작성: D+11 오전, 담당=다같이
+- 손익보고 디테일 작성: D+9, 매출=지영/원가=수희, 담당=다같이
+- 손익 보고서 작성: D+9, 이사님 보고용
+- 미수금 계정-거래처 체크: 법카전표 완료 후, 담당=수희
+- 카카오T 오사용내역 미수금 처리: 담당=수희
+
+[분기 업무]
+- 리스부채 유동성 대체: 분기말, 담당=수희
+- 연차수당: 분기말, 인력운영팀에서 계산, 담당=지수
+- 부가세 상계 전표 입력: 분기, 담당=수희
+- 부가세 신고 및 납부(환급): 분기, 담당=수희
+- 가기표 취소(부가세불공제분): 1,4,7,10월, 담당=수희
+- 가기표 취소(KR-추가 인센티브): 실제 정산월, 담당=은아
+- 가기표 취소(굿즈-로열티): 2,5,8,11월, 담당=지영
+- 가기표 취소(3rd/해외): 3rd 및 해외 전분기 내역/출판/봄툰3rd/US직매출, 담당=지수
+- 외화 평가: 분기말 기표 + 익월초 역분개, 담당=재무기획팀
+- 미수수익: 분기말 기표 + 익월초 역분개, 담당=재무기획팀
+- 법인세 간이조정: D+11, KR 해당, 담당=지수
+- 지분법: D+11, 담당=민형
+- 특수관계자 거래 내역 확인: D+11, 레진 KR/JP/US간 거래내역, 담당=수희/지영
+- JP: 소비세 중간예납: 5월말/8월말/11월말, 담당 -
+
+[연간 업무]
+- 등록면허세 납부: 매년 1월 말, 담당=수희
+- 주민세(사업소분) 납부: 매년 8월, 담당=우영
+- KR 리스 파일 수정: 매년 7월, 성수사옥 관련, 담당=수희
+- 지급명세서(비거주자 사업소득/외국법인): 다음년도 2월 말, 담당=지영
+- 지급명세서(사업소득): 다음년도 3월 10일, 담당=지영
+- 지급명세서(이자/배당/기타소득): 다음년도 2월 말, 담당=지영
+- JP 자금결제법 신고: 매년 5월 및 11월, 코인관련 일본법 연2회 신고
+
+=== 결산 체크리스트 - 키다리 ===
+[매월 정기 업무]
+- 간이지급명세서(거주자-사업소득) 제출: 익월 말일, 담당=찬민
+- 간이지급명세서(거주자-기타소득) 제출: 익월 말일, 담당=찬민 (인적용역만 해당)
+- 예술인고용보험 고지서 전표 처리: 익월 10일까지 납부, 담당=지수 (법무팀에서 전표 상신)
+- 예술인 고용보험 자료(노무법인 전달): 8일까지 발송, 담당=찬민 (원천세 신고자료 완성 후)
+- 사내식당 중식매출 세금계산서 발행: 10일까지, 담당=지영
+- 마감 공지 업로드: 1영업일, 담당=지수 (총무팀 카카오T 작업 완료 확인 후)
+- 주식보상비용: 담당=지수 (퇴사자 반영 필수)
+- 법인카드 전표(사업부): 마감 공지일까지, 담당=다같이
+- 법인카드 미처리건 알림 메일: 법카 마감일 -1일 + 마감일, 담당=찬민
+- 법인카드 반려건 재상신 알림: 법카 마감일 -1일 + 마감일, 담당=민지 (마감시까지 수시 확인)
+- 법인카드(교통비 사용내역): 마감 공지일까지, 담당=찬민
+- 전자(세금)계산서 대사: 10일 이후, 담당=다같이 (ERP에 내역 업로드)
+- 법인카드 청구금액 대사(신한카드): 마감일까지, 담당=찬민 (12일 전후)
+- 가기표(부가세불공제분): 25년 1기 확정(139,988,988원/월 46,662,996원), 담당=은아 (분기마다 금액 변경)
+- 기간비용 전표처리: D+8, 담당=수희 (미결 건 확인, 매입세금계산서 마감 후)
+- 감가상각비(리스): 담당=수희 (매년 7월 리스료 변동, 분기마다 유동성 대체 확인)
+- 스튜디오M 원고료 계산서 발행: 담당=수희
+- 키움증권 AI 웹툰제작 매출 계산서 발행: 담당=찬민 (매월 매출계산서 발행 및 전표 처리)
+- 감가상각비(유.무형,기타자산): 매입 완료 후, 담당=선아
+- 회계팀 고정비 내역 처리: 영림원/세포아소프트/더존비즈온/펌뱅킹/하이픈, 담당=선아
+- 가기표-2차 저작물 RS: 마감일까지, 정산주기=분기(2/5/8/11월), 외부 B2B 2차저작물 매출, 담당=선아
+- 가기표-코미코 유통 RS: 마감일까지, 매출인식=판매월+1, 정산주기=분기(2/5/8/11월), 담당=다영
+- 가기표-봄툰 해외 RS(TH/TW/AR): 마감일까지, 담당=선아
+- 가기표-봄툰KR 추가인센티브: 마감일까지, 정산주기=분기M+1(1/4/7/10월), 담당=선아
+- MG 상각-봄툰TH: 마감일까지, 선급비용 잔액 관리 거래처:기타-봄툰(태국), 담당=다영
+- MG 상각-봄툰TW: 마감일까지, 선급비용 잔액 관리 거래처:기타-봄툰(대만), 담당=다영
+- MG 손상-봄툰KR: 분기마다 평가, 익분기에 매월 1/3씩 기표, 담당=다영
+- MG 손상-봄툰TH: 분기마다 평가, 익분기에 매월 1/3씩 기표, 담당=다영
+- MG 손상-봄툰TW: 분기마다 평가, 익분기에 매월 1/3씩 기표, 담당=다영
+- 스튜디오M 인건비 자산화: 담당=수희
+- 소설-MD 원가 인식: 알라딘(매월)/재이미샵(분기별), 담당=은아
+- 소설-선급비용 상각(선인세): 찬민M 인세 기안 파일 기준, 담당=은아
+- 소설-선급비용 상각(선투자): 카카오/네이버 선투자 정산서 기준, 담당=은아
+- 가기표-<미성년> <시크릿동맹>: 51040510 서비스매출원가(영상콘텐츠)-기획제작, 담당=민지
+- 전표-와이웍스 N월 반영 판권료: 서비스매출원가(영상콘텐츠)-부가판권_RS 미지급비용, 담당=민지
+- 부가판권 관련(가기표, 추정원가, 조정분개 등): 담당=민지
+- 권리사 매입건 처리-개인: 25일 정산서 발송 후 당월 말 지급, 담당=민지
+- 권리사 매입건 처리-업체: 25일 정산서 발송 후 익월 말 지급, 담당=민지
+- 직원-미수금/선수금 반제 일괄: 담당=찬민
+- 미수금 계정-거래처 체크: 법카전표 완료 후, 담당=다영/지수
+
+[분기 업무]
+- 리스부채 유동성 대체: 분기말, 담당=수희
+- 연차수당: 분기말, 담당=지수
+- 부가세 상계 전표 입력: 분기, 담당=은아
+- 부가세 현금영수증 발행 분 대체: 과세 PG매출 있을 때, 담당=은아
+- 부가세 신고 및 납부(환급): 분기, 담당=은아
+- 가기표-봄툰 해외 유통 RS: 매출인식=3/6/9/12월, 정산=2/5/8/11월, 담당=선아
+- 가기표 취소(부가세불공제분): 1,4,7,10월, 담당=은아
+- 가기표 취소-봄툰 해외 RS(TH/TW/AR): 2,5,8,11월, 담당=선아
+- 가기표 취소(KR-추가 인센티브): 실제 정산월, 담당=선아
+- 별도패키지 작성 (태국/홀딩스 및 사업회사): D+11
+
+=== 법인카드 ===
+ERP10 전표 입력 단계:
+1. ERP10 → '법인카드거래내역' 검색 후 접속
+2. 사용자 검색: 돋보기 → 사용자이관여부 체크✓ 필수(카카오T 내역 반영) → 사원명 입력 → 선택 → 적용
+3. 카드번호 검색: 돋보기 → 카드번호 선택 → 적용
+4. 조회 조건 입력 → 조회
+5. 전표 입력(건별): 상대계정처리유형 선택 → 적요/회계일자(카드사용월 말일)/비용센터 입력
+6. 전표 입력(일괄): 여러 건 선택 → 회계일자·상대계정·부가세구분(부가세미처리/봉사료미처리)·비용센터·적요 입력
+7. 부가세: 불공제여부✓, 공통매입여부✗
+8. 전표 처리: 저장 → 전표 버튼 → 일괄 전표처리 권장
+9. 분할 처리: 건 선택 → 추가기능 → 분할처리 → 추가 → 금액 분할 → 차이 0원 확인
+10. 전자결재 상신: 전표조회승인 메뉴 → 전표 선택 → 결재
+11. 전표 취소: 전표처리 YES 조회 → 전표버튼 → 전표취소
+결재라인: 기안자 → 팀장 → 수신: 회계팀 담당자 → 회계팀장
+
+재발급/분실: 신한카드 7영업일, 삼성카드 홈페이지 직접. 키다리-유지수M, 레진-김민정(B)M. 레진 재발급 시 김성준M에게 알릴 것(수기ERP 등록).
+한도: 신한-재무기획팀 문의, 삼성-앱 직접. 상향신청: 그룹웨어 기안 '법인카드 한도 상향 신청'. 한도 문의 담당: 키다리-재무기획팀 김나영M, 레진-재무기획팀 김성준M
+미수금: 전표 입력 시 거래처명을 본인 성명으로 입력.
+예산: 예산 배정·잔액 문의는 경영기획팀으로 문의. 관련 게시글: https://portal.kidaristudio.com/app/board/300/post/6106
+카카오T: 사용자이관여부 체크✓ 필수. 미체크시 조회 불가.
+회계일자: 법인카드 전표는 카드 사용 월의 말일자로 입력.
+법인카드 전표 검증: 입력한 전표 내용 검증 도구 → https://script.google.com/macros/s/AKfycbxKtozN3XDxldlqsExjJ9D5dx994oe08llIlkaQoOVE3wKW8vgQ6oOYJIr8l7djcuBMig/exec
+
+=== 전표/결산 ===
+결산 마감 일정:
+- 법인카드 전표: 영업일 기준 3일차
+- 매출·매입 전표: 영업일 기준 4일차
+- 지연 시: 해당 사업부장 책임으로 경영진 보고
+- 해외법인(레진US, 레진JP, 델리툰): 업무기안 후 회계팀 담당자 별도 처리
+- 인사발령 대상자는 발령 전 법인카드 처리 필수
+
+위임전결규정(2026년):
+플랫폼총괄 산하(플랫폼사업부문, 유럽/태국사업본부, 글로벌콘텐츠본부, 기술부문):
+- 100만원 이상: 대표이사 결재 필수
+- MG/RS: 업무기안 완료시 전표는 본부장까지
+- 작가선지급: 업무기안+전표 모두 대표이사 결재
+커머스/사업지원 총괄 산하(커머스, 스토리웨어, 영상콘텐츠, 콘텐츠본부, 경영지원):
+- 기존 결재라인 유지
+위임전결규정 문의: 경영기획팀으로 문의. 관련 게시글: https://portal.kidaristudio.com/app/board/300/post/6104
+
+전표 결재라인:
+- 100만원 이상: 현업→팀장→본부장→부문장→대표이사 / 수신: 회계팀담당자→회계팀장
+- 100만원 미만: 현업→팀장 / 수신: 회계팀담당자→회계팀장
+- 수신자 누락시 전표 확인 및 지급처리 불가
+
+결재선 설정: 위임전결규정에 따라 진행. 관련 게시글: https://portal.kidaristudio.com/app/board/300/post/6104
+반려 주요 사유: 작성일자 오류, 관리항목 누락, 부가세 미처리, 위임전결규정 미준수, 업무기안 없이 전표만, 수신자 누락
+계정과목: 복리후생비(임직원식대·경조사비), 접대비(거래처식사·선물), 여비교통비(출장·택시), 소모품비, 교육훈련비, 지급수수료(외주), 광고선전비
+
+=== 거래처/계좌 등록 ===
+신규 등록:
+1. 중복 확인: 거래처정보조회 → 거래처구분 '전체'로 변경 후 검색
+2. 구분: 주요(사업자번호O), 개인(내/외국인), 외국법인, 기타
+3. 주요 등록: 통합거래처등록요청 → 사업자정보 → 거래조건'통합' → 계좌정보(주요사용:YES) → 저장 → 전자결재
+4. 첨부: 사업자등록증+계좌사본. 최초등록시 계약기안 링크 필수
+5. 결재라인: 본인→팀장→재무기획팀(키다리:김나영M/레진:김성준M)→심우성팀장
+※ 거래처구분 잘못 설정시 전자결재 완료 후에도 미등록됨
+
+개인(작가 등): 거래처명=신분증 성명. 원천세 업종구분 필수: 작가=화가관련(940200), 번역등=기타자영업(940909)
+
+계좌 등록: 거래처계좌정보신청 메뉴. 국내-통장사본 첨부. 해외-SWIFT CODE 11자리(8자리면 뒤에 XXX 추가), 영문으로 수취인명/수취은행명/계좌/주소 입력.
+
+기등록 수정: 그룹웨어 '거래처 및 계좌 정보 등록(변경)' 기안, 비고란에 거래처코드 기입.
+
+=== 세금/세무 ===
+부가세 신고: 1기예정 4/25, 1기확정 7/25, 2기예정 10/25, 2기확정 다음해1/25. 담당: 김재용팀장
+원천세: 키다리=박찬민(정)/고수희(부) (*4월 신고분(5월)부터), 레진=오민지(정)/민지영(부)
+세금계산서: 매출정산시스템 사용 필수, 거래처 사전 조율 필수, 마감 영업일 4일차
+
+=== 경비/정산 ===
+경비정산: 영수증 수집→업무기안→전표 직접 입력→결재 상신
+해외출장비: 출장기안 완료 후 여비교통비 처리. 해외법인은 회계팀 담당자 별도처리.
+급여: 매월 25일. 정산: 매월 마감 공지 따라 안내.
+경조사비: 복리후생비, 영수증/청첩장 첨부.
+예산: 배정·잔액 문의는 경영기획팀.
+
+=== 경영기획팀 문의사항 ===
+1. 예산 배정 및 잔액 문의: 회계팀은 전표 승인만 담당하므로, 예산 배정·잔액 관련 문의는 반드시 경영기획팀을 통해 사전 협의 후 집행
+2. 법인카드 예산 편성 및 잔액 문의: 모든 법인카드 예산 편성 및 잔액 관련 문의는 경영기획팀으로 문의
+
+=== 2026년 3월 결산 마감공지 (전사 공통) ===
+[마감 일정]
+- 법인카드 전표: 2026년 4월 3일(금) (전표기표일: 3/31, 카카오T 내역 포함 필수, 인사발령 대상자는 발령 전 처리 필수)
+- 매출·매입 전표: 2026년 4월 7일(화) (매출정산시스템 사용 필수, 거래처 세금계산서 사전 조율 필수)
+
+[마감 지연 시 처리]
+- 기한을 넘긴 건은 '지연 건'으로 집계되어 해당 사업부장 책임으로 경영진에 별도 보고
+- '몰랐다', '늦게 전달받았다' 등의 사유는 면책 근거로 인정되지 않음
+- 마감 이후 제출된 전표는 가기표(임시 금액)로 처리되며, 실제 확정금액과의 차이는 익월에 반영
+- 마감 이후 대금 지급은 4월이 아닌 4월 이후로 자동 이연됨 (대금 지급 지연)
+- 기한 내 상신 자체가 없었던 건만 '지연'으로 집계 (상신 후 반려 → 재상신은 지연 아님)
+
+[세금계산서 발행 및 사전 조율]
+- 3월 귀속분 세금계산서가 3월분으로 발행되도록 거래처와 사전 협의 필수
+- 마감 기한: 4월 7일(화)까지 발행/수령 완료
+- "세금계산서가 아직 안 나와서요"는 결산 지연 사유로 인정되지 않음
+
+[마감 일정 준수 불가 시 사전 협의 절차 (마감일 이전에 완료)]
+① 사유 명확히 작성 → ② 해당 사업부장 참조(CC) 포함 → ③ 회계팀과 협의
+
+[전표 처리 기준]
+- 매출 전표: 매출정산시스템 사용 필수 (MD, 오퍼월 등 일부 제외), 5월부터 내부 검증 절차 강화
+- 매입 전표: 해당 사업부에서 직접 입력 (신규/기존 거래 포함)
+- 외주사 전표: 피네스트(구 웰레이드)에서 전사 마감일에 맞춰 처리
+
+[적용 법인]
+- 키다리스튜디오, 레진엔터테인먼트: 매출정산시스템 및 더존 ERP10 사용
+- 레진US, 레진JP, 델리툰: 업무기안 후 회계팀 담당자가 별도 전표 처리 (한국 법인과 다른 ERP 사용)
+
+[법인카드 비용 처리 유의사항]
+- 점심식대(복리후생비-점심식대지원): 1인당 일 최대 12,000원 한도, 함께 식사한 인원별로 금액 분할 기재, 관리항목(사원) 값도 인원별 각각 입력
+- 2인 이상 식사 1명 결제 시: 적요란에 "인원수 / 참석자 성명" 필수 기재
+- 법인카드 오사용 및 점심식대 한도 초과분: "미수금-직원" 처리 후 회사 계좌로 입금
+  · 키다리스튜디오: 신한 140-011-702347
+  · 레진엔터테인먼트: 기업 065-109533-04-104
+- 개인카드 사용 불가
+- 레진 법인카드 재발급 시: 반드시 회계팀 담당자 및 재무기획팀 김성준 매니저에게 알릴 것 (수기 ERP 등록 필요)
+- 카카오T 내역: ERP10 [법인카드거래내역] 메뉴에서 '사용자이관여부' 체크 후 조회
+
+[전표 결재 라인]
+- 법인카드 전표: 기안자(사업부) → 팀장 승인(기안자가 팀장이면 본부장 승인) → 회계팀 법인카드 담당자 수신 → 회계팀장 결재
+- 매출/매입 전표: 업무기안(위임전결 득) 후 전표에 첨부 필수 (해외 법인은 업무기안 필수)
+- 문의: 반드시 본인 부서 담당 회계팀원에게 먼저 문의 후 상신 (결재 지연 방지)
+
+=== 기타 ===
+급여명세서: 매월 지급일 그룹웨어 발송. 담당: 최은아M
+해촉/연재증명서: 담당 회계팀원에게 요청.
+IPS/정산시스템: 레진-김민정(B)M, 키다리/DELITOON-남우영M
+인사/복지: 인재문화팀. 법무/계약: 법무팀. IT/시스템: IT개발팀.
+[변경 예정 사항 - 4월 결산부터]
+- 글로벌콘텐츠부(미주/아시아/유럽/현지화/원고관리팀): 최은아 → 오민지로 변경
+- 웹툰사업부(국내/IP프로듀싱/해외사업팀): 고수희 → 박찬민으로 변경
+- 원천세/예술인고용보험: 키다리/레진 모두 4월 신고분(5월)부터 담당자 변경
+- 부가세: 1기 예정 신고부터 변경
+- 원고료(국내/해외유통) R&R: 정산담당자 확인하면서 4월 중 재배분 예정`;
+
+const catContexts = {
+  home:'', card:'[법인카드 관련 질문] ', voucher:'[전표/결산 관련 질문] ',
+  vendor:'[거래처/계좌 등록 관련 질문] ', tax:'[세금/세무 관련 질문] ',
+  expense:'[경비/정산 관련 질문] ', manager:'[담당자 찾기] ', etc:'[기타 문의] '
 };
 
-/* ─────────────────────────────────────────
-   Q&A 규칙
-───────────────────────────────────────── */
-const qaRules = [
+const catQuicks = {
+  home:    ['법인카드 전표 입력 방법','결산 마감 일정','거래처 등록 방법','위임전결규정 알려줘','담당자 찾기','세금계산서 발행'],
+  card:    ['ERP10 전표 입력 방법','법인카드 전표 검증','재발급/분실신고','한도 상향 신청','카카오T 택시 처리','미수금 처리'],
+  voucher: ['전표 처리 방법','결산 마감 일정','위임전결규정','결재라인 설정 방법','전표 반려 처리','회계일자 기준'],
+  vendor:  ['거래처 등록 방법','개인 거래처 등록','계좌 등록','중복 사업자번호 오류','기등록 거래처 수정'],
+  tax:     ['세금계산서 발행','부가세 신고 일정','원천세 담당자'],
+  expense: ['경비정산 방법','해외출장비 처리','정기 지급 일정','경조사비 처리'],
+  manager: ['전체 담당자 목록 알려줘','봄툰사업부 담당자','기술부문 담당자','법인카드 담당자'],
+  etc:     ['급여명세서 문의','해촉 증명서 발급','IPS 시스템 문의','예산단위 오류'],
+};
 
-  /* == 법인카드 == */
-  {
-    cat: 'card',
-    keys: ['erp10 전표','법인카드 전표 입력','전표 입력 방법','법인카드거래내역','erp 전표','카드 전표 입력','법인카드 전표'],
-    answer: '💳 <strong>ERP10 법인카드 전표 입력 방법</strong><br><br>' +
-      '<strong>① 화면 접속</strong><br>ERP10 로그인 → 검색창에 <strong>\'법인카드거래내역\'</strong> 입력 후 접속<br><br>' +
-      '<strong>② 사용자 검색</strong><br>돋보기 버튼 클릭 → <strong>사용자이관여부 체크 ✓ 필수</strong> (카카오T 내역 반영)<br>사원명 입력 → 선택 → 적용<br><br>' +
-      '<strong>③ 카드번호 검색</strong><br>돋보기 버튼 클릭 → 카드번호 선택 → 적용<br><br>' +
-      '<strong>④ 이용 내역 조회</strong><br>조회 조건 입력 → 조회 버튼 클릭<br><br>' +
-      '<strong>⑤ 전표 입력 (건별)</strong><br>상대계정처리유형 선택 → 적요 / <strong>회계일자 = 카드 사용 월의 말일자</strong> / 비용센터 입력<br><br>' +
-      '<strong>⑥ 전표 입력 (일괄)</strong><br>여러 건 선택 → 회계일자·상대계정·부가세구분·비용센터·적요 입력 후 적용<br>• 부가세/봉사료구분: <strong>\'부가세미처리/봉사료미처리\'</strong> 선택<br><br>' +
-      '<strong>⑦ 부가세 처리</strong><br>불공제여부 선택 ✓ / 공통매입여부 선택 ✗<br><br>' +
-      '<strong>⑧ 전표 처리</strong><br>내역 선택 → 저장 → 전표 버튼 → 전표처리 → <strong>일괄 전표처리 권장</strong><br><br>' +
-      '<strong>⑨ 분할 처리</strong><br>건 선택 → 추가기능 → 분할처리 → 추가 → 금액 분할 → 차이 \'0원\' 확인 → 적용<br><br>' +
-      '<strong>⑩ 전자결재 상신</strong><br>\'전표조회승인\' 메뉴 → 조회 → 전표 선택 → 결재 버튼<br><br>' +
-      '<strong>⑪ 전표 취소</strong><br>전표처리 YES 조회 → 전표버튼 → 전표취소' +
-      '<div class="step-box">📋 결재라인: 기안자 → 팀장 승인 → 수신: <strong>회계팀 법인카드 담당자 → 회계팀장</strong></div>'
-  },
-  {
-    cat: 'card',
-    keys: ['법인카드 재발급','카드 재발급','카드재발급','분실신고','카드 분실','카드분실','법인카드 분실'],
-    answer: '🔒 <strong>법인카드 재발급 / 분실신고</strong><br><br>' +
-      '<strong>1. 재발급 소요 기간</strong><br>• 신한카드: 재무기획팀 접수 후 약 <strong>7영업일</strong> 소요<br>• 삼성카드: 개인 기명식이므로 <strong>삼성카드 홈페이지</strong>에서 직접 신청<br><br>' +
-      '<strong>2. 담당자</strong><br>• 키다리법인 카드: <strong>유지수 매니저</strong><br>• 레진법인 카드: <strong>김민정(B) 매니저</strong><br><br>' +
-      '<strong>3. 레진 카드 재발급 시 주의</strong><br>반드시 <strong>재무기획팀 김성준 매니저</strong>에게 알려주세요.<br>수기로 ERP에 새로 등록해야 카드 내역 및 전표처리 가능합니다.' +
-      '<div class="info-box">⚠️ 분실 시 먼저 카드사에 분실신고 후, 재무기획팀에 연락해 주세요</div>'
-  },
-  {
-    cat: 'card',
-    keys: ['법인카드 한도','카드 한도','한도 상향','한도초과','한도 초과'],
-    answer: '💳 <strong>법인카드 한도 안내</strong><br><br>' +
-      '<strong>한도 조회</strong><br>• 신한카드: 재무기획팀 담당자에게 문의<br>• 삼성카드: 스마트폰 앱에서 직접 확인<br><br>' +
-      '<strong>한도 상향 신청</strong><br>그룹웨어 기안 → <strong>\'법인카드 한도 상향 신청\'</strong> 작성<br>신청 사유, 금액, 근거를 명확히 기재' +
-      '<div class="info-box">담당자: 키다리 - 김나영M / 레진 - 김성준M (재무기획팀)</div>'
-  },
-  {
-    cat: 'card',
-    keys: ['인터넷결제','인터넷 결제','카드 비밀번호','카드비밀번호'],
-    answer: '💳 <strong>법인카드 인터넷결제 / 비밀번호</strong><br><br>재무기획팀 담당자에게 문의해주세요.<br><br>담당: <strong>키다리 - 김나영M / 레진 - 김성준M</strong>'
-  },
-  {
-    cat: 'card',
-    keys: ['미수금','미수금 잔액','잔액확인'],
-    answer: '💳 <strong>법인카드 미수금</strong><br><br>전표 입력 시 <strong>거래처명을 본인 성명</strong>으로 입력해 주세요.<br><br>예산 편성 및 잔액 관련 문의는 <strong>경영기획팀</strong>으로 문의 바랍니다.'
-  },
-  {
-    cat: 'card',
-    keys: ['후불교통','후불교통카드','교통카드'],
-    answer: '🚇 <strong>후불교통카드</strong><br><br>법인카드 내 후불교통 기능 관련 문의는 재무기획팀 담당자에게 연락해 주세요.<br><br>담당: <strong>키다리 - 유지수 매니저 / 레진 - 김민정(B) 매니저</strong>'
-  },
-  {
-    cat: 'card',
-    keys: ['카카오t','카카오티','택시','카카오 택시'],
-    answer: '🚕 <strong>카카오T 택시 내역 처리</strong><br><br>' +
-      '전표 입력 시 <strong>사용자이관여부 체크 ✓ 필수</strong><br><br>' +
-      '① ERP10 → 법인카드거래내역 접속<br>' +
-      '② 사용자 검색 돋보기 클릭<br>' +
-      '③ <strong>사용자이관여부 체크 ✓</strong> (미체크 시 카카오T 내역 조회 안 됨)<br>' +
-      '④ 사원명 입력 → 선택 → 적용<br>' +
-      '⑤ 이후 일반 전표 입력과 동일하게 진행'
-  },
-  {
-    cat: 'card',
-    keys: ['결제취소','취소건','부분취소','전체취소'],
-    answer: '❌ <strong>결제취소 건 처리</strong><br><br>' +
-      '① ERP10 → 법인카드거래내역 접속<br>' +
-      '② 조회 조건에서 전표처리 <strong>YES</strong> 선택<br>' +
-      '③ 취소할 거래내역 선택<br>' +
-      '④ 전표 버튼 클릭 → <strong>전표취소</strong><br><br>' +
-      '담당: <strong>키다리 - 유지수 매니저 / 레진 - 김민정(B) 매니저</strong>'
-  },
-  {
-    cat: 'card',
-    keys: ['점심식대','식대','밥값','식비'],
-    answer: '🍱 <strong>식대 처리</strong><br><br>' +
-      '• 업무 관련 식사: <strong>복리후생비</strong><br>' +
-      '• 거래처 접대성 식사: <strong>접대비</strong><br><br>' +
-      '적요란에 참석 인원 및 목적 기재 필수<br><br>' +
-      '담당: <strong>키다리 - 유지수 매니저 / 레진 - 김민정(B) 매니저</strong>'
-  },
-
-  /* == 전표/결산 == */
-  {
-    cat: 'voucher',
-    keys: ['전표처리','전표 처리','전표입력','전표 입력','전표 작성','전표 방법'],
-    answer: '📄 <strong>전표 처리 기본 방법</strong><br><br>' +
-      '<strong>원칙</strong><br>내부회계관리규정에 따라 <strong>각 사업부에서 손익 발생 전표를 직접 입력</strong><br><br>' +
-      '<strong>필수 확인사항</strong><br>' +
-      '• 작성일자 정확히 입력<br>' +
-      '• 관리항목(비용센터 등) 누락 없이 입력<br>' +
-      '• 부가세 항목 확인<br>' +
-      '• 위임전결규정에 따른 업무기안 사전 결재 완료 여부<br><br>' +
-      '<strong>매출 전표</strong>: 매출정산시스템 사용 필수<br>' +
-      '<strong>매입 전표</strong>: 해당 사업부에서 직접 입력' +
-      '<div class="info-box">⚠️ 익숙하지 않은 전표는 상신 전 저장 후 회계팀에 검토 요청하세요</div>'
-  },
-  {
-    cat: 'voucher',
-    keys: ['결산','결산 마감','마감 일정','결산마감','월결산','마감 공지'],
-    answer: '📅 <strong>결산 마감 일정 (전사 공통)</strong><br><br>' +
-      '<table><tr><th>구분</th><th>마감 기한</th><th>비고</th></tr>' +
-      '<tr><td><strong>법인카드 전표</strong></td><td>영업일 기준 <strong>3일차</strong></td><td>전월 마지막 사용 내역, 카카오T 내역 포함 필수</td></tr>' +
-      '<tr><td><strong>매출·매입 전표</strong></td><td>영업일 기준 <strong>4일차</strong></td><td>매출정산시스템 필수, 거래처 세금계산서 사전 조율</td></tr></table><br>' +
-      '<strong>마감 지연 시</strong><br>' +
-      '• \'지연 건\'으로 집계 → <strong>해당 사업부장 책임</strong>으로 경영진 별도 보고<br>' +
-      '• \'몰랐다\', \'늦게 전달받았다\' 등 사유는 면책 인정 안 됨<br>' +
-      '• 상신 후 반려된 건 재상신은 지연으로 집계되지 않음<br><br>' +
-      '<strong>해외 법인 (레진US, 레진JP, 델리툰)</strong><br>' +
-      '업무기안 후 회계팀 담당자가 별도 전표 처리' +
-      '<div class="info-box">⚠️ 인사발령 대상자의 경우 발령 전 법인카드 처리 필수</div>'
-  },
-  {
-    cat: 'voucher',
-    keys: ['위임전결','전결규정','위임전결규정','결재기준','플랫폼 총괄','커머스 총괄','100만원','대표이사 결재'],
-    answer: '📋 <strong>위임전결규정 (2026년 기준)</strong><br><br>' +
-      '<strong>▶ 플랫폼 총괄 각자대표 산하</strong><br>' +
-      '<span class="tag">플랫폼사업부문</span><span class="tag">유럽/태국사업본부</span><span class="tag">글로벌콘텐츠본부</span><span class="tag">기술부문</span><br>' +
-      '→ <strong>100만원 이상: 대표이사 결재 필수</strong><br>' +
-      '• MG/RS 지급: 기존 업무기안 완료 시 전표는 본부장까지<br>' +
-      '• 작가 선지급: 업무기안 대표이사 결재 완료 후 전표도 대표이사 결재 필<br><br>' +
-      '<strong>▶ 커머스/사업지원 총괄 산하</strong><br>' +
-      '<span class="tag">커머스사업본부</span><span class="tag">스토리웨어사업본부</span><span class="tag">영상콘텐츠사업본부</span><span class="tag">콘텐츠본부</span><span class="tag">경영지원본부</span><br>' +
-      '→ <strong>기존 결재라인 유지</strong><br><br>' +
-      '<strong>▶ 전표 결재라인</strong><br>' +
-      '<table><tr><th>구분</th><th>결재</th><th>수신</th></tr>' +
-      '<tr><td>100만원 이상</td><td>현업→팀장→본부장→부문장→대표이사</td><td>회계팀담당자→회계팀장</td></tr>' +
-      '<tr><td>100만원 미만</td><td>현업→팀장</td><td>회계팀담당자→회계팀장</td></tr></table>' +
-      '<div class="info-box">⚠️ 수신자에 회계팀 담당자 누락 시 전표 확인 및 지급처리 불가<br>전결규정 문의: 경영관리팀 / 전표 결재라인 문의: 회계팀</div>'
-  },
-  {
-    cat: 'voucher',
-    keys: ['결재선 설정','결재선 즐겨찾기','그룹웨어 결재','결재선 등록','결재 즐겨찾기','결재선'],
-    answer: '⚙️ <strong>그룹웨어 결재선 즐겨찾기 설정</strong><br><br>' +
-      '<strong>경로</strong>: 그룹웨어 → 전자결재 → 결재정보(상단) → 결재선 설정 팝업<br><br>' +
-      '① 업무/전결규정에 맞는 결재선으로 작성<br>' +
-      '② 즐겨찾기 등록 버튼 클릭<br>' +
-      '③ 이후 기안 작성 시 즐겨찾기에서 불러오기<br><br>' +
-      '<strong>결재 단계 정의</strong><br>' +
-      '• <strong>합의</strong>: 적정성·리스크 검토·승인 (의사결정 권한 보유)<br>' +
-      '• <strong>수신</strong>: 실제 처리·집행 단계<br>' +
-      '• <strong>참조</strong>: 결과를 사후 인지하는 단계' +
-      '<div class="info-box">합의는 최종 전결권자 이전 단계에 배치, 전결권자 이후에는 합의 두지 않음</div>'
-  },
-  {
-    cat: 'voucher',
-    keys: ['회계일자','회계일','전표 일자','전표일자','작성일자'],
-    answer: '📅 <strong>회계일자 입력 기준</strong><br><br>' +
-      '<strong>법인카드 전표</strong><br>→ 회계일자 = <strong>카드 사용 월의 말일자</strong><br>예) 1월 사용분 → 1/31, 2월 사용분 → 2/28<br><br>' +
-      '<strong>매출/매입 전표</strong><br>→ 해당 거래 발생일 기준<br><br>' +
-      '불공제여부: 선택 ✓ / 공통매입여부: 선택 ✗'
-  },
-  {
-    cat: 'voucher',
-    keys: ['기안 반려','전표 반려','반려','반려 사유','전표가 반려'],
-    answer: '↩️ <strong>전표/기안 반려 처리</strong><br><br>' +
-      '<strong>주요 반려 사유</strong><br>' +
-      '• 작성일자 오류<br>' +
-      '• 관리항목(비용센터 등) 누락<br>' +
-      '• 부가세 항목 미처리<br>' +
-      '• 위임전결규정 미준수<br>' +
-      '• 업무기안 없이 전표만 단독 작성<br>' +
-      '• 결재라인 수신자에 회계팀 담당자 누락<br><br>' +
-      '반려 사유 확인 후 수정 → 재상신 (재상신은 지연으로 집계되지 않음)'
-  },
-  {
-    cat: 'voucher',
-    keys: ['경조사','경조사비','경조금','축의금','조의금','출장일비'],
-    answer: '🎁 <strong>경조사비 / 출장일비</strong><br><br>' +
-      '• 계정과목: <strong>복리후생비</strong><br>' +
-      '• 사업부에서 직접 전표 처리<br>' +
-      '• 영수증 또는 청첩장/부고 첨부 필요<br><br>' +
-      '담당: 본인 사업부 담당 회계팀원'
-  },
-  {
-    cat: 'voucher',
-    keys: ['계정과목','계정 선택','어떤 계정','회계계정'],
-    answer: '📊 <strong>계정과목 선택 가이드</strong><br><br>' +
-      '• <strong>복리후생비</strong>: 임직원 식대, 경조사비<br>' +
-      '• <strong>접대비</strong>: 거래처 식사·선물<br>' +
-      '• <strong>여비교통비</strong>: 출장비, 택시비<br>' +
-      '• <strong>소모품비</strong>: 사무용품<br>' +
-      '• <strong>교육훈련비</strong>: 세미나, 교육 수강<br>' +
-      '• <strong>지급수수료</strong>: 외주 용역비<br>' +
-      '• <strong>광고선전비</strong>: 광고, 홍보물<br><br>' +
-      '불확실한 경우 상신 전 저장 후 담당 회계팀원에게 검토 요청하세요.'
-  },
-
-  /* == 거래처/계좌 == */
-  {
-    cat: 'vendor',
-    keys: ['거래처등록','거래처 등록','신규 거래처','통합거래처','거래처 추가','거래처 신규'],
-    answer: '🏢 <strong>거래처 등록 방법 (신규)</strong><br><br>' +
-      '<strong>STEP 1. 중복 확인 (필수)</strong><br>' +
-      'ERP → \'거래처정보조회\' → 거래처구분 <strong>\'전체\'</strong>로 변경 → 검색<br><br>' +
-      '<strong>STEP 2. 거래처 구분 선택</strong><br>' +
-      '<table><tr><th>구분</th><th>해당 대상</th></tr>' +
-      '<tr><td>주요 (사업자번호O)</td><td>법인, 개인사업자 (사업자번호 있는 경우)</td></tr>' +
-      '<tr><td>개인 (내/외국인)</td><td>주민등록번호 있는 개인 (작가 등)</td></tr>' +
-      '<tr><td>외국법인</td><td>해외 법인</td></tr>' +
-      '<tr><td>기타</td><td>위 해당 없는 경우</td></tr></table><br>' +
-      '<strong>STEP 3. 등록 (주요)</strong><br>' +
-      '\'통합거래처등록요청\' → 추가 → 사업자정보 입력 → 거래조건: <strong>\'통합\'</strong> → 계좌정보(주요사용 YES) → 저장 → 전자결재 상신<br><br>' +
-      '<strong>STEP 4. 전자결재 상신</strong><br>' +
-      '• <strong>사업자등록증 + 계좌사본</strong> 필수 첨부<br>' +
-      '• 최초 등록: <strong>계약기안 링크 첨부 필수</strong> (내부회계 감사 목적)<br><br>' +
-      '<strong>결재라인</strong>: 본인 → 팀장 → 재무기획팀 (<strong>키다리: 김나영M / 레진: 김성준M</strong>) → 심우성 팀장' +
-      '<div class="info-box">⚠️ 거래처구분 잘못 설정 시 전자결재 완료 후에도 등록되지 않습니다!</div>'
-  },
-  {
-    cat: 'vendor',
-    keys: ['개인 거래처','작가 등록','개인 등록','주민번호 등록'],
-    answer: '👤 <strong>개인 거래처 등록 (작가 등)</strong><br><br>' +
-      '• 거래처명 = 신분증 상 성명<br>' +
-      '• 내/외국인 구분 선택<br>' +
-      '• 주민번호 입력 (외국인 공란 → 999-99-99999 자동 생성)<br><br>' +
-      '<strong>원천세정보 (필수)</strong><br>' +
-      '• 업종구분 선택 필수<br>' +
-      '  - 작가: <strong>화가관련 (940200)</strong><br>' +
-      '  - 번역 등 외주자: <strong>기타자영업 (940909)</strong><br>' +
-      '• 작가 필명은 비고란에 입력<br><br>' +
-      '결재라인: 본인 → 팀장 → 재무기획팀 (<strong>키다리: 김나영M / 레진: 김성준M</strong>) → 심우성 팀장'
-  },
-  {
-    cat: 'vendor',
-    keys: ['기등록 거래처','거래처 수정','거래처 변경','거래처 정보 수정'],
-    answer: '✏️ <strong>기등록 거래처 정보 수정</strong><br><br>' +
-      '① \'거래처정보조회\' 에서 해당 거래처 확인<br>' +
-      '② 그룹웨어 → "거래처 및 계좌 정보 등록(변경)" 기안 작성<br>' +
-      '③ 비고란에 <strong>거래처코드 기입</strong><br>' +
-      '④ 변경 증빙 첨부 (사업자등록증 / 변경요청공문)<br><br>' +
-      '결재라인: 본인 → 팀장 → 재무기획팀 담당자 → 심우성 팀장'
-  },
-  {
-    cat: 'vendor',
-    keys: ['계좌등록','계좌 등록','계좌 추가','계좌정보','거래처 계좌'],
-    answer: '🏦 <strong>계좌 등록 방법</strong><br><br>' +
-      'ERP → <strong>\'거래처계좌정보신청\'</strong> 메뉴<br><br>' +
-      '<strong>국내 계좌</strong><br>' +
-      '돋보기로 거래처 검색 → 추가 → 계좌 입력 (주요사용: YES) → 저장 → 전자결재 (통장사본 첨부)<br><br>' +
-      '<strong>해외 계좌 (SWIFT 송금) — 영문 필수 입력</strong><br>' +
-      '• 환종코드 / 국가코드<br>' +
-      '• <strong>SWIFT CODE — 반드시 11자리</strong> (8자리 코드면 뒤에 \'XXX\' 추가)<br>' +
-      '  예) WFBIUS6S → WFBIUS6SXXX<br>' +
-      '• 수취인명 / 수취은행명 / 수취은행계좌 / 수취은행주소<br><br>' +
-      '결재라인: 본인 → 팀장 → 재무기획팀 → 심우성 팀장' +
-      '<div class="info-box">⚠️ 해외 계좌 미작성 항목이 있으면 송금 불가합니다</div>'
-  },
-  {
-    cat: 'vendor',
-    keys: ['사업자번호 중복','중복 오류','사업자 중복','주민번호 중복','거래처 중복','중복된 사업자'],
-    answer: '⚠️ <strong>중복된 사업자번호/주민번호 오류</strong><br><br>' +
-      '<strong>원인</strong><br>' +
-      '키레델ERP는 키다리와 레진이 통합거래처를 사용합니다.<br>' +
-      '키다리에서 등록한 거래처는 레진에서 \'회사 미등록 거래처\'로 관리되어 중복 오류 발생<br><br>' +
-      '<strong>해결 방법</strong><br>' +
-      '재무기획팀 담당자에게 <strong>이메일로</strong> 등록거래처 변경 요청<br>' +
-      '• 키다리 담당: <strong>이홍주 매니저</strong><br>' +
-      '• 레진 담당: <strong>서보미 매니저</strong>'
-  },
-  {
-    cat: 'vendor',
-    keys: ['klin','s2 동기화','거래처 동기화','시스템 반영','거래처 조회 안'],
-    answer: '🔄 <strong>KLIN / 거래처 시스템 동기화</strong><br><br>' +
-      '전자결재 승인 후 시스템 반영까지 시간이 소요될 수 있습니다.<br><br>' +
-      '즉시 반영이 필요한 경우 담당 회계팀원에게 문의해 주세요.<br><br>' +
-      '담당: <strong>키다리 - 김나영M / 레진 - 김성준M</strong>'
-  },
-
-  /* == 세금/세무 == */
-  {
-    cat: 'tax',
-    keys: ['세금계산서','계산서 발행','계산서발행','세금계산서 수정','세금계산서 발행'],
-    answer: '🧾 <strong>세금계산서 발행 / 수정</strong><br><br>' +
-      '• 매출 전표 처리 시 매출정산시스템 사용 필수<br>' +
-      '• 거래처와 세금계산서 수수 <strong>사전 조율 필수</strong><br>' +
-      '• 마감 기한: 영업일 기준 4일차<br><br>' +
-      '<strong>수정세금계산서</strong><br>' +
-      '발행 오류 또는 계약 변경 시 → 담당 회계팀원에게 문의<br><br>' +
-      '담당: 본인 사업부 담당 회계팀원'
-  },
-  {
-    cat: 'tax',
-    keys: ['부가세','부가가치세','부가세 신고','부가세 일정','vat'],
-    answer: '💰 <strong>부가세 (VAT) 안내</strong><br><br>' +
-      '<strong>부가세 신고 일정</strong><br>' +
-      '• 1기 예정: <strong>4월 25일</strong><br>' +
-      '• 1기 확정: <strong>7월 25일</strong><br>' +
-      '• 2기 예정: <strong>10월 25일</strong><br>' +
-      '• 2기 확정: <strong>다음해 1월 25일</strong><br><br>' +
-      '<strong>전표 입력 시 부가세 처리</strong><br>' +
-      '• 불공제여부: 선택 ✓ / 공통매입여부: 선택 ✗<br><br>' +
-      '담당: <strong>김재용 팀장</strong> (세무조정 / 부가세)'
-  },
-  {
-    cat: 'tax',
-    keys: ['원천징수영수증','지급명세서','원천징수','원천세 신고'],
-    answer: '📑 <strong>원천징수 / 지급명세서</strong><br><br>' +
-      '• 원천징수영수증: 매년 2월 중 연말정산 완료 후 발급<br>' +
-      '• 근로소득 지급명세서: 3월 10일<br>' +
-      '• 사업소득 지급명세서: 2월 말일<br><br>' +
-      '담당: <strong>최은아 매니저</strong> (급여 / 원천세)'
-  },
-
-  /* == 경비/정산 == */
-  {
-    cat: 'expense',
-    keys: ['경비정산','경비 정산','비용정산','지출결의'],
-    answer: '💸 <strong>경비정산 방법</strong><br><br>' +
-      '① 지출 관련 영수증/증빙 수집<br>' +
-      '② 해당 업무기안 결재 완료<br>' +
-      '③ ERP에서 전표 직접 입력<br>' +
-      '④ 결재 상신<br><br>' +
-      '담당: 본인 사업부 담당 회계팀원'
-  },
-  {
-    cat: 'expense',
-    keys: ['해외출장','출장 정산','해외출장비','해외 출장'],
-    answer: '✈️ <strong>해외출장비 처리</strong><br><br>' +
-      '① 출장 업무기안 결재 완료 (사전)<br>' +
-      '② 출장 후 영수증 수집<br>' +
-      '③ 사업부에서 직접 전표 처리<br>' +
-      '④ 계정과목: <strong>여비교통비</strong><br><br>' +
-      '<strong>해외 법인(레진US, 레진JP, 델리툰) 관련</strong><br>' +
-      '업무기안 후 회계팀 담당자가 별도 전표 처리<br><br>' +
-      '담당: 본인 사업부 담당 회계팀원'
-  },
-  {
-    cat: 'expense',
-    keys: ['정기지급일','지급일','지급 날짜','입금 확인','대금 지급','정기 지급'],
-    answer: '📆 <strong>정기 지급 일정</strong><br><br>' +
-      '• 급여: 매월 <strong>25일</strong><br>' +
-      '• 정산 지급: 매월 마감 공지에 따라 안내<br><br>' +
-      '정확한 지급 일정은 담당 회계팀원에게 문의해 주세요.<br>' +
-      '담당: 본인 사업부 담당 회계팀원'
-  },
-
-  /* == 기타 == */
-  {
-    cat: 'etc',
-    keys: ['급여명세서','급여 명세서','급여 문의','월급 명세서'],
-    answer: '💴 <strong>급여명세서</strong><br><br>' +
-      '급여명세서는 매월 급여 지급일에 그룹웨어를 통해 발송됩니다.<br><br>' +
-      '담당: <strong>최은아 매니저</strong> (급여 / 원천세)'
-  },
-  {
-    cat: 'etc',
-    keys: ['해촉증명서','연재증명서','위촉증명서','작가 증명서','증명서 발급'],
-    answer: '📜 <strong>해촉 / 연재 증명서 발급</strong><br><br>' +
-      '① 담당 회계팀원에게 발급 요청<br>' +
-      '② 필요 정보 제공: 성명, 연재 기간, 용도<br><br>' +
-      '담당: 본인 사업부 담당 회계팀원'
-  },
-  {
-    cat: 'etc',
-    keys: ['ips','ips 승인','ips 시스템','정산 오픈','정산 일정','정산유형'],
-    answer: '🖥️ <strong>IPS / 정산 시스템</strong><br><br>' +
-      '• 레진 정산: <strong>김민정(B) 매니저</strong><br>' +
-      '• 키다리 / DELITOON 정산: <strong>남우영 매니저</strong>'
-  },
-  {
-    cat: 'etc',
-    keys: ['예산단위','예산 단위','예산 초과','예산이 초과','예산단위가 안'],
-    answer: '📊 <strong>예산단위 / 예산 관련 문의</strong><br><br>' +
-      '예산 배정 및 잔액 관련 문의는 반드시 <strong>경영기획팀</strong>을 통해 사전 협의 후 집행<br><br>' +
-      '• 회계팀은 전표 승인만 담당 (예산 배정·잔액 문의는 경영기획팀)<br>' +
-      '• 사전 협의 없이 마감 이후 제출된 건은 가기표(임시 금액) 처리될 수 있음'
-  },
-  {
-    cat: 'etc',
-    keys: ['인사','복리후생','휴가','연차','복지','채용'],
-    answer: '👥 해당 문의는 <strong>인재문화팀</strong>으로 연락해 주세요.'
-  },
-  {
-    cat: 'etc',
-    keys: ['법무','계약','법률','소송','nda'],
-    answer: '⚖️ 계약/법무 관련 문의는 <strong>법무팀</strong>으로 연락해 주세요.'
-  },
-  {
-    cat: 'etc',
-    keys: ['it','시스템 오류','서버','vpn','계정 발급'],
-    answer: '💻 IT/시스템 관련 문의는 <strong>IT개발팀</strong>으로 연락해 주세요.'
-  },
-];
-
-/* ─────────────────────────────────────────
-   상태 / 사이드바
-───────────────────────────────────────── */
+/* ─────────────────────────────────────
+   상태
+───────────────────────────────────── */
+const API_KEY = ['sk-ant-api03-xg21NE6hc56Ijbfk6E9Zqmy','DczNZqxGOHen7QLYuLmbUiwkDI0QvShHURLDw','gqlfbrAltF8CtXpLX4QaMFIqNg-1oOvuAAA'].join('');
+let currentDept = localStorage.getItem('dept') || 'unknown';
+let isLoading = false;
+let chatHistory = [];
 let currentCat = 'home';
-const catLabels = { home:'전체', card:'법인카드', voucher:'전표/결산', vendor:'거래처/계좌', tax:'세금/세무', expense:'경비/정산', manager:'담당자 찾기', etc:'기타' };
+const CLAUDE_MODEL = 'claude-haiku-4-5-20251001';
 
+/* ─────────────────────────────────────
+   부서 선택
+───────────────────────────────────── */
+function saveDept() {
+  currentDept = document.getElementById('deptSelect').value;
+  localStorage.setItem('dept', currentDept);
+}
+
+function initDept() {
+  const sel = document.getElementById('deptSelect');
+  sel.value = currentDept;
+}
+
+/* ─────────────────────────────────────
+   사이드바
+───────────────────────────────────── */
 function toggleSidebar() {
   document.getElementById('sidebar').classList.toggle('open');
   document.getElementById('overlay').classList.toggle('show');
@@ -618,118 +600,177 @@ function closeSidebar() {
   document.getElementById('sidebar').classList.remove('open');
   document.getElementById('overlay').classList.remove('show');
 }
-function selectCat(el, cat) {
+function setContext(el, cat) {
   document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
   el.classList.add('active');
   currentCat = cat;
-  document.getElementById('category-badge').textContent = catLabels[cat];
+  const catLabel = {
+    home:'무엇이든 물어보세요', card:'법인카드', voucher:'전표/결산',
+    vendor:'거래처/계좌', tax:'세금/세무', expense:'경비/정산',
+    manager:'담당자 찾기', etc:'기타'
+  }[cat];
+  document.getElementById('topbar-sub').textContent = catLabel;
   renderQuicks(cat);
   closeSidebar();
-  if (cat === 'manager') showManagerUI();
+
+  // 홈이 아닌 카테고리 선택 시 채팅창에 자주 묻는 질문 말풍선으로 표시
+  if (cat !== 'home') {
+    const btns = catQuicks[cat] || [];
+    const btnHtml = btns.map(t =>
+      '<button onclick="handleQ(\'' + t.replace(/'/g,"\\'") + '\')" style="display:inline-block;background:#eff6ff;border:1px solid #bfdbfe;color:#1d4ed8;font-size:12.5px;padding:6px 12px;border-radius:20px;cursor:pointer;margin:3px 4px 3px 0;font-family:inherit;white-space:nowrap;">✦ ' + t + '</button>'
+    ).join('');
+    addMsg('<strong>' + catLabel + '</strong> 관련 자주 묻는 질문:<br><div style="margin-top:8px;line-height:2.2;">' + btnHtml + '</div>', 'bot');
+  }
 }
 
-/* ─────────────────────────────────────────
+/* ─────────────────────────────────────
+   대화 초기화
+───────────────────────────────────── */
+function clearChat() {
+  chatHistory = [];
+  document.getElementById('chatArea').innerHTML = '';
+  addMsg('대화 기록이 초기화됐습니다. 새로 질문해주세요! 😊', 'bot');
+  closeSidebar();
+}
+
+/* ─────────────────────────────────────
    퀵버튼
-───────────────────────────────────────── */
+───────────────────────────────────── */
 function renderQuicks(cat) {
-  const btns = catQuicks[cat] || catQuicks['home'];
+  const btns = catQuicks[cat] || catQuicks.home;
   document.getElementById('quickBtns').innerHTML = btns.map(t =>
     '<button class="qbtn" onclick="handleQ(\'' + t.replace(/'/g,"\\'") + '\')">✦ ' + t + '</button>'
   ).join('');
 }
 
-/* ─────────────────────────────────────────
-   채팅
-───────────────────────────────────────── */
+/* ─────────────────────────────────────
+   채팅 UI
+───────────────────────────────────── */
 const chatArea = document.getElementById('chatArea');
-const userInput = document.getElementById('userInput');
 
 function addMsg(html, type) {
   const div = document.createElement('div');
   div.className = 'msg ' + type;
-  if (type === 'bot') {
-    div.innerHTML = '<div class="avatar">🤖</div><div class="bubble">' + html + '</div>';
-  } else {
-    div.innerHTML = '<div class="bubble">' + html + '</div><div class="avatar" style="background:#6b7280">👤</div>';
-  }
+  const avatarBg = type === 'user' ? '#6b7280' : '#2563eb';
+  const avatarIcon = type === 'user' ? '👤' : '✨';
+  const bR = type === 'user' ? '16px 4px 16px 16px' : '4px 16px 16px 16px';
+  const bg = type === 'user' ? '#2563eb' : '#fff';
+  const color = type === 'user' ? '#fff' : '#1f2937';
+  const shadow = type === 'bot' ? 'box-shadow:0 1px 3px rgba(0,0,0,0.08);' : '';
+  div.innerHTML = type === 'user'
+    ? '<div class="bubble" style="background:' + bg + ';color:' + color + ';border-radius:' + bR + ';' + shadow + '">' + html + '</div><div class="avatar" style="background:' + avatarBg + '">' + avatarIcon + '</div>'
+    : '<div class="avatar" style="background:' + avatarBg + '">' + avatarIcon + '</div><div class="bubble" style="background:' + bg + ';color:' + color + ';border-radius:' + bR + ';' + shadow + '">' + html + '</div>';
   chatArea.appendChild(div);
   chatArea.scrollTop = chatArea.scrollHeight;
 }
 
+function addTyping() {
+  const div = document.createElement('div');
+  div.className = 'msg bot'; div.id = 'typing-ind';
+  div.innerHTML = '<div class="avatar" style="background:#2563eb">✨</div><div class="bubble" style="background:#fff;border-radius:4px 16px 16px 16px;box-shadow:0 1px 3px rgba(0,0,0,0.08)"><div class="typing-dots"><span></span><span></span><span></span></div></div>';
+  chatArea.appendChild(div);
+  chatArea.scrollTop = chatArea.scrollHeight;
+}
+function removeTyping() { const el = document.getElementById('typing-ind'); if(el) el.remove(); }
+
+/* ─────────────────────────────────────
+   메시지 전송
+───────────────────────────────────── */
 function handleSend() {
-  const q = userInput.value.trim();
-  if (!q) return;
-  addMsg(q, 'user');
-  userInput.value = '';
-  setTimeout(function(){ processQ(q); }, 200);
+  const q = document.getElementById('userInput').value.trim();
+  if (!q || isLoading) return;
+  document.getElementById('userInput').value = '';
+  sendMessage(q);
 }
-
 function handleQ(q) {
-  addMsg(q, 'user');
-  setTimeout(function(){ processQ(q); }, 200);
+  if (q === '법인카드 전표 검증') {
+    window.open('https://script.google.com/macros/s/AKfycbxKtozN3XDxldlqsExjJ9D5dx994oe08llIlkaQoOVE3wKW8vgQ6oOYJIr8l7djcuBMig/exec', '_blank');
+    return;
+  }
+  if (!isLoading) sendMessage(q);
 }
+document.getElementById('userInput').addEventListener('keydown', function(e) { if (e.key === 'Enter') handleSend(); });
 
-userInput.addEventListener('keydown', function(e){ if (e.key === 'Enter') handleSend(); });
+async function sendMessage(text) {
+  addMsg(text, 'user');
 
-/* ─────────────────────────────────────────
-   응답 처리
-───────────────────────────────────────── */
-function processQ(q) {
-  var lq = q.toLowerCase().replace(/\s+/g,' ');
+  const contextPrefix = catContexts[currentCat] || '';
+  chatHistory.push({ role: 'user', content: contextPrefix + text });
 
-  if (lq.includes('전체 담당자') || lq.includes('담당자 목록') || lq.includes('전체 보기')) {
-    showAllManagers(); return;
-  }
-  if (lq.includes('담당자') || lq.includes('누구') || lq.includes('연락처')) {
-    var m = findManager(lq);
-    if (m) { addMsg('📌 <strong>' + m.area + '</strong> 담당자는<br>➡️ <strong>' + m.name + '</strong> 입니다.', 'bot'); return; }
-  }
+  isLoading = true;
+  document.getElementById('sendBtn').disabled = true;
 
-  for (var i = 0; i < qaRules.length; i++) {
-    var rule = qaRules[i];
-    for (var j = 0; j < rule.keys.length; j++) {
-      if (lq.includes(rule.keys[j].toLowerCase())) {
-        addMsg(rule.answer, 'bot'); return;
-      }
+  addTyping();
+
+  if (chatHistory.length > 10) chatHistory = chatHistory.slice(-10);
+
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000);
+
+    let res;
+    try {
+      res = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+          'x-api-key': API_KEY,
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-direct-browser-access': 'true'
+        },
+        signal: controller.signal,
+        body: JSON.stringify({
+          model: CLAUDE_MODEL,
+          max_tokens: 1024,
+          system: SYSTEM_PROMPT,
+          messages: chatHistory
+        })
+      });
+    } catch (fetchErr) {
+      clearTimeout(timeoutId);
+      if (fetchErr.name === 'AbortError') throw new Error('응답 시간 초과(30초). 네트워크 상태를 확인해주세요.');
+      throw new Error('네트워크 오류: 인터넷 연결을 확인해주세요.');
     }
-  }
+    clearTimeout(timeoutId);
 
-  var m2 = findManager(lq);
-  if (m2) { addMsg('📌 <strong>' + m2.area + '</strong> 담당자는<br>➡️ <strong>' + m2.name + '</strong> 입니다.', 'bot'); return; }
+    let data;
+    try { data = await res.json(); } catch (_) { throw new Error('응답 파싱 오류'); }
 
-  addMsg('죄송합니다, 해당 내용을 찾지 못했습니다. 😔<br><br>왼쪽 메뉴에서 카테고리를 선택하거나 직접 문의해 주세요.<br><br>📧 <a href="mailto:accounting_fi@kidaristudio.com" style="color:#2563eb">accounting_fi@kidaristudio.com</a>', 'bot');
-}
-
-function findManager(lq) {
-  for (var i = 0; i < managers.length; i++) {
-    var m = managers[i];
-    for (var j = 0; j < m.keys.length; j++) {
-      if (lq.includes(m.keys[j].toLowerCase())) return m;
+    if (!res.ok) {
+      if (res.status === 429) throw new Error('요청 한도를 초과했습니다. 잠시 후 다시 시도해주세요.');
+      throw new Error(data.error?.message || `API 오류 [${res.status}]`);
     }
+
+    const reply = data.content?.[0]?.text || '응답을 받지 못했습니다.';
+
+    removeTyping();
+    chatHistory.push({ role: 'assistant', content: reply });
+
+    const formatted = reply
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" style="color:#2563eb;text-decoration:underline;">$1</a>')
+      .replace(/\n/g, '<br>');
+    addMsg(formatted, 'bot');
+
+  } catch (err) {
+    removeTyping();
+    chatHistory.pop();
+    addMsg('⚠️ ' + err.message.replace(/\n/g, '<br>'), 'bot');
+  } finally {
+    isLoading = false;
+    document.getElementById('sendBtn').disabled = false;
   }
-  return null;
 }
 
-/* ─────────────────────────────────────────
-   담당자 UI
-───────────────────────────────────────── */
-function showManagerUI() {
-  addMsg('👤 <strong>담당자 찾기</strong><br><br>사업부명을 입력하거나 아래 버튼을 클릭해 주세요.<br><br><button class="qbtn" onclick="showAllManagers()">📋 전체 담당자 보기</button>', 'bot');
-}
-
-function showAllManagers() {
-  var rows = allManagerTable.map(function(r){
-    return '<tr><td>' + r.area + '</td><td style="font-weight:600;color:#1d4ed8;">' + r.name + '</td></tr>';
-  }).join('');
-  addMsg('<strong>📋 사업부별 담당자 (2026.03.16 기준)</strong><br><br><table><tr><th>사업부/담당업무</th><th>담당자</th></tr>' + rows + '</table>', 'bot');
-}
-
-/* ─────────────────────────────────────────
+/* ─────────────────────────────────────
    초기화
-───────────────────────────────────────── */
+───────────────────────────────────── */
 function init() {
-  addMsg('안녕하세요! 👋 <strong>키다리스튜디오 회계팀 챗봇</strong>입니다.<br><br>왼쪽 메뉴에서 카테고리를 선택하거나, 아래 자주 묻는 질문을 눌러주세요.<br>직접 질문을 입력하셔도 됩니다.<br><br><span class="tag">💳 법인카드</span> <span class="tag">📄 전표/결산</span> <span class="tag">🏢 거래처/계좌</span> <span class="tag">🧾 세금/세무</span> <span class="tag">✈️ 경비/정산</span>', 'bot');
+  initDept();
   renderQuicks('home');
+  addMsg('안녕하세요! ✨ <strong>키다리스튜디오 회계팀 AI 챗봇</strong>입니다.<br><br>' +
+    '자연어로 자유롭게 질문하면 AI가 답변합니다.<br>' +
+    '(예: "법인카드 전표 어떻게 올려요?", "봄툰 담당자 누구예요?")', 'bot');
 }
 
 init();
