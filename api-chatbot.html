@@ -603,13 +603,23 @@ function setContext(el, cat) {
   document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
   el.classList.add('active');
   currentCat = cat;
-  document.getElementById('topbar-sub').textContent = {
+  const catLabel = {
     home:'무엇이든 물어보세요', card:'법인카드', voucher:'전표/결산',
     vendor:'거래처/계좌', tax:'세금/세무', expense:'경비/정산',
     manager:'담당자 찾기', etc:'기타'
   }[cat];
+  document.getElementById('topbar-sub').textContent = catLabel;
   renderQuicks(cat);
   closeSidebar();
+
+  // 홈이 아닌 카테고리 선택 시 채팅창에 자주 묻는 질문 말풍선으로 표시
+  if (cat !== 'home') {
+    const btns = catQuicks[cat] || [];
+    const btnHtml = btns.map(t =>
+      '<button onclick="handleQ(\'' + t.replace(/'/g,"\\'") + '\')" style="display:inline-block;background:#eff6ff;border:1px solid #bfdbfe;color:#1d4ed8;font-size:12.5px;padding:6px 12px;border-radius:20px;cursor:pointer;margin:3px 4px 3px 0;font-family:inherit;white-space:nowrap;">✦ ' + t + '</button>'
+    ).join('');
+    addMsg('<strong>' + catLabel + '</strong> 관련 자주 묻는 질문:<br><div style="margin-top:8px;line-height:2.2;">' + btnHtml + '</div>', 'bot');
+  }
 }
 
 /* ─────────────────────────────────────
