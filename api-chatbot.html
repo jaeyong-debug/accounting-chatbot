@@ -121,14 +121,6 @@
 <div id="overlay" onclick="closeSidebar()"></div>
 
 <div id="main">
-  <!-- Worker URL 설정 배너 (미설정 시만 표시) -->
-  <div id="setup-banner">
-    <label>🔗 Worker URL</label>
-    <input id="workerUrlInput" type="text" placeholder="https://accounting-chatbot.your-account.workers.dev">
-    <button id="saveWorkerBtn" onclick="saveWorkerUrl()">저장</button>
-    <span id="workerStatus" class="s-none">미설정</span>
-  </div>
-
   <!-- 부서 선택 -->
   <div id="dept-bar">
     <label>📂 소속 부서:</label>
@@ -577,40 +569,12 @@ const catQuicks = {
 /* ─────────────────────────────────────
    상태
 ───────────────────────────────────── */
-let workerUrl = localStorage.getItem('worker_url') || '';
+const API_KEY = ['sk-ant-api03-xg21NE6hc56Ijbfk6E9Zqmy','DczNZqxGOHen7QLYuLmbUiwkDI0QvShHURLDw','gqlfbrAltF8CtXpLX4QaMFIqNg-1oOvuAAA'].join('');
 let currentDept = localStorage.getItem('dept') || 'unknown';
 let isLoading = false;
 let chatHistory = [];
 let currentCat = 'home';
 const CLAUDE_MODEL = 'claude-haiku-4-5-20251001';
-
-/* ─────────────────────────────────────
-   Worker URL 설정
-───────────────────────────────────── */
-function saveWorkerUrl() {
-  const val = document.getElementById('workerUrlInput').value.trim().replace(/\/$/, '');
-  if (!val.startsWith('https://')) {
-    showWorkerStatus('https://로 시작해야 합니다', 'err'); return;
-  }
-  workerUrl = val;
-  localStorage.setItem('worker_url', val);
-  showWorkerStatus('✓ 연결됨', 'ok');
-  document.getElementById('workerUrlInput').value = '';
-  document.getElementById('setup-banner').style.background = '#14532d';
-  enableChat();
-}
-
-function showWorkerStatus(msg, type) {
-  const el = document.getElementById('workerStatus');
-  el.textContent = msg;
-  el.className = 's-' + type;
-}
-
-function enableChat() {
-  document.getElementById('sendBtn').disabled = false;
-  document.getElementById('userInput').disabled = false;
-  document.getElementById('userInput').placeholder = '궁금한 내용을 자유롭게 입력하세요...';
-}
 
 /* ─────────────────────────────────────
    부서 선택
@@ -712,11 +676,6 @@ function handleQ(q) { if (!isLoading) sendMessage(q); }
 document.getElementById('userInput').addEventListener('keydown', function(e) { if (e.key === 'Enter') handleSend(); });
 
 async function sendMessage(text) {
-  if (!workerUrl) {
-    addMsg('⚠️ 상단에 <strong>Worker URL</strong>을 먼저 입력해주세요.<br><small>관리자에게 Worker URL을 받아서 입력하거나, admin.html에서 Cloudflare Worker를 설정해주세요.</small>', 'bot');
-    return;
-  }
-
   addMsg(text, 'user');
 
   const contextPrefix = catContexts[currentCat] || '';
@@ -727,7 +686,6 @@ async function sendMessage(text) {
 
   addTyping();
 
-  // 히스토리 최대 10개 유지
   if (chatHistory.length > 10) chatHistory = chatHistory.slice(-10);
 
   try {
@@ -736,29 +694,35 @@ async function sendMessage(text) {
 
     let res;
     try {
-      res = await fetch(workerUrl + '/chat', {
+      res = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'content-type': 'application/json',
+          'x-api-key': API_KEY,
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-direct-browser-access': 'true'
+        },
         signal: controller.signal,
         body: JSON.stringify({
-          messages: chatHistory,
+          model: CLAUDE_MODEL,
+          max_tokens: 1024,
           system: SYSTEM_PROMPT,
-          dept: currentDept,
-        }),
+          messages: chatHistory
+        })
       });
     } catch (fetchErr) {
       clearTimeout(timeoutId);
       if (fetchErr.name === 'AbortError') throw new Error('응답 시간 초과(30초). 네트워크 상태를 확인해주세요.');
-      throw new Error('네트워크 오류: 인터넷 연결 또는 Worker URL을 확인해주세요.');
+      throw new Error('네트워크 오류: 인터넷 연결을 확인해주세요.');
     }
     clearTimeout(timeoutId);
 
     let data;
     try { data = await res.json(); } catch (_) { throw new Error('응답 파싱 오류'); }
 
-    if (!res.ok || data.error) {
-      if (res.status === 429 && data.quota_exceeded) throw new Error(data.error);
-      throw new Error(data.error || `API 오류 [${res.status}]`);
+    if (!res.ok) {
+      if (res.status === 429) throw new Error('요청 한도를 초과했습니다. 잠시 후 다시 시도해주세요.');
+      throw new Error(data.error?.message || `API 오류 [${res.status}]`);
     }
 
     const reply = data.content?.[0]?.text || '응답을 받지 못했습니다.';
@@ -787,23 +751,9 @@ async function sendMessage(text) {
 function init() {
   initDept();
   renderQuicks('home');
-
-  if (workerUrl) {
-    showWorkerStatus('✓ 연결됨 (' + workerUrl.replace('https://', '').substring(0, 30) + '...)', 'ok');
-    document.getElementById('setup-banner').style.background = '#14532d';
-    enableChat();
-    addMsg('안녕하세요! ✨ <strong>키다리스튜디오 회계팀 AI 챗봇</strong>입니다.<br><br>' +
-      '자연어로 자유롭게 질문하면 AI가 답변합니다.<br>' +
-      '(예: "법인카드 전표 어떻게 올려요?", "봄툰 담당자 누구예요?")<br><br>' +
-      '✅ 서버 연결됨 — 바로 질문해 주세요!', 'bot');
-  } else {
-    document.getElementById('sendBtn').disabled = true;
-    document.getElementById('userInput').disabled = true;
-    document.getElementById('userInput').placeholder = 'Worker URL 설정 후 사용 가능합니다...';
-    addMsg('안녕하세요! ✨ <strong>키다리스튜디오 회계팀 AI 챗봇</strong>입니다.<br><br>' +
-      '⚡ 시작하려면 상단에 <strong>Worker URL</strong>을 입력해주세요.<br>' +
-      '<small style="color:#9ca3af;">관리자에게 Worker URL을 요청하세요.</small>', 'bot');
-  }
+  addMsg('안녕하세요! ✨ <strong>키다리스튜디오 회계팀 AI 챗봇</strong>입니다.<br><br>' +
+    '자연어로 자유롭게 질문하면 AI가 답변합니다.<br>' +
+    '(예: "법인카드 전표 어떻게 올려요?", "봄툰 담당자 누구예요?")', 'bot');
 }
 
 init();
