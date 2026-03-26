@@ -697,24 +697,84 @@ async function decryptApiKey(password) {
   return new TextDecoder().decode(plain);
 }
 
+/* ─────────────────────────────────────
+   보안: 브루트포스 방어
+   - 5회 오류 시 10분 잠금
+   - 세션당 최대 30회 API 호출 제한
+   - 비활성 2시간 후 자동 잠금
+───────────────────────────────────── */
+const LOCK_MAX_ATTEMPTS = 5;
+const LOCK_DURATION_MS  = 10 * 60 * 1000; // 10분
+const SESSION_MAX_CALLS = 30;             // 세션당 최대 호출 수
+const AUTO_LOCK_MS      = 2 * 60 * 60 * 1000; // 2시간
+
+let failCount     = parseInt(sessionStorage.getItem('failCount') || '0');
+let lockedUntil   = parseInt(sessionStorage.getItem('lockedUntil') || '0');
+let sessionCalls  = parseInt(sessionStorage.getItem('sessionCalls') || '0');
+let autoLockTimer = null;
+
+function resetAutoLock() {
+  clearTimeout(autoLockTimer);
+  autoLockTimer = setTimeout(() => {
+    API_KEY = null;
+    document.getElementById('lockScreen').classList.remove('hidden');
+    document.getElementById('lockError').textContent = '장시간 미사용으로 자동 잠금됐습니다.';
+    setTimeout(() => document.getElementById('lockInput').focus(), 100);
+  }, AUTO_LOCK_MS);
+}
+
+function isRateLocked() {
+  if (Date.now() < lockedUntil) return true;
+  if (lockedUntil && Date.now() >= lockedUntil) {
+    // 잠금 해제
+    failCount = 0;
+    lockedUntil = 0;
+    sessionStorage.setItem('failCount', '0');
+    sessionStorage.setItem('lockedUntil', '0');
+  }
+  return false;
+}
+
 async function unlock() {
-  const pw = document.getElementById('lockInput').value;
-  if (!pw) return;
-  const btn = document.getElementById('lockBtn');
+  const pw    = document.getElementById('lockInput').value.trim();
+  const btn   = document.getElementById('lockBtn');
   const errEl = document.getElementById('lockError');
+  if (!pw) return;
+
+  // 잠금 상태 확인
+  if (isRateLocked()) {
+    const remaining = Math.ceil((lockedUntil - Date.now()) / 60000);
+    errEl.textContent = `비밀번호 오류가 많아 ${remaining}분 후에 다시 시도하세요.`;
+    return;
+  }
+
   btn.disabled = true;
   btn.textContent = '확인 중...';
   errEl.textContent = '';
+
   try {
     API_KEY = await decryptApiKey(pw);
-    // 복호화 검증 (sk-ant-api03 으로 시작하는지 확인)
     if (!API_KEY.startsWith('sk-ant-api03')) throw new Error('wrong');
-    // 7일간 세션 유지 (비밀번호 자체는 저장 안 함)
-    sessionStorage.setItem('unlocked', '1');
+
+    // 성공 → 실패 카운터 초기화
+    failCount = 0;
+    sessionStorage.setItem('failCount', '0');
+    sessionStorage.setItem('lockedUntil', '0');
     document.getElementById('lockScreen').classList.add('hidden');
+    resetAutoLock(); // 자동 잠금 타이머 시작
+
   } catch {
     API_KEY = null;
-    errEl.textContent = '비밀번호가 틀렸습니다. 다시 입력해주세요.';
+    failCount++;
+    sessionStorage.setItem('failCount', String(failCount));
+
+    if (failCount >= LOCK_MAX_ATTEMPTS) {
+      lockedUntil = Date.now() + LOCK_DURATION_MS;
+      sessionStorage.setItem('lockedUntil', String(lockedUntil));
+      errEl.textContent = `비밀번호 ${LOCK_MAX_ATTEMPTS}회 오류. 10분간 잠금됩니다.`;
+    } else {
+      errEl.textContent = `비밀번호가 틀렸습니다. (${failCount}/${LOCK_MAX_ATTEMPTS}회)`;
+    }
     btn.disabled = false;
     btn.textContent = '입력';
     document.getElementById('lockInput').value = '';
@@ -865,8 +925,16 @@ document.getElementById('userInput').addEventListener('keydown', function(e) { i
 async function sendMessage(text) {
   if (!API_KEY) {
     document.getElementById('lockScreen').classList.remove('hidden');
+    setTimeout(() => document.getElementById('lockInput').focus(), 100);
     return;
   }
+  // 세션당 최대 호출 제한
+  if (sessionCalls >= SESSION_MAX_CALLS) {
+    addMsg(`⚠️ 이 세션에서 최대 ${SESSION_MAX_CALLS}회 질문에 도달했습니다. 페이지를 새로고침 후 다시 로그인해주세요.`, 'bot');
+    return;
+  }
+  // 활동 감지 → 자동 잠금 타이머 리셋
+  resetAutoLock();
   addMsg(text, 'user');
 
   const contextPrefix = catContexts[currentCat] || '';
@@ -921,6 +989,15 @@ async function sendMessage(text) {
     removeTyping();
     chatHistory.push({ role: 'assistant', content: reply });
 
+    // 호출 카운터 증가
+    sessionCalls++;
+    sessionStorage.setItem('sessionCalls', String(sessionCalls));
+    // 남은 횟수 경고
+    if (sessionCalls >= SESSION_MAX_CALLS - 5) {
+      const left = SESSION_MAX_CALLS - sessionCalls;
+      if (left > 0) addMsg(`💡 이 세션에서 ${left}회 질문이 남았습니다.`, 'bot');
+    }
+
     const formatted = reply
       .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
       .replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" style="color:#2563eb;text-decoration:underline;">$1</a>')
@@ -949,6 +1026,12 @@ function init() {
   // 잠금 화면 표시 (API_KEY 없으면)
   if (!API_KEY) {
     document.getElementById('lockScreen').classList.remove('hidden');
+    // 잠금 중이면 버튼 비활성화 및 안내
+    if (isRateLocked()) {
+      const remaining = Math.ceil((lockedUntil - Date.now()) / 60000);
+      document.getElementById('lockError').textContent = `비밀번호 오류 초과. ${remaining}분 후 재시도 가능합니다.`;
+      document.getElementById('lockBtn').disabled = true;
+    }
     setTimeout(() => document.getElementById('lockInput').focus(), 100);
   }
 }
