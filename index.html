@@ -8,6 +8,35 @@
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif; background: #f0f2f5; display: flex; height: 100vh; overflow: hidden; }
 
+    /* ── 잠금 화면 ── */
+    #lockScreen {
+      position: fixed; inset: 0; z-index: 9999;
+      background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%);
+      display: flex; align-items: center; justify-content: center;
+    }
+    #lockScreen.hidden { display: none; }
+    .lock-box {
+      background: #1a2236; border: 1px solid #2d3a50; border-radius: 16px;
+      padding: 40px 36px; width: 340px; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    }
+    .lock-icon { font-size: 42px; margin-bottom: 12px; }
+    .lock-title { color: #fff; font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+    .lock-sub { color: #8b9ab5; font-size: 13px; margin-bottom: 28px; }
+    .lock-input {
+      width: 100%; padding: 12px 16px; background: #0f172a; border: 1px solid #2d3a50;
+      border-radius: 8px; color: #fff; font-size: 15px; font-family: inherit;
+      outline: none; margin-bottom: 12px; text-align: center; letter-spacing: 2px;
+    }
+    .lock-input:focus { border-color: #5ba8ff; }
+    .lock-btn {
+      width: 100%; padding: 12px; background: #2563eb; border: none; border-radius: 8px;
+      color: #fff; font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit;
+      transition: background 0.2s;
+    }
+    .lock-btn:hover { background: #1d4ed8; }
+    .lock-btn:disabled { background: #374151; cursor: not-allowed; }
+    .lock-error { color: #ef4444; font-size: 12.5px; margin-top: 10px; min-height: 18px; }
+
     #sidebar { width: 220px; min-width: 220px; background: #1a2236; display: flex; flex-direction: column; transition: transform 0.3s; z-index: 100; }
     #sidebar-header { padding: 18px 16px 14px; background: #111827; border-bottom: 1px solid #2d3a50; }
     #sidebar-header .logo { color: #fff; font-size: 15px; font-weight: 700; }
@@ -101,6 +130,19 @@
   </style>
 </head>
 <body>
+
+<!-- 잠금 화면 -->
+<div id="lockScreen">
+  <div class="lock-box">
+    <div class="lock-icon">🔐</div>
+    <div class="lock-title">키다리스튜디오 회계팀 챗봇</div>
+    <div class="lock-sub">사내 비밀번호를 입력해주세요</div>
+    <input type="password" class="lock-input" id="lockInput" placeholder="••••••••••" maxlength="30"
+      onkeydown="if(event.key==='Enter')unlock()">
+    <button class="lock-btn" id="lockBtn" onclick="unlock()">입력</button>
+    <div class="lock-error" id="lockError"></div>
+  </div>
+</div>
 
 <nav id="sidebar">
   <div id="sidebar-header">
@@ -629,7 +671,56 @@ const catQuicks = {
 /* ─────────────────────────────────────
    상태
 ───────────────────────────────────── */
-const API_KEY = ['sk-ant-api03-xg21NE6hc56Ijbfk6E9Zqmy','DczNZqxGOHen7QLYuLmbUiwkDI0QvShHURLDw','gqlfbrAltF8CtXpLX4QaMFIqNg-1oOvuAAA'].join('');
+/* ── 암호화된 API 키 (AES-256-GCM + PBKDF2) ── */
+const ENC = {
+  salt: "3GOBUrCQZDsyyHu0I+3ugw==",
+  iv:   "WftVIwFfSCtGi9/K",
+  ct:   "CeFJZaR4cNkbpVYIqRvx/rsmkeAmREwPvDHeznmKpmMiLveaC/P+JhiTIZ6kZywLycLfp5UbBHeH90qZ4sXBQdlnzwMOlfKqVvvgq9igneff25E/CZuu1Log0NzEvwSgGzf0hF5HE0XpEvBuder9YOoHbPjsPdZSPPbVRg=="
+};
+let API_KEY = null; // 비밀번호 입력 후 복호화되어 메모리에만 존재
+
+function b64ToBytes(b64) {
+  return Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+}
+
+async function decryptApiKey(password) {
+  const enc = new TextEncoder();
+  const keyMat = await crypto.subtle.importKey('raw', enc.encode(password), 'PBKDF2', false, ['deriveKey']);
+  const aesKey = await crypto.subtle.deriveKey(
+    { name: 'PBKDF2', salt: b64ToBytes(ENC.salt), iterations: 100000, hash: 'SHA-256' },
+    keyMat, { name: 'AES-GCM', length: 256 }, false, ['decrypt']
+  );
+  const plain = await crypto.subtle.decrypt(
+    { name: 'AES-GCM', iv: b64ToBytes(ENC.iv) },
+    aesKey, b64ToBytes(ENC.ct)
+  );
+  return new TextDecoder().decode(plain);
+}
+
+async function unlock() {
+  const pw = document.getElementById('lockInput').value;
+  if (!pw) return;
+  const btn = document.getElementById('lockBtn');
+  const errEl = document.getElementById('lockError');
+  btn.disabled = true;
+  btn.textContent = '확인 중...';
+  errEl.textContent = '';
+  try {
+    API_KEY = await decryptApiKey(pw);
+    // 복호화 검증 (sk-ant-api03 으로 시작하는지 확인)
+    if (!API_KEY.startsWith('sk-ant-api03')) throw new Error('wrong');
+    // 7일간 세션 유지 (비밀번호 자체는 저장 안 함)
+    sessionStorage.setItem('unlocked', '1');
+    document.getElementById('lockScreen').classList.add('hidden');
+  } catch {
+    API_KEY = null;
+    errEl.textContent = '비밀번호가 틀렸습니다. 다시 입력해주세요.';
+    btn.disabled = false;
+    btn.textContent = '입력';
+    document.getElementById('lockInput').value = '';
+    document.getElementById('lockInput').focus();
+  }
+}
 let currentDept = localStorage.getItem('dept') || 'unknown';
 let isLoading = false;
 let chatHistory = [];
@@ -772,6 +863,10 @@ function handleQ(q) {
 document.getElementById('userInput').addEventListener('keydown', function(e) { if (e.key === 'Enter') handleSend(); });
 
 async function sendMessage(text) {
+  if (!API_KEY) {
+    document.getElementById('lockScreen').classList.remove('hidden');
+    return;
+  }
   addMsg(text, 'user');
 
   const contextPrefix = catContexts[currentCat] || '';
@@ -851,6 +946,11 @@ function init() {
   addMsg('안녕하세요! ✨ <strong>키다리스튜디오 회계팀 AI 챗봇</strong>입니다.<br><br>' +
     '자연어로 자유롭게 질문하면 AI가 답변합니다.<br>' +
     '(예: "법인카드 전표 어떻게 올려요?", "봄툰 담당자 누구예요?")', 'bot');
+  // 잠금 화면 표시 (API_KEY 없으면)
+  if (!API_KEY) {
+    document.getElementById('lockScreen').classList.remove('hidden');
+    setTimeout(() => document.getElementById('lockInput').focus(), 100);
+  }
 }
 
 init();
